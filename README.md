@@ -2,8 +2,8 @@
 
 ## Integrantes:
 - Kevin Alexander Marin - 202160364
-- Pablo Nicolas Marin Gonzalez -  202459440
--
+- Pablo Nicolas Marin Gonzalez - 202459440
+- Carlos Fernando Padilla Mesa - 202059962
 -
 -
 - Este es el espacio para colocar sus nombres
