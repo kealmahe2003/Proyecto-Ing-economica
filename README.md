@@ -1,7 +1,7 @@
 # Proyecto-Ing-economica
 
 ## Integrantes:
-Kevin Alexander Marin - 202160364
+- Kevin Alexander Marin - 202160364
 -
 -
 -
