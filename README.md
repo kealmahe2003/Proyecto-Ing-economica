@@ -2,7 +2,7 @@
 
 ## Integrantes:
 - Kevin Alexander Marin - 202160364
--
+- Pablo Nicolas Marin Gonzalez -  202459440
 -
 -
 -
