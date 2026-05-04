@@ -6,6 +6,7 @@
 - Carlos Fernando Padilla Mesa - 202059962
 - Santiago Velasquez Bedoya - 202380378
 - Kevin Steven Rico Gonzalez - 202411024
+- Miguel Angel Sanclemente Mejia - 202459488
 - Este es el espacio para colocar sus nombres
 -
 -
