@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMath: Simulador de Interés</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
+        input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #bdc3c7; }
+        .results { display: flex; justify-content: space-around; text-align: center; margin-top: 20px; }
+        .res-box { padding: 15px; border-radius: 10px; color: white; width: 40%; }
+        .simple { background: #3498db; }
+        .compuesto { background: #27ae60; }
+        canvas { margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>EcoMath Interactive</h1>
+    <p style="text-align:center">Visualiza el impacto económico real: Interés Simple vs. Compuesto</p>
+
+    <div class="controls">
+        <div>
+            <label>Capital Inicial ($P$)</label>
+            <input type="number" id="capital" value="1000" oninput="updateChart()">
+        </div>
+        <div>
+            <label>Tasa Anual (%)</label>
+            <input type="number" id="tasa" value="10" oninput="updateChart()">
+        </div>
+        <div>
+            <label>Tiempo (Años)</label>
+            <input type="number" id="tiempo" value="10" oninput="updateChart()">
+        </div>
+    </div>
+
+    <div class="results">
+        <div class="res-box simple">
+            <h3>Interés Simple</h3>
+            <div id="valSimple" style="font-size: 24px; font-weight: bold;">$0</div>
+        </div>
+        <div class="res-box compuesto">
+            <h3>Interés Compuesto</h3>
+            <div id="valCompuesto" style="font-size: 24px; font-weight: bold;">$0</div>
+        </div>
+    </div>
+
+    <canvas id="myChart"></canvas>
+
+    <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; color: #7f8c8d;">
+        <h3>📌 Nota de Ingeniería Económica</h3>
+        <p>Como aprendimos de Newnan y Park, el interés compuesto refleja la <b>capitalización</b> de los intereses, generando un crecimiento exponencial. El interés simple, en cambio, es una función lineal donde solo el capital original genera valor.</p>
+    </div>
+</div>
+
+<script>
+    let chart;
+    function updateChart() {
+        const P = parseFloat(document.getElementById('capital').value);
+        const i = parseFloat(document.getElementById('tasa').value) / 100;
+        const n = parseInt(document.getElementById('tiempo').value);
+
+        const labels = Array.from({length: n + 1}, (_, k) => k);
+        const dataSimple = labels.map(year => P * (1 + i * year));
+        const dataCompuesto = labels.map(year => P * Math.pow(1 + i, year));
+
+        document.getElementById('valSimple').innerText = `$${dataSimple[n].toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('valCompuesto').innerText = `$${dataCompuesto[n].toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Interés Simple (Lineal)',
+                    data: dataSimple,
+                    borderColor: '#3498db',
+                    fill: false
+                }, {
+                    label: 'Interés Compuesto (Exponencial)',
+                    data: dataCompuesto,
+                    borderColor: '#27ae60',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { title: { display: true, text: 'Crecimiento del Valor Futuro (F)' } },
+                scales: { x: { title: { display: true, text: 'Años' } }, y: { title: { display: true, text: 'Monto Total ($)' } } }
+            }
+        });
+    }
+    updateChart();
+</script>
+
+</body>
+</html>
