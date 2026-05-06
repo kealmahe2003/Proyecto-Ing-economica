@@ -7,6 +7,7 @@
 - Santiago Velasquez Bedoya - 202380378
 - Kevin Steven Rico Gonzalez - 202411024
 - Miguel Angel Sanclemente Mejia - 202459488
+- Nini Johanna Cambindo - 2380511
 - Este es el espacio para colocar sus nombres
 -
 -
