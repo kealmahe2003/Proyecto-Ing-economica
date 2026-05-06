@@ -187,7 +187,7 @@ export default function WikiPage() {
             <button key={c} onClick={() => setCat(c)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={c === cat
-                ? { background: 'rgba(0,201,167,0.15)', border: '1px solid rgba(0,201,167,0.4)', color: '#00C9A7' }
+                ? { background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }
                 : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)' }
               }>
               {c}
@@ -204,8 +204,8 @@ export default function WikiPage() {
           </p>
         )}
         {filtered.map(concept => (
-          <div key={concept.id} className="glass-card overflow-hidden transition-all duration-200"
-            style={{ borderColor: expanded === concept.id ? 'rgba(0,201,167,0.3)' : 'var(--border)' }}>
+          <div key={concept.id} className="card overflow-hidden transition-all duration-200"
+            style={{ borderColor: expanded === concept.id ? 'var(--accent-border)' : 'var(--border)' }}>
             <button
               className="w-full flex items-start gap-4 p-5 text-left"
               onClick={() => setExpanded(expanded === concept.id ? null : concept.id)}
@@ -213,7 +213,7 @@ export default function WikiPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs mono uppercase tracking-widest px-2 py-0.5 rounded"
-                    style={{ background: 'rgba(79,124,255,0.1)', color: '#8AABFF', border: '1px solid rgba(79,124,255,0.2)' }}>
+                    style={{ background: 'var(--blue-bg)', color: 'var(--blue)', border: '1px solid var(--blue-border)' }}>
                     {concept.category}
                   </span>
                 </div>
@@ -232,7 +232,7 @@ export default function WikiPage() {
 
                 {concept.formula && (
                   <div className="rounded-xl px-4 py-3 mb-4 mono text-sm"
-                    style={{ background: 'rgba(245,200,66,0.07)', border: '1px solid rgba(245,200,66,0.2)', color: '#F5C842' }}>
+                    style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border)', color: 'var(--gold)' }}>
                     {concept.formula}
                   </div>
                 )}
@@ -243,8 +243,8 @@ export default function WikiPage() {
                       dangerouslySetInnerHTML={{
                         __html: para
                           .replace(/\*\*(.*?)\*\*/g, `<strong style="color:var(--text)">$1</strong>`)
-                          .replace(/•/g, '<span style="color:#00C9A7;margin-right:6px">▸</span>')
-                          .replace(/⚠/g, '<span style="color:#F5C842">⚠</span>')
+                          .replace(/•/g, '<span style="color:var(--accent);margin-right:6px">▸</span>')
+                          .replace(/⚠/g, '<span style="color:var(--gold)">⚠</span>')
                       }}
                     />
                   ))}

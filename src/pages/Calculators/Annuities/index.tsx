@@ -99,7 +99,7 @@ export default function AnnuitiesPage() {
             ['Perpetua', 'La serie no tiene fecha de vencimiento: los pagos continúan para siempre. PV = PMT / i.'],
           ].map(([name, desc]) => (
             <li key={name} className="flex gap-3">
-              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: '#4F7CFF' }}>▸</span>
+              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: 'var(--blue)' }}>▸</span>
               <span><strong style={{ color: 'var(--text)' }}>{name}:</strong> {desc}</span>
             </li>
           ))}
