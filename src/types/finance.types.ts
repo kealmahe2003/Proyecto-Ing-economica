@@ -48,7 +48,8 @@ export interface AmortResult {
   totalInterest: number
   totalPrincipal: number
   rows: AmortRow[]
-  system: 'french' | 'german'
+  system: 'fixed-payment' | 'constant-principal'
+  interestType: 'compound' | 'simple'
   mode: RateMode
 }
 
