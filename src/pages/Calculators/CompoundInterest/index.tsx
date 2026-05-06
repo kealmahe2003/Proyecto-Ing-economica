@@ -49,7 +49,7 @@ export default function CompoundInterestPage() {
         description="Los intereses generados se suman al capital al final de cada período, generando intereses sobre intereses. El dinero crece exponencialmente."
       />
 
-      <Callout color="teal">
+      <Callout color="accent">
         <strong style={{ color: '#fff' }}>La clave:</strong> En interés compuesto, cada período los intereses se
         <em> capitalizan</em> — se agregan al principal. Así, en el período siguiente, los intereses se calculan sobre
         un capital mayor. Esto es lo que genera el crecimiento exponencial y lo que hace tan poderoso al ahorro a largo plazo.
@@ -64,7 +64,7 @@ export default function CompoundInterestPage() {
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <ModeTabs options={MODES} value={mode} onChange={v => { setMode(v as Mode); setResult(null); setError('') }} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -105,24 +105,24 @@ export default function CompoundInterestPage() {
           <FormulaBox formula={`F = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.i * 100, 4)})^${result.n.toFixed(2)} = ${fmtCOP(result.F)}`} />
 
           {chartData.length > 1 && (
-            <div className="glass-card p-5 mt-6">
+            <div className="card p-5 mt-6">
               <p className="text-xs mono uppercase tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
                 Compuesto vs Simple — el poder de la capitalización
               </p>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={chartData} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="n" tick={{ fill: '#6B789A', fontSize: 10, fontFamily: 'JetBrains Mono' }} />
-                  <YAxis width={52} tick={{ fill: '#6B789A', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                  <XAxis dataKey="n" tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }} />
+                  <YAxis width={52} tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                     tickFormatter={v => `$${(v / 1e6).toFixed(1)}M`} />
                   <Tooltip
-                    contentStyle={{ background: '#1C2238', border: '1px solid #252D45', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                    contentStyle={{ background: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
                     formatter={(v: number) => [fmtCOP(v)]}
                     labelFormatter={l => `Período ${l}`}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: '#6B789A' }} />
-                  <Line type="monotone" dataKey="Interés Compuesto" stroke="#00C9A7" strokeWidth={2.5} dot={false} />
-                  <Line type="linear" dataKey="Interés Simple" stroke="#4F7CFF" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--chart-tick)' }} />
+                  <Line type="monotone" dataKey="Interés Compuesto" stroke="var(--chart-1)" strokeWidth={2.5} dot={false} />
+                  <Line type="linear" dataKey="Interés Simple" stroke="var(--chart-2)" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -131,7 +131,7 @@ export default function CompoundInterestPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>La capitalización y el tiempo</h3>
         <p>
           La característica definitoria del interés compuesto es que al final de cada período, los intereses se <strong style={{ color: 'var(--text)' }}>capitalizan</strong>:

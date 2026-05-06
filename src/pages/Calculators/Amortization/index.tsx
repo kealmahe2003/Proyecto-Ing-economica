@@ -48,7 +48,7 @@ export default function AmortizationPage() {
         description="Genera la tabla completa de un crédito: cuotas, intereses, abono a capital y saldo pendiente período a período."
       />
 
-      <Callout color="azure">
+      <Callout color="blue">
         <strong style={{ color: '#fff' }}>Sistema Francés</strong> (el más común en Colombia):
         la cuota es fija durante toda la vida del crédito. Al inicio se paga más interés que capital;
         al final, más capital que interés. <strong style={{ color: '#fff' }}>Sistema Alemán</strong>:
@@ -62,7 +62,7 @@ export default function AmortizationPage() {
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Sistema</p>
@@ -103,7 +103,7 @@ export default function AmortizationPage() {
           </div>
 
           {/* Table */}
-          <div className="glass-card overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
               <p className="text-xs mono uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
                 Tabla de amortización — {rows.length} períodos
@@ -130,7 +130,7 @@ export default function AmortizationPage() {
                       }}>
                       <td className="py-2.5 px-4 text-center mono text-xs" style={{ color: 'var(--muted)' }}>{row.period}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(row.initialBalance)}</td>
-                      <td className="py-2.5 px-4 text-right mono text-xs font-semibold" style={{ color: '#00C9A7' }}>{fmtCOP(row.payment)}</td>
+                      <td className="py-2.5 px-4 text-right mono text-xs font-semibold" style={{ color: 'var(--accent)' }}>{fmtCOP(row.payment)}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: '#FF8A8A' }}>{fmtCOP(row.interest)}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: '#8AABFF' }}>{fmtCOP(row.principal)}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(row.finalBalance)}</td>
@@ -163,7 +163,7 @@ export default function AmortizationPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>¿Qué es amortizar?</h3>
         <p>
           Amortizar significa ir pagando gradualmente una deuda. En cada cuota se paga el <strong style={{ color: 'var(--text)' }}>interés</strong> del

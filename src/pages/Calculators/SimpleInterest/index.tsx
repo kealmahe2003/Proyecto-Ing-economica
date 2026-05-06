@@ -58,7 +58,7 @@ export default function SimpleInterestPage() {
       />
 
       {/* THEORY */}
-      <Callout color="azure">
+      <Callout color="blue">
         <strong style={{ color: '#fff' }}>¿Cómo funciona?</strong> — En interés simple, el rendimiento es proporcional al tiempo y al capital.
         Si tienes $1.000.000 al 2% mensual durante 6 meses, cada mes ganas exactamente $20.000, sin importar el período.
         Total de intereses: $120.000. El dinero crece de forma <em>lineal</em>.
@@ -73,7 +73,7 @@ export default function SimpleInterestPage() {
       <Divider label="Calculadora" />
 
       {/* CALCULATOR */}
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <ModeTabs options={MODES} value={mode} onChange={v => { setMode(v as Mode); setResult(null); setError('') }} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -118,23 +118,23 @@ export default function SimpleInterestPage() {
 
           {/* CHART */}
           {chartData.length > 1 && (
-            <div className="glass-card p-5 mt-6">
+            <div className="card p-5 mt-6">
               <p className="text-xs mono uppercase tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
                 Evolución del capital en el tiempo
               </p>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData} margin={{ left: 8, right: 8, top: 4, bottom: 16 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="n" tick={{ fill: '#6B789A', fontSize: 10, fontFamily: 'JetBrains Mono' }}
-                    label={{ value: `Períodos (${period}s)`, position: 'insideBottom', offset: -10, fill: '#6B789A', fontSize: 10 }} />
-                  <YAxis width={52} tick={{ fill: '#6B789A', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                  <XAxis dataKey="n" tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                    label={{ value: `Períodos (${period}s)`, position: 'insideBottom', offset: -10, fill: 'var(--chart-tick)', fontSize: 10 }} />
+                  <YAxis width={52} tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                     tickFormatter={v => `$${(v / 1e6).toFixed(1)}M`} />
                   <Tooltip
-                    contentStyle={{ background: '#1C2238', border: '1px solid #252D45', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                    contentStyle={{ background: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
                     formatter={(v: number) => [fmtCOP(v), 'Capital']}
                     labelFormatter={l => `Período ${l}`}
                   />
-                  <Line type="linear" dataKey="Interés Simple" stroke="#00C9A7" strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="Interés Simple" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -144,7 +144,7 @@ export default function SimpleInterestPage() {
 
       {/* DEEP THEORY */}
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>¿Cuándo se usa interés simple?</h3>
         <p>
           El interés simple se aplica principalmente en operaciones de <strong style={{ color: 'var(--text)' }}>corto plazo</strong>:
@@ -161,7 +161,7 @@ export default function SimpleInterestPage() {
             ['I (Interés)', 'Rentabilidad o costo financiero total. I = P × i × n.'],
           ].map(([term, def]) => (
             <li key={term} className="flex gap-3">
-              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: '#00C9A7' }}>▸</span>
+              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: 'var(--accent)' }}>▸</span>
               <span><strong style={{ color: 'var(--text)' }}>{term}:</strong> {def}</span>
             </li>
           ))}

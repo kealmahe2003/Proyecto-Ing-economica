@@ -91,7 +91,7 @@ export default function RateConversionPage() {
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <ModeTabs options={CONVERSIONS} value={conv} onChange={v => { setConv(v); setResult(null); setError('') }} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -117,7 +117,7 @@ export default function RateConversionPage() {
               <div className="text-2xl" style={{ color: 'var(--teal)' }}>→</div>
               <div className="flex-1">
                 <p className="text-xs mono uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>{result.outputLabel}</p>
-                <p className="result-number text-2xl" style={{ color: '#00C9A7' }}>{fmtPct(result.outputPct, 6)}</p>
+                <p className="result-number text-2xl" style={{ color: 'var(--accent)' }}>{fmtPct(result.outputPct, 6)}</p>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function RateConversionPage() {
           <FormulaBox formula={result.formula} />
 
           {/* Equivalence matrix */}
-          <div className="glass-card p-5">
+          <div className="card p-5">
             <p className="text-xs mono uppercase tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
               Tabla de equivalencias — todas las tasas equivalentes
             </p>
@@ -134,7 +134,7 @@ export default function RateConversionPage() {
                 <div key={eq.label} className="rounded-xl p-3 text-center"
                   style={{ background: 'rgba(12,15,26,0.8)', border: '1px solid var(--border)' }}>
                   <p className="text-xs mono mb-1" style={{ color: 'var(--muted)' }}>{eq.label}</p>
-                  <p className="text-sm mono font-semibold" style={{ color: '#00C9A7' }}>{fmtPct(eq.pct, 6)}</p>
+                  <p className="text-sm mono font-semibold" style={{ color: 'var(--accent)' }}>{fmtPct(eq.pct, 6)}</p>
                 </div>
               ))}
             </div>
@@ -143,7 +143,7 @@ export default function RateConversionPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>Tasa Nominal vs Tasa Efectiva</h3>
         <p>
           La <strong style={{ color: 'var(--text)' }}>tasa nominal</strong> es una tasa anunciada que no considera la
