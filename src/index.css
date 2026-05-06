@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0C0F1A;
+    --surface: #141828;
+    --surface2: #1C2238;
+    --border: #252D45;
+    --teal: #00C9A7;
+    --gold: #F5C842;
+    --coral: #FF6B6B;
+    --azure: #4F7CFF;
+    --text: #E8EAF2;
+    --muted: #6B789A;
+  }
+
+  * { box-sizing: border-box; }
+  
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(20, 24, 40, 0.8);
+    border: 1px solid rgba(37, 45, 69, 0.8);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+  }
+
+  .formula-badge {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0, 201, 167, 0.08);
+    border: 1px solid rgba(0, 201, 167, 0.2);
+    color: #00C9A7;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.82em;
+  }
+
+  .result-number {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  }
+
+  .input-field {
+    width: 100%;
+    min-height: 44px;
+    background: rgba(12, 15, 26, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    touch-action: manipulation;
+  }
+  .input-field:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.12);
+  }
+  .input-field::placeholder { color: var(--muted); }
+
+  .select-field {
+    width: 100%;
+    min-height: 44px;
+    background: rgba(12, 15, 26, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B789A' fill='none' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+  }
+  .select-field:focus { border-color: var(--teal); }
+  .select-field option { background: #141828; }
+
+  .btn-primary {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #00C9A7 0%, #00A88A 100%);
+    border: none;
+    border-radius: 10px;
+    color: #071A14;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s, transform 0.15s;
+    touch-action: manipulation;
+  }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .section-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: rgba(0, 201, 167, 0.08);
+    border: 1px solid rgba(0, 201, 167, 0.2);
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+  }
+
+  .page-bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-bg-glow {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 15%, rgba(0,201,167,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 85%, rgba(79,124,255,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .display { font-family: 'Fraunces', serif; }
+}
