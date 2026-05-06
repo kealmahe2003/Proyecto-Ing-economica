@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// ============================================================
-// FIELD — labeled input
-// ============================================================
+// ── FIELD ────────────────────────────────────────────────────
 interface FieldProps {
   label: string
   value: string
@@ -35,15 +33,13 @@ export function Field({ label, value, onChange, placeholder, unit, disabled, err
           </span>
         )}
       </div>
-      {error && <p className="text-xs" style={{ color: 'var(--coral)' }}>{error}</p>}
+      {error && <p className="text-xs" style={{ color: 'var(--destructive)' }}>{error}</p>}
       {hint && !error && <p className="text-xs" style={{ color: 'var(--muted)' }}>{hint}</p>}
     </div>
   )
 }
 
-// ============================================================
-// SELECT
-// ============================================================
+// ── SELECT ───────────────────────────────────────────────────
 interface SelectProps {
   label: string
   value: string
@@ -61,9 +57,7 @@ export function Select({ label, value, onChange, options }: SelectProps) {
   )
 }
 
-// ============================================================
-// MODE TABS
-// ============================================================
+// ── MODE TABS ─────────────────────────────────────────────────
 interface ModeTabsProps {
   options: { value: string; label: string }[]
   value: string
@@ -73,11 +67,13 @@ export function ModeTabs({ options, value, onChange }: ModeTabsProps) {
   return (
     <div className="flex flex-wrap gap-1.5 mb-5">
       {options.map(o => (
-        <button key={o.value} onClick={() => onChange(o.value)}
-          className="px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium transition-all duration-150 touch-manipulation"
+        <button
+          key={o.value}
+          onClick={() => onChange(o.value)}
+          className="px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium transition-all duration-150 touch-manipulation cursor-pointer"
           style={value === o.value
-            ? { background: 'rgba(0,201,167,0.15)', border: '1px solid rgba(0,201,167,0.4)', color: '#00C9A7', fontFamily: 'Outfit' }
-            : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', fontFamily: 'Outfit' }
+            ? { background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', color: 'var(--accent)', fontFamily: 'DM Sans' }
+            : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', fontFamily: 'DM Sans' }
           }
         >
           {o.label}
@@ -87,9 +83,7 @@ export function ModeTabs({ options, value, onChange }: ModeTabsProps) {
   )
 }
 
-// ============================================================
-// RESULT CARD
-// ============================================================
+// ── RESULT CARD ───────────────────────────────────────────────
 interface ResultCardProps {
   label: string
   value: string
@@ -98,21 +92,26 @@ interface ResultCardProps {
 }
 export function ResultCard({ label, value, accent, sub }: ResultCardProps) {
   const [visible, setVisible] = useState(false)
-  useEffect(() => { setVisible(false); const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t) }, [value])
+  useEffect(() => {
+    setVisible(false)
+    const t = setTimeout(() => setVisible(true), 30)
+    return () => clearTimeout(t)
+  }, [value])
 
   return (
-    <div className="rounded-2xl p-5 transition-all duration-300"
+    <div
+      className="rounded-xl p-5 transition-all duration-300"
       style={{
-        background: accent ? 'rgba(0,201,167,0.07)' : 'rgba(28,34,56,0.8)',
-        border: `1px solid ${accent ? 'rgba(0,201,167,0.25)' : 'var(--border)'}`,
+        background: accent ? 'var(--accent-bg)' : 'var(--surface2)',
+        border: `1px solid ${accent ? 'var(--accent-border)' : 'var(--border)'}`,
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
       }}
     >
-      <p className="text-xs mono uppercase tracking-widest mb-1" style={{ color: accent ? '#00C9A7' : 'var(--muted)' }}>
+      <p className="text-xs mono uppercase tracking-widest mb-1" style={{ color: accent ? 'var(--accent)' : 'var(--muted)' }}>
         {label}
       </p>
-      <p className="result-number text-2xl sm:text-3xl" style={{ color: accent ? '#00C9A7' : 'var(--text)' }}>
+      <p className="result-number text-2xl sm:text-3xl" style={{ color: accent ? 'var(--accent)' : 'var(--text)' }}>
         {value}
       </p>
       {sub && (
@@ -129,21 +128,19 @@ export function ResultCard({ label, value, accent, sub }: ResultCardProps) {
   )
 }
 
-// ============================================================
-// FORMULA DISPLAY
-// ============================================================
+// ── FORMULA BOX ───────────────────────────────────────────────
 export function FormulaBox({ formula }: { formula: string }) {
   return (
-    <div className="rounded-xl px-4 py-3 text-sm mono overflow-x-auto"
-      style={{ background: 'rgba(245,200,66,0.07)', border: '1px solid rgba(245,200,66,0.2)', color: '#F5C842' }}>
+    <div
+      className="rounded-lg px-4 py-3 text-sm mono overflow-x-auto"
+      style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border)', color: 'var(--gold)' }}
+    >
       <span className="whitespace-nowrap">{formula}</span>
     </div>
   )
 }
 
-// ============================================================
-// PAGE HEADER
-// ============================================================
+// ── PAGE HEADER ───────────────────────────────────────────────
 interface PageHeaderProps {
   chip: string
   title: string
@@ -152,10 +149,8 @@ interface PageHeaderProps {
 export function PageHeader({ chip, title, description }: PageHeaderProps) {
   return (
     <div className="mb-8">
-      <span className="section-chip mb-3 inline-flex">
-        <span>◈</span> {chip}
-      </span>
-      <h1 className="display text-3xl lg:text-4xl font-semibold mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.03em' }}>
+      <span className="section-chip mb-3 inline-flex">{chip}</span>
+      <h1 className="display text-3xl lg:text-4xl font-semibold mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
         {title}
       </h1>
       <p className="text-sm leading-relaxed max-w-xl" style={{ color: 'var(--muted)' }}>
@@ -165,27 +160,25 @@ export function PageHeader({ chip, title, description }: PageHeaderProps) {
   )
 }
 
-// ============================================================
-// INFO CALLOUT
-// ============================================================
-export function Callout({ children, color = 'azure' }: { children: React.ReactNode; color?: 'azure' | 'teal' | 'gold' }) {
-  const colors = {
-    azure: { bg: 'rgba(79,124,255,0.07)', border: 'rgba(79,124,255,0.2)', text: '#8AABFF' },
-    teal: { bg: 'rgba(0,201,167,0.07)', border: 'rgba(0,201,167,0.2)', text: '#00C9A7' },
-    gold: { bg: 'rgba(245,200,66,0.07)', border: 'rgba(245,200,66,0.2)', text: '#F5C842' },
+// ── CALLOUT ───────────────────────────────────────────────────
+export function Callout({ children, color = 'blue' }: { children: React.ReactNode; color?: 'blue' | 'accent' | 'gold' }) {
+  const styles = {
+    blue: { bg: 'var(--blue-bg)', border: 'var(--blue-border)', text: 'var(--blue)' },
+    accent: { bg: 'var(--accent-bg)', border: 'var(--accent-border)', text: 'var(--accent)' },
+    gold: { bg: 'var(--gold-bg)', border: 'var(--gold-border)', text: 'var(--gold)' },
   }
-  const c = colors[color]
+  const s = styles[color]
   return (
-    <div className="rounded-xl px-4 py-3 text-sm leading-relaxed mb-5"
-      style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+    <div
+      className="rounded-lg px-4 py-3 text-sm leading-relaxed mb-5"
+      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.text }}
+    >
       {children}
     </div>
   )
 }
 
-// ============================================================
-// SECTION DIVIDER
-// ============================================================
+// ── DIVIDER ───────────────────────────────────────────────────
 export function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 my-6">
@@ -196,13 +189,13 @@ export function Divider({ label }: { label: string }) {
   )
 }
 
-// ============================================================
-// ERROR BOX
-// ============================================================
+// ── ERROR BOX ─────────────────────────────────────────────────
 export function ErrorBox({ message }: { message: string }) {
   return (
-    <div className="rounded-xl px-4 py-3 text-sm mt-3"
-      style={{ background: 'rgba(255,107,107,0.08)', border: '1px solid rgba(255,107,107,0.25)', color: '#FF8A8A' }}>
+    <div
+      className="rounded-lg px-4 py-3 text-sm mt-3"
+      style={{ background: 'var(--destructive-bg)', border: '1px solid var(--destructive-border)', color: 'var(--destructive)' }}
+    >
       ⚠ {message}
     </div>
   )

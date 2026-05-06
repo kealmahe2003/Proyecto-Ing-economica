@@ -1,50 +1,64 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useState } from 'react'
+import {
+  TrendingUp, BarChart2, ArrowLeftRight, Table2, Sigma,
+  ArrowUpRight, BookOpen, Menu, Sun, Moon
+} from 'lucide-react'
+import { useTheme } from '../../hooks/useTheme'
 
 const NAV = [
   {
     group: 'Calculadoras',
     items: [
-      { to: '/simple', label: 'Interés Simple', icon: '₁' },
-      { to: '/compuesto', label: 'Interés Compuesto', icon: '²' },
-      { to: '/tasas', label: 'Conversión de Tasas', icon: '⇄' },
-      { to: '/amortizacion', label: 'Amortización', icon: '≡' },
-      { to: '/anualidades', label: 'Anualidades', icon: '∑' },
-      { to: '/inflacion', label: 'Inflación & Tasas Reales', icon: '↑' },
+      { to: '/simple', label: 'Interés Simple', icon: TrendingUp },
+      { to: '/compuesto', label: 'Interés Compuesto', icon: BarChart2 },
+      { to: '/tasas', label: 'Conversión de Tasas', icon: ArrowLeftRight },
+      { to: '/amortizacion', label: 'Amortización', icon: Table2 },
+      { to: '/anualidades', label: 'Anualidades', icon: Sigma },
+      { to: '/inflacion', label: 'Inflación & Tasas Reales', icon: ArrowUpRight },
     ],
   },
   {
     group: 'Aprender',
     items: [
-      { to: '/wiki', label: 'Wiki de Conceptos', icon: '◎' },
+      { to: '/wiki', label: 'Wiki de Conceptos', icon: BookOpen },
     ],
   },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sideOpen, setSideOpen] = useState(false)
-  const location = useLocation()
+  const { theme, toggle } = useTheme()
 
   return (
-    <div className="flex min-h-screen">
-      <div className="page-bg-grid" />
-      <div className="page-bg-glow" />
+    <div className="flex min-h-screen" style={{ background: 'var(--bg)' }}>
 
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col transition-transform duration-300
-          ${sideOpen ? 'translate-x-0' : '-translate-x-full'} 
+          ${sideOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:relative lg:flex`}
-        style={{ width: 240, minWidth: 240, background: 'rgba(14,18,32,0.97)', borderRight: '1px solid var(--border)' }}
+        style={{
+          width: 240,
+          minWidth: 240,
+          background: 'var(--surface)',
+          borderRight: '1px solid var(--border)',
+        }}
       >
         {/* Logo */}
-        <NavLink to="/" className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
-            style={{ background: 'linear-gradient(135deg,#00C9A7,#4F7CFF)', color: '#071A14' }}>
-            Σ
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 px-5 py-5 border-b"
+          style={{ borderColor: 'var(--border)', textDecoration: 'none' }}
+        >
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+          >
+            <span style={{ fontFamily: 'Crimson Pro, serif', fontSize: 16 }}>Σ</span>
           </div>
-          <span className="display font-semibold text-base" style={{ color: 'var(--text)' }}>
-            Fin<span style={{ color: 'var(--teal)' }}>Calc</span>
+          <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)', letterSpacing: '-0.02em' }}>
+            Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
           </span>
         </NavLink>
 
@@ -52,24 +66,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           {NAV.map(({ group, items }) => (
             <div key={group} className="mb-5">
-              <p className="px-2 mb-1 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}>
+              <p
+                className="px-2 mb-1 text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}
+              >
                 {group}
               </p>
-              {items.map(({ to, label, icon }) => (
-                <NavLink key={to} to={to}
+              {items.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setSideOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 text-sm transition-all duration-150
-                    ${isActive
-                      ? 'text-white font-medium'
-                      : 'hover:bg-white/5'}`
+                    `flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 text-sm transition-all duration-150 cursor-pointer
+                    ${isActive ? 'font-medium' : 'hover:opacity-80'}`
                   }
                   style={({ isActive }) => isActive
-                    ? { background: 'rgba(0,201,167,0.12)', color: '#00C9A7', fontFamily: 'Outfit' }
-                    : { color: 'var(--muted)', fontFamily: 'Outfit' }
+                    ? { background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)', textDecoration: 'none' }
+                    : { color: 'var(--muted)', textDecoration: 'none', border: '1px solid transparent' }
                   }
-                  onClick={() => setSideOpen(false)}
                 >
-                  <span className="mono text-sm w-5 text-center" style={{ opacity: 0.7 }}>{icon}</span>
+                  <Icon size={15} strokeWidth={1.75} />
                   {label}
                 </NavLink>
               ))}
@@ -77,30 +94,78 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t text-xs" style={{ borderColor: 'var(--border)', color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}>
-          Ingeniería Económica · 2025
+        {/* Footer: toggle + año */}
+        <div
+          className="px-4 py-3 border-t flex items-center justify-between"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <span
+            className="text-xs"
+            style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}
+          >
+            Ing. Económica · 2026
+          </span>
+          <button
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            className="p-1.5 rounded-lg transition-all duration-150 cursor-pointer"
+            style={{
+              color: 'var(--muted)',
+              border: '1px solid var(--border)',
+              background: 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {theme === 'dark'
+              ? <Sun size={14} strokeWidth={1.75} />
+              : <Moon size={14} strokeWidth={1.75} />
+            }
+          </button>
         </div>
       </aside>
 
       {/* Mobile overlay */}
       {sideOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden" style={{ background: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setSideOpen(false)} />
+        <div
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ background: 'rgba(0,0,0,0.4)' }}
+          onClick={() => setSideOpen(false)}
+        />
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 relative z-10">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile topbar */}
-        <header className="lg:hidden flex items-center gap-4 px-4 py-3 border-b" style={{ borderColor: 'var(--border)', background: 'rgba(14,18,32,0.95)' }}>
-          <button onClick={() => setSideOpen(true)} className="p-2.5 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ color: 'var(--muted)' }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+        <header
+          className="lg:hidden flex items-center gap-4 px-4 py-3 border-b"
+          style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+        >
+          <button
+            onClick={() => setSideOpen(true)}
+            className="p-2.5 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+            style={{ color: 'var(--muted)', background: 'transparent', border: 'none' }}
+            aria-label="Abrir menú"
+          >
+            <Menu size={18} strokeWidth={1.75} />
           </button>
-          <span className="display font-semibold" style={{ color: 'var(--text)' }}>
-            Fin<span style={{ color: 'var(--teal)' }}>Calc</span>
+          <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)' }}>
+            Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
           </span>
+          <div className="ml-auto">
+            <button
+              onClick={toggle}
+              aria-label={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+              className="p-2 rounded-lg cursor-pointer"
+              style={{ color: 'var(--muted)', background: 'transparent', border: '1px solid var(--border)' }}
+            >
+              {theme === 'dark'
+                ? <Sun size={14} strokeWidth={1.75} />
+                : <Moon size={14} strokeWidth={1.75} />
+              }
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto">
