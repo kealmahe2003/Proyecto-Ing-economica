@@ -40,7 +40,7 @@ export default function InflationPage() {
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <Field label="Tasa nominal EA (%)" value={nominal} onChange={setNominal} unit="%" hint="Tasa del banco o inversión" />
           <Field label="Inflación anual (%)" value={inflation} onChange={setInflation} unit="%" hint="IPC o inflación proyectada" />
@@ -67,7 +67,7 @@ export default function InflationPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>¿Por qué importa la inflación?</h3>
         <p>
           Si una inversión rinde el 10% anual pero la inflación es del 8%, el rendimiento real es apenas del ~1.85%.

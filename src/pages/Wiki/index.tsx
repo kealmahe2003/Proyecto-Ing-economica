@@ -101,12 +101,12 @@ El impacto: una tasa anticipada del 2% equivale a una tasa vencida del 2.0408% (
     tagline: 'Cómo se va pagando gradualmente una deuda',
     body: `Amortizar es reducir progresivamente una deuda mediante pagos periódicos. Cada pago tiene dos componentes: interés y abono a capital.
 
-SISTEMA FRANCÉS (el más usado en Colombia): la cuota total es FIJA durante toda la vida del crédito. Al inicio, la mayor parte de la cuota es interés; al final, es mayoritariamente capital. La fórmula es la misma que la de la anualidad ordinaria.
+CUOTA FIJA (el más usado en Colombia): la cuota total es CONSTANTE durante toda la vida del crédito. Al inicio, la mayor parte de la cuota es interés; al final, es mayoritariamente capital. La fórmula es la misma que la de la anualidad ordinaria.
 
-SISTEMA ALEMÁN: el abono al capital es CONSTANTE en cada período. Como el saldo decrece regularmente, el interés de cada período disminuye y la cuota total va bajando. La primera cuota es la más alta y la última la más baja.
+CAPITAL CONSTANTE + INTERESES: el abono al capital es IGUAL en cada período. Como el saldo decrece regularmente, el interés de cada período disminuye y la cuota total va bajando. La primera cuota es la más alta y la última la más baja.
 
 SISTEMA AMERICANO: durante toda la vida del préstamo solo se pagan intereses; el capital completo se paga al vencimiento en un solo pago "bullet".`,
-    formula: 'Cuota (francés) = P × [i(1+i)^n] / [(1+i)^n − 1]',
+    formula: 'Cuota fija = P × [i(1+i)^n] / [(1+i)^n − 1]',
   },
   {
     id: 'anualidad',
@@ -125,7 +125,7 @@ TIPOS:
 
 APLICACIONES: cualquier crédito bancario, un plan de ahorro, pensiones voluntarias, proyectos con ingresos regulares.
 
-La relación entre PV y PMT es exactamente la fórmula de amortización del sistema francés — son el mismo fenómeno visto desde perspectivas distintas.`,
+La relación entre PV y PMT es exactamente la fórmula de amortización de cuota fija — son el mismo fenómeno visto desde perspectivas distintas.`,
     formula: 'PV = PMT × [1 − (1+i)^−n] / i     FV = PMT × [(1+i)^n − 1] / i',
   },
   {
@@ -187,7 +187,7 @@ export default function WikiPage() {
             <button key={c} onClick={() => setCat(c)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={c === cat
-                ? { background: 'rgba(0,201,167,0.15)', border: '1px solid rgba(0,201,167,0.4)', color: '#00C9A7' }
+                ? { background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }
                 : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)' }
               }>
               {c}
@@ -204,8 +204,8 @@ export default function WikiPage() {
           </p>
         )}
         {filtered.map(concept => (
-          <div key={concept.id} className="glass-card overflow-hidden transition-all duration-200"
-            style={{ borderColor: expanded === concept.id ? 'rgba(0,201,167,0.3)' : 'var(--border)' }}>
+          <div key={concept.id} className="card overflow-hidden transition-all duration-200"
+            style={{ borderColor: expanded === concept.id ? 'var(--accent-border)' : 'var(--border)' }}>
             <button
               className="w-full flex items-start gap-4 p-5 text-left"
               onClick={() => setExpanded(expanded === concept.id ? null : concept.id)}
@@ -213,7 +213,7 @@ export default function WikiPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs mono uppercase tracking-widest px-2 py-0.5 rounded"
-                    style={{ background: 'rgba(79,124,255,0.1)', color: '#8AABFF', border: '1px solid rgba(79,124,255,0.2)' }}>
+                    style={{ background: 'var(--blue-bg)', color: 'var(--blue)', border: '1px solid var(--blue-border)' }}>
                     {concept.category}
                   </span>
                 </div>
@@ -232,7 +232,7 @@ export default function WikiPage() {
 
                 {concept.formula && (
                   <div className="rounded-xl px-4 py-3 mb-4 mono text-sm"
-                    style={{ background: 'rgba(245,200,66,0.07)', border: '1px solid rgba(245,200,66,0.2)', color: '#F5C842' }}>
+                    style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border)', color: 'var(--gold)' }}>
                     {concept.formula}
                   </div>
                 )}
@@ -243,8 +243,8 @@ export default function WikiPage() {
                       dangerouslySetInnerHTML={{
                         __html: para
                           .replace(/\*\*(.*?)\*\*/g, `<strong style="color:var(--text)">$1</strong>`)
-                          .replace(/•/g, '<span style="color:#00C9A7;margin-right:6px">▸</span>')
-                          .replace(/⚠/g, '<span style="color:#F5C842">⚠</span>')
+                          .replace(/•/g, '<span style="color:var(--accent);margin-right:6px">▸</span>')
+                          .replace(/⚠/g, '<span style="color:var(--gold)">⚠</span>')
                       }}
                     />
                   ))}

@@ -39,7 +39,7 @@ export default function AnnuitiesPage() {
         description="Una serie uniforme es un conjunto de pagos iguales realizados en intervalos iguales de tiempo. Permiten calcular créditos, ahorros programados y planes de pensión."
       />
 
-      <Callout color="azure">
+      <Callout color="blue">
         <strong style={{ color: '#fff' }}>Serie uniforme ordinaria:</strong> pagos iguales PMT al final de cada período.
         El valor presente PV es el valor hoy de todos esos pagos. El valor futuro FV es la acumulación de todos los pagos
         con sus intereses. Esta es la base matemática de todo crédito y plan de ahorro.
@@ -53,7 +53,7 @@ export default function AnnuitiesPage() {
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <ModeTabs options={MODES} value={mode} onChange={v => { setMode(v); setResult(null) }} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -82,7 +82,7 @@ export default function AnnuitiesPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>¿Qué es una anualidad?</h3>
         <p>
           Una <strong style={{ color: 'var(--text)' }}>anualidad</strong> (o serie uniforme) es cualquier sucesión de
@@ -99,7 +99,7 @@ export default function AnnuitiesPage() {
             ['Perpetua', 'La serie no tiene fecha de vencimiento: los pagos continúan para siempre. PV = PMT / i.'],
           ].map(([name, desc]) => (
             <li key={name} className="flex gap-3">
-              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: '#4F7CFF' }}>▸</span>
+              <span className="mono text-xs pt-1 flex-shrink-0" style={{ color: 'var(--blue)' }}>▸</span>
               <span><strong style={{ color: 'var(--text)' }}>{name}:</strong> {desc}</span>
             </li>
           ))}

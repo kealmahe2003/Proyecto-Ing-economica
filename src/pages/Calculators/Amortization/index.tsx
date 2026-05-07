@@ -1,13 +1,19 @@
 import { useState } from 'react'
-import { PageHeader, Field, Select, ModeTabs, ResultCard, FormulaBox, Callout, Divider, ErrorBox } from '../../../components/ui'
-import { calcFrenchAmortization, calcGermanAmortization } from '../../../lib/financial'
+import { PageHeader, Field, ModeTabs, ResultCard, FormulaBox, Callout, Divider, ErrorBox } from '../../../components/ui'
+import { calcFrenchAmortization, calcGermanAmortization, calcSimpleFixedAmort, calcSimpleConstantPrincipalAmort } from '../../../lib/financial'
 import { fmtCOP, fmtPct } from '../../../utils/format'
 import type { AmortResult, RateMode } from '../../../types/finance.types'
 
-const SYSTEMS = [
-  { value: 'french', label: 'Francés (cuota fija)' },
-  { value: 'german', label: 'Alemán (capital constante)' },
+const INTEREST_TYPES = [
+  { value: 'compound', label: 'Interés Compuesto' },
+  { value: 'simple', label: 'Interés Simple' },
 ]
+
+const SYSTEMS = [
+  { value: 'fixed-payment', label: 'Cuota Fija' },
+  { value: 'constant-principal', label: 'Capital Constante + Intereses' },
+]
+
 const MODES = [
   { value: 'vencido', label: 'Mes Vencido (MV)' },
   { value: 'anticipado', label: 'Mes Anticipado (MA)' },
@@ -16,7 +22,8 @@ const MODES = [
 const PAGE_SIZE = 12
 
 export default function AmortizationPage() {
-  const [system, setSystem] = useState('french')
+  const [interestType, setInterestType] = useState('compound')
+  const [system, setSystem] = useState('fixed-payment')
   const [mode, setMode] = useState<RateMode>('vencido')
   const [P, setP] = useState('10000000')
   const [iPct, setIPct] = useState('1.5')
@@ -29,9 +36,16 @@ export default function AmortizationPage() {
     setError('')
     setPage(0)
     try {
-      const res = system === 'french'
-        ? calcFrenchAmortization(+P, +iPct, +n, mode)
-        : calcGermanAmortization(+P, +iPct, +n)
+      let res: AmortResult
+      if (interestType === 'simple') {
+        res = system === 'fixed-payment'
+          ? calcSimpleFixedAmort(+P, +iPct, +n)
+          : calcSimpleConstantPrincipalAmort(+P, +iPct, +n)
+      } else {
+        res = system === 'fixed-payment'
+          ? calcFrenchAmortization(+P, +iPct, +n, mode)
+          : calcGermanAmortization(+P, +iPct, +n)
+      }
       setResult(res)
     } catch (e: any) { setError(e.message) }
   }
@@ -48,33 +62,38 @@ export default function AmortizationPage() {
         description="Genera la tabla completa de un crédito: cuotas, intereses, abono a capital y saldo pendiente período a período."
       />
 
-      <Callout color="azure">
-        <strong style={{ color: '#fff' }}>Sistema Francés</strong> (el más común en Colombia):
-        la cuota es fija durante toda la vida del crédito. Al inicio se paga más interés que capital;
-        al final, más capital que interés. <strong style={{ color: '#fff' }}>Sistema Alemán</strong>:
-        el abono a capital es constante, pero la cuota disminuye cada período porque el interés baja.
+      <Callout color="blue">
+        <strong>Cuota Fija:</strong> la cuota total es constante durante todo el crédito. Al inicio se paga más interés
+        que capital; al final, más capital que interés. <strong>Capital Constante + Intereses:</strong> el abono al capital
+        es igual cada período, pero el interés decrece conforme baja el saldo — la cuota total disminuye con el tiempo.
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="A = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]     — cuota fija (francés)" />
-        <FormulaBox formula="Kₜ = P / n     — abono capital constante (alemán)" />
+        <FormulaBox formula="Cuota fija (interés compuesto) = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]" />
+        <FormulaBox formula="Cuota fija (interés simple) = P / n + P × i     (interés sobre capital original)" />
+        <FormulaBox formula="Capital constante: Kₜ = P / n     Interésₜ = Saldoₜ × i" />
       </div>
 
       <Divider label="Calculadora" />
 
-      <div className="glass-card p-6 mb-6">
+      <div className="card p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Tipo de interés</p>
+            <ModeTabs options={INTEREST_TYPES} value={interestType} onChange={v => { setInterestType(v); setResult(null) }} />
+          </div>
           <div>
             <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Sistema</p>
             <ModeTabs options={SYSTEMS} value={system} onChange={v => { setSystem(v); setResult(null) }} />
           </div>
-          {system === 'french' && (
-            <div>
-              <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Modalidad</p>
-              <ModeTabs options={MODES} value={mode} onChange={v => { setMode(v as RateMode); setResult(null) }} />
-            </div>
-          )}
         </div>
+
+        {interestType === 'compound' && system === 'fixed-payment' && (
+          <div className="mb-4">
+            <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Modalidad</p>
+            <ModeTabs options={MODES} value={mode} onChange={v => { setMode(v as RateMode); setResult(null) }} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           <Field label="Monto del crédito P ($)" value={P} onChange={setP} placeholder="ej: 10000000" unit="$" />
@@ -88,31 +107,34 @@ export default function AmortizationPage() {
 
       {result && (
         <div className="animate-fade-up">
-          {/* Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <ResultCard accent label={result.system === 'french' ? 'Cuota fija' : '1ª Cuota'} value={fmtCOP(result.payment)} />
+            <ResultCard
+              accent
+              label={result.system === 'fixed-payment' ? 'Cuota fija' : '1ª Cuota'}
+              value={fmtCOP(result.payment)}
+            />
             <ResultCard label="Total pagado" value={fmtCOP(result.totalPaid)} />
             <ResultCard label="Total intereses" value={fmtCOP(result.totalInterest)} />
-            <ResultCard label="Costo financiero"
+            <ResultCard
+              label="Costo financiero"
               value={fmtPct((result.totalInterest / result.totalPrincipal) * 100, 2)}
               sub={[
-                { label: 'Sistema', value: result.system === 'french' ? 'Francés' : 'Alemán' },
-                { label: 'Modalidad', value: result.mode === 'vencido' ? 'MV' : 'MA' },
+                { label: 'Sistema', value: result.system === 'fixed-payment' ? 'Cuota Fija' : 'Capital Constante' },
+                { label: 'Interés', value: result.interestType === 'compound' ? 'Compuesto' : 'Simple' },
               ]}
             />
           </div>
 
-          {/* Table */}
-          <div className="glass-card overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
               <p className="text-xs mono uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
-                Tabla de amortización — {rows.length} períodos
+                Tabla de amortización — {rows.length} períodos · {result.system === 'fixed-payment' ? 'Cuota Fija' : 'Capital Constante + Intereses'} · Interés {result.interestType === 'compound' ? 'Compuesto' : 'Simple'}
               </p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ background: 'rgba(28,34,56,0.9)' }}>
+                  <tr style={{ background: 'var(--surface2)' }}>
                     {['#', 'Saldo inicial', 'Cuota', 'Interés', 'Capital', 'Saldo final'].map(h => (
                       <th key={h} className="py-3 px-4 text-right first:text-center text-xs mono uppercase tracking-wider"
                         style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', fontWeight: 400 }}>
@@ -125,14 +147,14 @@ export default function AmortizationPage() {
                   {pageRows.map((row, idx) => (
                     <tr key={row.period}
                       style={{
-                        background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)',
-                        borderBottom: '1px solid rgba(37,45,69,0.4)',
+                        background: idx % 2 === 0 ? 'transparent' : 'var(--surface2)',
+                        borderBottom: '1px solid var(--border)',
                       }}>
                       <td className="py-2.5 px-4 text-center mono text-xs" style={{ color: 'var(--muted)' }}>{row.period}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(row.initialBalance)}</td>
-                      <td className="py-2.5 px-4 text-right mono text-xs font-semibold" style={{ color: '#00C9A7' }}>{fmtCOP(row.payment)}</td>
-                      <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: '#FF8A8A' }}>{fmtCOP(row.interest)}</td>
-                      <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: '#8AABFF' }}>{fmtCOP(row.principal)}</td>
+                      <td className="py-2.5 px-4 text-right mono text-xs font-semibold" style={{ color: 'var(--accent)' }}>{fmtCOP(row.payment)}</td>
+                      <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--destructive)' }}>{fmtCOP(row.interest)}</td>
+                      <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--blue)' }}>{fmtCOP(row.principal)}</td>
                       <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(row.finalBalance)}</td>
                     </tr>
                   ))}
@@ -140,7 +162,6 @@ export default function AmortizationPage() {
               </table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
                 <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
@@ -163,19 +184,32 @@ export default function AmortizationPage() {
       )}
 
       <Divider label="Teoría completa" />
-      <div className="glass-card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
+      <div className="card p-6 space-y-4 text-sm" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>¿Qué es amortizar?</h3>
         <p>
           Amortizar significa ir pagando gradualmente una deuda. En cada cuota se paga el <strong style={{ color: 'var(--text)' }}>interés</strong> del
           período (calculado sobre el saldo pendiente) y un <strong style={{ color: 'var(--text)' }}>abono al capital</strong>.
           La suma de todos los abonos a capital debe igualar exactamente el monto original del crédito.
         </p>
+        <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>Cuota Fija vs Capital Constante</h3>
+        <p>
+          En el sistema de <strong style={{ color: 'var(--text)' }}>Cuota Fija</strong>, el pago total es igual en todos los períodos.
+          Al inicio, la mayor parte es interés; al final, mayoritariamente capital. Es el sistema más usado en créditos de consumo e hipotecas.
+        </p>
+        <p>
+          En el sistema de <strong style={{ color: 'var(--text)' }}>Capital Constante + Intereses</strong>, el abono al capital es el mismo cada período.
+          Como el saldo decrece regularmente, el interés de cada período disminuye y la cuota total va bajando. La primera cuota es la más alta.
+        </p>
+        <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>Interés Simple vs Compuesto en amortización</h3>
+        <p>
+          Con <strong style={{ color: 'var(--text)' }}>interés compuesto</strong>, el interés de cada período se calcula sobre el saldo pendiente aplicando capitalización.
+          Con <strong style={{ color: 'var(--text)' }}>interés simple</strong>, en el sistema de cuota fija el interés se calcula siempre sobre el capital original (constante);
+          en el sistema de capital constante, el interés se calcula sobre el saldo restante sin capitalización.
+        </p>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>Periodo vencido vs anticipado</h3>
         <p>
-          En modalidad <strong style={{ color: 'var(--text)' }}>vencida</strong>, la cuota se paga al final de cada período
-          y el interés se calcula sobre el saldo al inicio. En modalidad <strong style={{ color: 'var(--text)' }}>anticipada</strong>,
-          la cuota se cobra al inicio del período — la primera cuota se paga en el momento del desembolso.
-          Esto reduce el capital disponible desde el primer día, aumentando el costo efectivo del crédito.
+          En modalidad <strong style={{ color: 'var(--text)' }}>vencida</strong>, la cuota se paga al final de cada período.
+          En modalidad <strong style={{ color: 'var(--text)' }}>anticipada</strong>, la cuota se cobra al inicio — disponible solo con interés compuesto y cuota fija.
         </p>
       </div>
     </div>

@@ -8,6 +8,7 @@ import AmortizationPage from './pages/Calculators/Amortization'
 import AnnuitiesPage from './pages/Calculators/Annuities'
 import InflationPage from './pages/Calculators/Inflation'
 import WikiPage from './pages/Wiki'
+import NotFoundPage from './pages/NotFound'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/anualidades" element={<AnnuitiesPage />} />
           <Route path="/inflacion" element={<InflationPage />} />
           <Route path="/wiki" element={<WikiPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>
