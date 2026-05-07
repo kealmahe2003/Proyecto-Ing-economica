@@ -101,12 +101,12 @@ El impacto: una tasa anticipada del 2% equivale a una tasa vencida del 2.0408% (
     tagline: 'Cómo se va pagando gradualmente una deuda',
     body: `Amortizar es reducir progresivamente una deuda mediante pagos periódicos. Cada pago tiene dos componentes: interés y abono a capital.
 
-SISTEMA FRANCÉS (el más usado en Colombia): la cuota total es FIJA durante toda la vida del crédito. Al inicio, la mayor parte de la cuota es interés; al final, es mayoritariamente capital. La fórmula es la misma que la de la anualidad ordinaria.
+CUOTA FIJA (el más usado en Colombia): la cuota total es CONSTANTE durante toda la vida del crédito. Al inicio, la mayor parte de la cuota es interés; al final, es mayoritariamente capital. La fórmula es la misma que la de la anualidad ordinaria.
 
-SISTEMA ALEMÁN: el abono al capital es CONSTANTE en cada período. Como el saldo decrece regularmente, el interés de cada período disminuye y la cuota total va bajando. La primera cuota es la más alta y la última la más baja.
+CAPITAL CONSTANTE + INTERESES: el abono al capital es IGUAL en cada período. Como el saldo decrece regularmente, el interés de cada período disminuye y la cuota total va bajando. La primera cuota es la más alta y la última la más baja.
 
 SISTEMA AMERICANO: durante toda la vida del préstamo solo se pagan intereses; el capital completo se paga al vencimiento en un solo pago "bullet".`,
-    formula: 'Cuota (francés) = P × [i(1+i)^n] / [(1+i)^n − 1]',
+    formula: 'Cuota fija = P × [i(1+i)^n] / [(1+i)^n − 1]',
   },
   {
     id: 'anualidad',
@@ -125,7 +125,7 @@ TIPOS:
 
 APLICACIONES: cualquier crédito bancario, un plan de ahorro, pensiones voluntarias, proyectos con ingresos regulares.
 
-La relación entre PV y PMT es exactamente la fórmula de amortización del sistema francés — son el mismo fenómeno visto desde perspectivas distintas.`,
+La relación entre PV y PMT es exactamente la fórmula de amortización de cuota fija — son el mismo fenómeno visto desde perspectivas distintas.`,
     formula: 'PV = PMT × [1 − (1+i)^−n] / i     FV = PMT × [(1+i)^n − 1] / i',
   },
   {

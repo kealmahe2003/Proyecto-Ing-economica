@@ -45,7 +45,7 @@ export default function SimpleInterestPage() {
   const chartData = result
     ? Array.from({ length: Math.min(Math.ceil(result.n) + 1, 25) }, (_, k) => ({
         n: k,
-        'Interés Simple': Math.round(result.P + result.P * result.i * k),
+        'Monto (M)': Math.round(result.P + result.P * result.i * k),
       }))
     : []
 
@@ -66,8 +66,8 @@ export default function SimpleInterestPage() {
 
       <div className="space-y-2 mb-6">
         <FormulaBox formula="I = P × i × n" />
-        <FormulaBox formula="F = P × (1 + i × n)" />
-        <FormulaBox formula="P = F / (1 + i × n)" />
+        <FormulaBox formula="M = VF = P × (1 + i × n)" />
+        <FormulaBox formula="P = M / (1 + i × n)" />
       </div>
 
       <Divider label="Calculadora" />
@@ -96,7 +96,7 @@ export default function SimpleInterestPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <ResultCard
               accent
-              label={mode === 'F' ? 'Valor Futuro (F)' : mode === 'P' ? 'Capital Inicial (P)' : mode === 'n' ? `Tiempo (n) en ${period}s` : 'Tasa de interés (i)'}
+              label={mode === 'F' ? 'Monto M = VF' : mode === 'P' ? 'Capital Inicial (P)' : mode === 'n' ? `Tiempo (n) en ${period}s` : 'Tasa de interés (i)'}
               value={
                 mode === 'F' ? fmtCOP(result.F) :
                 mode === 'P' ? fmtCOP(result.P) :
@@ -114,7 +114,7 @@ export default function SimpleInterestPage() {
             />
           </div>
 
-          <FormulaBox formula={`F = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.iPct, 2)} × ${result.n.toFixed(2)}) = ${fmtCOP(result.F)}`} />
+          <FormulaBox formula={`M = VF = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.iPct, 2)} × ${result.n.toFixed(2)}) = ${fmtCOP(result.F)}`} />
 
           {/* CHART */}
           {chartData.length > 1 && (
@@ -134,7 +134,7 @@ export default function SimpleInterestPage() {
                     formatter={(v: number) => [fmtCOP(v), 'Capital']}
                     labelFormatter={l => `Período ${l}`}
                   />
-                  <Line type="linear" dataKey="Interés Simple" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="Monto (M)" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -157,7 +157,7 @@ export default function SimpleInterestPage() {
             ['P (Capital / Valor Presente)', 'Dinero inicial o monto del préstamo. Siempre en la misma moneda.'],
             ['i (Tasa de interés)', 'Debe coincidir en unidad de tiempo con n. Si n está en meses, i debe ser mensual.'],
             ['n (Número de períodos)', 'Tiempo transcurrido. Pueden ser días, meses, años. La unidad importa.'],
-            ['F (Valor Futuro)', 'Capital más intereses acumulados. F = P + I.'],
+            ['M = VF (Monto / Valor Futuro)', 'Capital más intereses acumulados. M = P + I.'],
             ['I (Interés)', 'Rentabilidad o costo financiero total. I = P × i × n.'],
           ].map(([term, def]) => (
             <li key={term} className="flex gap-3">
