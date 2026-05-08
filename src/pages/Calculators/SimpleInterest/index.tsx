@@ -59,7 +59,7 @@ export default function SimpleInterestPage() {
 
       {/* THEORY */}
       <Callout color="blue">
-        <strong style={{ color: '#fff' }}>¿Cómo funciona?</strong> — En interés simple, el rendimiento es proporcional al tiempo y al capital.
+        <strong>¿Cómo funciona?</strong> — En interés simple, el rendimiento es proporcional al tiempo y al capital.
         Si tienes $1.000.000 al 2% mensual durante 6 meses, cada mes ganas exactamente $20.000, sin importar el período.
         Total de intereses: $120.000. El dinero crece de forma <em>lineal</em>.
       </Callout>

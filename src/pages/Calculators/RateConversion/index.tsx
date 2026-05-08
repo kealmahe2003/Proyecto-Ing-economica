@@ -65,7 +65,7 @@ export default function RateConversionPage() {
       />
 
       <Callout color="gold">
-        <strong style={{ color: '#fff' }}>¿Por qué convertir tasas?</strong> — Las tasas se pueden expresar de múltiples formas,
+        <strong>¿Por qué convertir tasas?</strong> — Las tasas se pueden expresar de múltiples formas,
         pero para calcular el costo real de un crédito o la rentabilidad de una inversión,
         siempre debemos trabajar con la <em>tasa efectiva del período de capitalización</em>.
         Una tasa nominal de 24% anual capitalizable mensualmente NO equivale a 24% anual efectivo.
@@ -73,15 +73,15 @@ export default function RateConversionPage() {
 
       {/* ANT vs VEN explanation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="rounded-xl p-4" style={{ background: 'rgba(28,34,56,0.8)', border: '1px solid var(--border)' }}>
-          <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: '#F5C842' }}>Mes Vencido (MV)</p>
+        <div className="rounded-xl p-4" style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+          <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--gold)' }}>Mes Vencido (MV)</p>
           <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>
             El interés se cobra al <strong style={{ color: 'var(--text)' }}>final</strong> del período.
             Es la modalidad más común en créditos de consumo y cartera hipotecaria en Colombia.
           </p>
         </div>
-        <div className="rounded-xl p-4" style={{ background: 'rgba(28,34,56,0.8)', border: '1px solid var(--border)' }}>
-          <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: '#F5C842' }}>Mes Anticipado (MA)</p>
+        <div className="rounded-xl p-4" style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+          <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--gold)' }}>Mes Anticipado (MA)</p>
           <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>
             El interés se descuenta al <strong style={{ color: 'var(--text)' }}>inicio</strong> del período.
             Común en títulos de descuento, factoring y algunos CDT.
@@ -108,13 +108,13 @@ export default function RateConversionPage() {
       {result && (
         <div className="animate-fade-up space-y-5">
           {/* Main conversion result */}
-          <div className="rounded-2xl p-5" style={{ background: 'rgba(0,201,167,0.07)', border: '1px solid rgba(0,201,167,0.25)' }}>
+          <div className="rounded-2xl p-5" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-border)' }}>
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <p className="text-xs mono uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>{result.inputLabel}</p>
                 <p className="result-number text-2xl" style={{ color: 'var(--text)' }}>{fmtPct(result.inputPct, 4)}</p>
               </div>
-              <div className="text-2xl" style={{ color: 'var(--teal)' }}>→</div>
+              <div className="text-2xl" style={{ color: 'var(--accent)' }}>→</div>
               <div className="flex-1">
                 <p className="text-xs mono uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>{result.outputLabel}</p>
                 <p className="result-number text-2xl" style={{ color: 'var(--accent)' }}>{fmtPct(result.outputPct, 6)}</p>
@@ -132,7 +132,7 @@ export default function RateConversionPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {result.equivalences.map(eq => (
                 <div key={eq.label} className="rounded-xl p-3 text-center"
-                  style={{ background: 'rgba(12,15,26,0.8)', border: '1px solid var(--border)' }}>
+                  style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}>
                   <p className="text-xs mono mb-1" style={{ color: 'var(--muted)' }}>{eq.label}</p>
                   <p className="text-sm mono font-semibold" style={{ color: 'var(--accent)' }}>{fmtPct(eq.pct, 6)}</p>
                 </div>

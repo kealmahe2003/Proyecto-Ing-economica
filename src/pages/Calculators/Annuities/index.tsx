@@ -40,7 +40,7 @@ export default function AnnuitiesPage() {
       />
 
       <Callout color="blue">
-        <strong style={{ color: '#fff' }}>Serie uniforme ordinaria:</strong> pagos iguales PMT al final de cada período.
+        <strong>Serie uniforme ordinaria:</strong> pagos iguales PMT al final de cada período.
         El valor presente PV es el valor hoy de todos esos pagos. El valor futuro FV es la acumulación de todos los pagos
         con sus intereses. Esta es la base matemática de todo crédito y plan de ahorro.
       </Callout>

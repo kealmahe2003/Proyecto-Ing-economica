@@ -28,7 +28,7 @@ export default function InflationPage() {
       />
 
       <Callout color="gold">
-        <strong style={{ color: '#fff' }}>Ecuación de Fisher:</strong> una tasa nominal del 14% EA con inflación del 6.5%
+        <strong>Ecuación de Fisher:</strong> una tasa nominal del 14% EA con inflación del 6.5%
         no implica que ganaste 14% en términos reales. La tasa real es aproximadamente 7%, pero la fórmula exacta
         de Fisher da un resultado más preciso: (1 + iᵣ) = (1 + iₙ) / (1 + π).
       </Callout>
