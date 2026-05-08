@@ -50,7 +50,7 @@ export default function CompoundInterestPage() {
       />
 
       <Callout color="accent">
-        <strong style={{ color: '#fff' }}>La clave:</strong> En interés compuesto, cada período los intereses se
+        <strong>La clave:</strong> En interés compuesto, cada período los intereses se
         <em> capitalizan</em> — se agregan al principal. Así, en el período siguiente, los intereses se calculan sobre
         un capital mayor. Esto es lo que genera el crecimiento exponencial y lo que hace tan poderoso al ahorro a largo plazo.
       </Callout>
