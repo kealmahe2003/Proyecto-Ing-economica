@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot Ingeniería Económica</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f23; min-height: 100vh; }
+  body.chat-open { overflow: hidden; }
+
+  /* ---- FLOATING BUTTON ---- */
+  .fab { position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #4a4aff, #7c7cff); border: none; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 6px 24px rgba(74,74,255,0.45); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: all .3s cubic-bezier(.4,0,.2,1); }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(74,74,255,0.6); }
+  .fab:active { transform: scale(0.94); }
+  .fab svg { transition: transform .3s; }
+
+  /* ---- CHAT WIDGET ---- */
+  .widget { position: fixed; bottom: 100px; right: 28px; width: 420px; height: 620px; max-height: calc(100vh - 140px); background: #151535; border-radius: 18px; box-shadow: 0 12px 60px rgba(0,0,0,0.6); z-index: 9998; display: none; flex-direction: column; overflow: hidden; border: 1px solid #2a2a5e; animation: slideUp .25s ease; }
+  .widget.open { display: flex; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* Header */
+  .w-header { padding: 16px 18px; background: #12122e; border-bottom: 1px solid #2a2a5e; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .w-header .icon { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #4a4aff, #7c7cff); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .w-header .info { flex: 1; min-width: 0; }
+  .w-header .info h2 { font-size: 15px; color: #fff; font-weight: 600; }
+  .w-header .info p { font-size: 11px; color: #8888aa; }
+  .w-header .actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .w-header .actions button { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #8888bb; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+  .w-header .actions button:hover { background: #252550; color: #fff; }
+
+  /* Body */
+  .w-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Search bar (collapsible) */
+  .w-search { padding: 10px 14px; border-bottom: 1px solid #23234a; flex-shrink: 0; display: none; }
+  .w-search.open { display: block; }
+  .w-search input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #2a2a5e; background: #0f0f23; color: #e0e0e0; font-size: 13px; outline: none; }
+  .w-search input:focus { border-color: #7c7cff; }
+
+  /* Concept list (collapsible) */
+  .w-concept-list { height: 0; overflow: hidden; transition: height .2s; flex-shrink: 0; }
+  .w-concept-list.open { height: 200px; overflow-y: auto; border-bottom: 1px solid #23234a; }
+  .w-concept-list::-webkit-scrollbar { width: 4px; }
+  .w-concept-list::-webkit-scrollbar-thumb { background: #2a2a5e; border-radius: 2px; }
+  .w-concept-list .cat-title { font-size: 10px; font-weight: 600; color: #7c7cff; text-transform: uppercase; letter-spacing: 1px; padding: 10px 16px 3px; }
+  .w-concept-list .concept-item { padding: 6px 16px; font-size: 12px; color: #c0c0dd; cursor: pointer; transition: all .1s; }
+  .w-concept-list .concept-item:hover { background: #252550; color: #fff; }
+  .w-concept-list .concept-item.active { background: #2a2a6e; color: #fff; font-weight: 600; }
+
+  /* Messages area */
+  .w-msgs { flex: 1; overflow-y: auto; padding: 14px 16px; }
+  .w-msgs::-webkit-scrollbar { width: 5px; }
+  .w-msgs::-webkit-scrollbar-thumb { background: #2a2a5e; border-radius: 3px; }
+  .w-msgs::-webkit-scrollbar-track { background: transparent; }
+  .msg { margin-bottom: 12px; display: flex; animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.bot { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+  .msg .bubble { max-width: 88%; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.6; word-wrap: break-word; }
+  .msg.bot .bubble { background: #1a1a3e; color: #c8c8e8; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #3a3a8e; color: #fff; border-bottom-right-radius: 4px; }
+  .msg .bubble .formula { display: block; background: #0a0a1a; padding: 8px 12px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; color: #ffcc66; margin: 6px 0; text-align: center; border-left: 2px solid #7c7cff; }
+  .msg .bubble .vars { font-size: 11.5px; color: #8888bb; margin-top: 3px; }
+  .msg .bubble .example { display: block; background: #0f0f2a; padding: 6px 10px; border-radius: 6px; font-size: 12.5px; color: #88dd88; margin: 5px 0; }
+  .msg .bubble strong { color: #a0a0ff; }
+  .msg .bubble .tag { display: inline-block; background: #2a2a5e; padding: 1px 8px; border-radius: 4px; font-size: 10px; color: #7c7cff; margin: 1px; }
+
+  /* Input area */
+  .w-input { padding: 10px 14px; border-top: 1px solid #23234a; background: #12122e; flex-shrink: 0; }
+  .w-input .chips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .w-input .chip { padding: 3px 10px; background: #252550; border-radius: 12px; font-size: 11px; color: #8888cc; cursor: pointer; border: 1px solid #2a2a5e; white-space: nowrap; transition: all .1s; }
+  .w-input .chip:hover { background: #2a2a6e; color: #fff; border-color: #7c7cff; }
+  .w-input .row { display: flex; gap: 6px; }
+  .w-input input { flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #2a2a5e; background: #0f0f23; color: #e0e0e0; font-size: 13px; outline: none; min-width: 0; }
+  .w-input input:focus { border-color: #7c7cff; }
+  .w-input button { padding: 9px 16px; background: #4a4aff; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; white-space: nowrap; }
+  .w-input button:hover { background: #5c5cff; }
+
+  /* Scroll hint */
+  .scroll-hint { position: absolute; bottom: 80px; right: 24px; background: #2a2a6e; color: #7c7cff; padding: 4px 12px; border-radius: 12px; font-size: 11px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .scroll-hint.show { opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    .widget { right: 12px; left: 12px; width: auto; height: calc(100vh - 120px); bottom: 90px; max-height: none; }
+    .fab { bottom: 20px; right: 20px; width: 56px; height: 56px; font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- FLOATING BUTTON -->
+<button class="fab" id="fabBtn" onclick="toggleWidget()" aria-label="Abrir chat">
+  <svg id="fabIcon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<!-- CHAT WIDGET -->
+<div class="widget" id="widget">
+  <div class="w-header">
+    <div class="icon" style="font-size:20px;">💰</div>
+    <div class="info">
+      <h2>Ingeniería Económica</h2>
+      <p>Pregunta sobre conceptos, fórmulas y ejemplos</p>
+    </div>
+    <div class="actions">
+      <button onclick="toggleSearch()" title="Buscar conceptos">🔍</button>
+      <button onclick="clearChat()" title="Limpiar chat">🗑️</button>
+      <button onclick="toggleWidget()" title="Cerrar">✕</button>
+    </div>
+  </div>
+
+  <div class="w-body">
+    <div class="w-search" id="searchPanel">
+      <input type="text" id="searchInput" placeholder="Buscar concepto..." onkeyup="filterConcepts()">
+    </div>
+    <div class="w-concept-list" id="conceptList"></div>
+
+    <div class="w-msgs" id="chatMessages"></div>
+
+    <div class="w-input">
+      <div class="chips" id="suggestions"></div>
+      <div class="row">
+        <input type="text" id="chatInput" placeholder="Ej: ¿Qué es el VAN?" onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======== KNOWLEDGE BASE ========
+const concepts = [
+  {
+    id: "interes-simple",
+    title: "Interés Simple",
+    category: "Interés y Tasas",
+    description: "El interés simple se calcula sobre el capital original durante todo el período. No se capitalizan los intereses.",
+    formula: "I = P × i × n",
+    formulaVars: "I = Interés total | P = Capital inicial | i = Tasa de interés | n = Número de períodos",
+    formulaSecondary: "F = P (1 + i × n)",
+    formulaSecondaryDesc: "Valor futuro con interés simple",
+    example: "$10,000 al 5% anual por 3 años: I = 10,000 × 0.05 × 3 = $1,500. VF = $11,500.",
+    keywords: ["interes simple", "interés simple", "tasa simple", "lineal", "interes fijo"],
+    tip: "Usa esto cuando los intereses NO se reinvierten. Común en bonos y préstamos a corto plazo."
+  },
+  {
+    id: "interes-compuesto",
+    title: "Interés Compuesto",
+    category: "Interés y Tasas",
+    description: "El interés compuesto capitaliza los intereses período a período: los intereses generan más intereses.",
+    formula: "F = P (1 + i)^n",
+    formulaVars: "F = Valor futuro | P = Capital inicial | i = Tasa por período | n = Número de períodos",
+    example: "$10,000 al 5% compuesto anual por 3 años: F = 10,000(1.05)^3 = $11,576.25. Ganas $76.25 más que con interés simple.",
+    keywords: ["interes compuesto", "interés compuesto", "capitalizacion", "capitalización", "exponencial", "compuesto"],
+    tip: "Usa esta fórmula para la mayoría de inversiones y préstamos bancarios."
+  },
+  {
+    id: "tasa-nominal-efectiva",
+    title: "Tasa Nominal vs Efectiva",
+    category: "Interés y Tasas",
+    description: "La tasa nominal (r) es la tasa anual contratada. La tasa efectiva (i) refleja la capitalización dentro del año.",
+    formula: "i = (1 + r/m)^m - 1",
+    formulaVars: "i = Tasa efectiva anual | r = Tasa nominal anual | m = Capitalizaciones por año",
+    example: "12% nominal capitalizable mensual: i = (1 + 0.12/12)^12 - 1 = 12.68% efectivo anual.",
+    keywords: ["tasa nominal", "tasa efectiva", "nominal", "efectiva", "capitalizable", "APR", "APY"],
+    tip: "Siempre compara tasas efectivas, no nominales. La tasa efectiva es el verdadero costo o rendimiento."
+  },
+  {
+    id: "tasa-equivalente",
+    title: "Tasas Equivalentes",
+    category: "Interés y Tasas",
+    description: "Dos tasas de diferentes períodos son equivalentes si producen el mismo monto al final del año.",
+    formula: "(1 + i₁)^n₁ = (1 + i₂)^n₂",
+    formulaVars: "i₁, i₂ = Tasas de diferentes períodos | n₁, n₂ = Número de períodos",
+    example: "Tasa semestral equivalente al 5% trimestral: (1 + i_sem) = (1.05)^2 → i_sem = 10.25%.",
+    keywords: ["tasa equivalente", "equivalente", "convertir tasa", "conversión de tasas"],
+    tip: "Útil para comparar instrumentos con diferentes frecuencias de pago."
+  },
+  {
+    id: "tasa-real",
+    title: "Tasa Real (con Inflación)",
+    category: "Interés y Tasas",
+    description: "La tasa real descuenta el efecto de la inflación de la tasa nominal, mostrando el verdadero crecimiento del poder adquisitivo.",
+    formula: "i_r = (i_n - f) / (1 + f)",
+    formulaVars: "i_r = Tasa real | i_n = Tasa nominal | f = Tasa de inflación",
+    example: "Tasa nominal 8%, inflación 3%: i_r = (0.08 - 0.03) / (1.03) = 4.85%.",
+    keywords: ["tasa real", "inflacion", "inflación", "poder adquisitivo", "rendimiento real"],
+    tip: "La tasa real puede ser negativa si la inflación supera la tasa nominal."
+  },
+  {
+    id: "vp-vf",
+    title: "Valor Presente y Futuro",
+    category: "Valor del Dinero en el Tiempo",
+    description: "Un dólar hoy vale más que uno mañana. El VP descuenta flujos futuros; el VF capitaliza montos presentes.",
+    formula: "VF = VP (1 + i)^n          VP = VF / (1 + i)^n",
+    formulaVars: "VF = Valor futuro | VP = Valor presente | i = Tasa de descuento | n = Períodos",
+    example: "Valor hoy de $15,000 en 5 años al 8%: VP = 15,000 / (1.08)^5 = $10,208.75.",
+    keywords: ["valor presente", "valor futuro", "vp", "vf", "presente", "futuro", "flujo descontado", "pv", "fv"],
+    tip: "El VP permite comparar flujos en diferentes momentos. Usa VF para proyectar inversiones."
+  },
+  {
+    id: "anualidades",
+    title: "Anualidades",
+    category: "Valor del Dinero en el Tiempo",
+    description: "Flujos de efectivo uniformes y periódicos. Pueden ser vencidas (pago al final) o anticipadas (pago al inicio).",
+    formula: "VF = A × [((1+i)^n - 1) / i]",
+    formulaVars: "A = Anualidad (pago periódico) | i = Tasa | n = Número de pagos",
+    formulaSecondary: "VP = A × [(1 - (1+i)^(-n)) / i]",
+    formulaSecondaryDesc: "Valor presente de anualidad ordinaria",
+    example: "$1,000 anuales al 6% por 5 años: VF = 1,000 × [((1.06)^5-1)/0.06] = $5,637.09.",
+    keywords: ["anualidad", "anualidades", "anualidad vencida", "serie uniforme", "renta", "PMT"],
+    tip: "Vencida = pago al final del período (lo más común). Anticipada = multiplica el resultado por (1+i)."
+  },
+  {
+    id: "serie-gradiente",
+    title: "Series Gradiente",
+    category: "Valor del Dinero en el Tiempo",
+    description: "Flujos que aumentan o disminuyen en forma aritmética (lineal) o geométrica (porcentual) cada período.",
+    formula: "PG = G × [((1+i)^n - 1) / (i^2) - n / i]",
+    formulaVars: "PG = VP del gradiente | G = Incremento constante | i = Tasa | n = Períodos",
+    formulaSecondary: "VG = A × [(1+g)^n - (1+i)^n] / (g - i)",
+    formulaSecondaryDesc: "VP de gradiente geométrico (g = crecimiento)",
+    example: "Pagos que aumentan $100/año, i=10%, n=4: PG = 100 × [(1.1^4-1)/0.01 - 4/0.1] = $436.27.",
+    keywords: ["gradiente", "serie gradiente", "gradiente aritmetico", "gradiente geométrico", "escalatoria"],
+    tip: "Útil para modelar ingresos que crecen con inflación o costos de mantenimiento crecientes."
+  },
+  {
+    id: "perpetuidad",
+    title: "Perpetuidades",
+    category: "Valor del Dinero en el Tiempo",
+    description: "Anualidad con pagos infinitos. El VP se simplifica dividiendo el pago entre la tasa.",
+    formula: "VP = A / i",
+    formulaVars: "VP = Valor presente | A = Pago periódico constante | i = Tasa",
+    formulaSecondary: "VP = A / (i - g)",
+    formulaSecondaryDesc: "Perpetuidad creciente (g = tasa de crecimiento, requiere i > g)",
+    example: "Bono que paga $500 anuales para siempre al 5%: VP = 500 / 0.05 = $10,000.",
+    keywords: ["perpetuidad", "perpetuidades", "infinito", "pagos perpetuos", "consol"],
+    tip: "La perpetuidad creciente requiere i > g. Muy usada en valoración de empresas (modelo Gordon)."
+  },
+  {
+    id: "van-vpn",
+    title: "VAN / VPN (Valor Actual Neto)",
+    category: "Evaluación de Proyectos",
+    description: "Suma de todos los flujos de efectivo traídos a valor presente. Si VAN > 0, el proyecto es rentable.",
+    formula: "VAN = -Inv + Σ FE_t / (1+i)^t",
+    formulaVars: "Inv = Inversión inicial | FE_t = Flujo en año t | i = TMAR | t = 1 hasta n",
+    example: "Inversión $50,000, flujos $15,000 por 5 años, TMAR 10%: VAN = -50,000 + 15,000(P/A,10%,5) = $6,861 → Se acepta.",
+    keywords: ["van", "vpn", "valor actual neto", "valor presente neto", "npv", "net present value", "rentabilidad"],
+    tip: "VAN ≥ 0 → aceptar. Compara proyectos con igual horizonte. Mayor VAN es mejor."
+  },
+  {
+    id: "tir",
+    title: "TIR (Tasa Interna de Retorno)",
+    category: "Evaluación de Proyectos",
+    description: "La TIR es la tasa que hace VAN = 0. Representa el rendimiento del proyecto.",
+    formula: "0 = -Inv + Σ FE_t / (1+TIR)^t",
+    formulaVars: "Se resuelve por iteración (prueba y error o función financiera)",
+    example: "Inversión $50,000, flujos $15,000×5: TIR ≈ 15.24%. Si TMAR (10%) < TIR → proyecto rentable.",
+    keywords: ["tir", "tasa interna de retorno", "irr", "internal rate of return", "rendimiento"],
+    tip: "Cuidado con TIR múltiples si los flujos cambian de signo más de una vez."
+  },
+  {
+    id: "b-c",
+    title: "Relación Beneficio-Costo (B/C)",
+    category: "Evaluación de Proyectos",
+    description: "Compara el VP de los beneficios contra el VP de los costos. Si B/C ≥ 1, el proyecto es viable.",
+    formula: "B/C = VP(Beneficios) / VP(Costos)",
+    example: "VP beneficios = $200,000, VP costos = $150,000: B/C = 1.33 → Proyecto aceptable.",
+    keywords: ["beneficio costo", "b/c", "relacion beneficio costo", "relación beneficio costo", "bc"],
+    tip: "Usado principalmente en proyectos públicos. B/C > 1 indica viabilidad."
+  },
+  {
+    id: "payback",
+    title: "Período de Recuperación (Payback)",
+    category: "Evaluación de Proyectos",
+    description: "Tiempo para recuperar la inversión inicial con los flujos de efectivo.",
+    formula: "Payback simple = Inversión / FE_promedio anual",
+    formulaSecondary: "Payback descontado: t donde Σ FE_t/(1+i)^t ≥ Inversión",
+    formulaSecondaryDesc: "Incluye el valor del dinero en el tiempo",
+    example: "Inversión $50,000, flujos $12,500/año: Payback = 4 años.",
+    keywords: ["payback", "periodo de recuperación", "período de recuperación", "recuperacion", "recuperación"],
+    tip: "El payback descontado es más preciso. No decidas solo por payback rápido."
+  },
+  {
+    id: "cae",
+    title: "CAE (Costo Anual Equivalente)",
+    category: "Evaluación de Proyectos",
+    description: "Convierte todos los costos en un costo anual uniforme. Permite comparar proyectos con diferente vida útil.",
+    formula: "CAE = VP(Costos) × [i(1+i)^n / ((1+i)^n - 1)]",
+    formulaVars: "VP(Costos) = Valor presente de todos los costos | i = Tasa | n = Vida útil",
+    example: "VP costos = $100,000, i=10%, n=5: CAE = 100,000 × 0.2638 = $26,380 anuales.",
+    keywords: ["cae", "costo anual equivalente", "costo anual uniforme", "caue", "eac"],
+    tip: "Para comparar proyectos con vidas diferentes, elige el de menor CAE."
+  },
+  {
+    id: "tmar",
+    title: "TMAR (Tasa Mínima Atractiva de Retorno)",
+    category: "Evaluación de Proyectos",
+    description: "Rendimiento mínimo que exige un inversionista. Se usa como tasa de descuento en VAN y TIR.",
+    formula: "TMAR = Tasa libre de riesgo + Prima de riesgo",
+    example: "Bonos del gobierno 4% + prima de riesgo 6% = TMAR 10%.",
+    keywords: ["tmar", "tmarr", "tasa minima", "costo oportunidad", "tasa descuento", "hurdle rate", "marr"],
+    tip: "La TMAR representa el costo de oportunidad del capital. Nunca aceptes un proyecto que rinda menos."
+  },
+  {
+    id: "depreciacion-linea",
+    title: "Depreciación Línea Recta (LR)",
+    category: "Depreciación",
+    description: "Distribuye el costo del activo uniformemente a lo largo de su vida útil.",
+    formula: "D = (C - VR) / n",
+    formulaVars: "D = Depreciación anual | C = Costo inicial | VR = Valor de rescate | n = Vida útil",
+    example: "Costo $100,000, VR $10,000, vida 10 años: D = (100,000 - 10,000)/10 = $9,000 anuales.",
+    keywords: ["depreciacion linea recta", "depreciación línea recta", "linea recta", "depreciacion", "depreciación"],
+    tip: "Usa cuando el activo se desgasta uniformemente (edificios, mobiliario)."
+  },
+  {
+    id: "depreciacion-sda",
+    title: "Depreciación Suma de Dígitos (SDA)",
+    category: "Depreciación",
+    description: "Método acelerado que concentra mayor depreciación en los primeros años.",
+    formula: "D_t = (n - t + 1) / S × (C - VR), donde S = n(n+1)/2",
+    formulaVars: "t = Año actual | n = Vida útil | C, VR = Costo y valor de rescate",
+    example: "Activo $100,000, VR $10,000, vida 5 años (S=15): Año 1: D = 5/15×90,000 = $30,000. Año 5: D = 1/15×90,000 = $6,000.",
+    keywords: ["suma de digitos", "suma de dígitos", "sda", "depreciacion acelerada", "syd"],
+    tip: "Útil para activos que pierden valor rápido (computadoras, vehículos)."
+  },
+  {
+    id: "depreciacion-doble",
+    title: "Depreciación Doble Saldo Decreciente (SDD)",
+    category: "Depreciación",
+    description: "Aplica el doble de la tasa lineal al valor en libros de cada período.",
+    formula: "D_t = (2/n) × VL_{t-1}",
+    formulaVars: "VL = Valor en libros | D_t = Depreciación año t | n = Vida útil",
+    example: "Costo $100,000, vida 5 años, tasa = 40%. Año 1: $40,000. Año 2: $24,000.",
+    keywords: ["doble saldo decreciente", "sdd", "double declining", "depreciacion acelerada"],
+    tip: "No deprecies por debajo del valor de rescate. Combínalo con LR cuando convenga."
+  },
+  {
+    id: "depreciacion-unidades",
+    title: "Depreciación por Unidades de Producción",
+    category: "Depreciación",
+    description: "Asigna depreciación según el uso real del activo, no el tiempo.",
+    formula: "D = (C - VR) / U_total × U_período",
+    formulaVars: "U_total = Unidades totales estimadas | U_período = Unidades en el período",
+    example: "Máquina $200,000, VR $20,000, estima 100,000 unidades: si produce 12,000 → D = (180k/100k)×12,000 = $21,600.",
+    keywords: ["unidades produccion", "unidades de producción", "depreciacion por uso"],
+    tip: "Ideal para maquinaria industrial y vehículos cuyo desgaste depende del uso."
+  },
+  {
+    id: "reemplazo",
+    title: "Análisis de Reemplazo",
+    category: "Análisis de Reemplazo",
+    description: "Evalúa si conviene reemplazar un activo existente (defensor) por uno nuevo (retador).",
+    formula: "Reemplazar si CAE_retador < CAE_defensor",
+    example: "Defensor CAE = $15,000/año. Retador CAE = $12,000/año → Reemplazar. Ahorro = $3,000/año.",
+    keywords: ["reemplazo", "reemplazo de equipos", "defensor", "retador", "sustitución"],
+    tip: "Pasos: 1) CAE del defensor. 2) CAE del retador. 3) Elegir el menor CAE."
+  },
+  {
+    id: "vida-economica",
+    title: "Vida Económica",
+    category: "Análisis de Reemplazo",
+    description: "Período de uso que minimiza el CAE total del activo. Generalmente menor que la vida física.",
+    formula: "CAE_total(n) = Inversión/n + CAO_prom + Mant_prom",
+    formulaVars: "CAO = Costo anual de operación",
+    example: "Un activo dura 10 años físicamente pero su vida económica óptima es 7 años (donde el CAE es mínimo).",
+    keywords: ["vida economica", "vida económica", "vida util optima", "vida útil óptima"],
+    tip: "Calcula el CAE para cada año. La vida económica es el año donde el CAE es mínimo."
+  },
+  {
+    id: "inflacion",
+    title: "Inflación en Ingeniería Económica",
+    category: "Inflación",
+    description: "La inflación reduce el poder adquisitivo. Se manejan flujos corrientes (nominales) o constantes (reales).",
+    formula: "Tasa nominal: (1+i_n) = (1+i_r)(1+f)",
+    formulaVars: "i_n = Tasa nominal | i_r = Tasa real | f = Inflación",
+    example: "Inflación 4%, tasa real 5% → tasa nominal = (1.05)(1.04)-1 = 9.2%.",
+    keywords: ["inflacion", "inflación", "corriente", "constante", "poder adquisitivo"],
+    tip: "Consistencia: flujos nominales → tasa nominal. Flujos reales → tasa real. NUNCA mezcles."
+  },
+  {
+    id: "costos-fijos-variables",
+    title: "Costos Fijos y Variables",
+    category: "Costos",
+    description: "Costos fijos no varían con producción. Costos variables cambian proporcionalmente.",
+    formula: "CT = CF + CV × Q",
+    formulaVars: "CF = Costo fijo total | CV = Costo variable unitario | Q = Cantidad",
+    keywords: ["costos fijos", "costos variables", "costos", "costo fijo", "costo variable"],
+    tip: "Identificar CF y CV es el primer paso para punto de equilibrio y apalancamiento."
+  },
+  {
+    id: "punto-equilibrio",
+    title: "Punto de Equilibrio",
+    category: "Costos",
+    description: "Nivel de producción donde ingresos totales = costos totales (utilidad = 0).",
+    formula: "Q_eq = CF / (P - CV)",
+    formulaVars: "CF = Costo fijo total | P = Precio unitario | CV = Costo variable unitario",
+    example: "CF = $50,000, P = $100, CV = $60: Q_eq = 50,000/40 = 1,250 unidades.",
+    keywords: ["punto equilibrio", "punto de equilibrio", "break even", "break-even"],
+    tip: "A mayor CF, mayor punto de equilibrio y mayor riesgo operativo."
+  },
+  {
+    id: "wacc",
+    title: "Costo de Capital (WACC)",
+    category: "Costos",
+    description: "Costo promedio ponderado de todas las fuentes de financiamiento (deuda y capital).",
+    formula: "WACC = (D/V) × K_d × (1-T) + (E/V) × K_e",
+    formulaVars: "D = Deuda | E = Capital | V = D+E | K_d = Costo deuda | K_e = Costo capital | T = Impuestos",
+    example: "Deuda 40% al 8%, Capital 60% al 12%, T=30%: WACC = 0.4×8%×0.7 + 0.6×12% = 9.44%.",
+    keywords: ["wacc", "costo capital", "costo de capital", "costo promedio", "financiamiento"],
+    tip: "El WACC se usa como tasa de descuento. Refleja el riesgo financiero de la empresa."
+  },
+  {
+    id: "sensibilidad",
+    title: "Análisis de Sensibilidad",
+    category: "Análisis de Riesgo",
+    description: "Evalúa cómo cambia el VAN ante variaciones en variables clave del proyecto.",
+    formula: "Variar parámetros ±10%, ±20% y observar cambio en VAN",
+    example: "Si el precio baja 10% y el VAN se vuelve negativo, el proyecto es muy sensible al precio.",
+    keywords: ["sensibilidad", "analisis sensibilidad", "análisis de sensibilidad", "what if"],
+    tip: "Identifica las variables críticas del proyecto. Útil para mitigación de riesgos."
+  },
+  {
+    id: "escenarios",
+    title: "Análisis de Escenarios",
+    category: "Análisis de Riesgo",
+    description: "Evalúa el proyecto bajo escenarios optimista, esperado y pesimista simultáneamente.",
+    example: "Pesimista: VAN = -$20,000. Esperado: VAN = $50,000. Optimista: VAN = $120,000.",
+    keywords: ["escenarios", "analisis escenarios", "análisis de escenarios", "optimista", "pesimista"],
+    tip: "Complementa al análisis de sensibilidad. Muestra el rango completo de resultados."
+  },
+  {
+    id: "amortizacion",
+    title: "Amortización de Préstamos",
+    category: "Amortización",
+    description: "Describe cómo se paga un préstamo en cuotas que incluyen capital e intereses. El método más común es cuota fija (francés).",
+    formula: "Cuota = P × [i(1+i)^n / ((1+i)^n - 1)]",
+    formulaVars: "P = Monto del préstamo | i = Tasa por período | n = Número de cuotas",
+    example: "$200,000 al 12% anual en 24 cuotas mensuales: Cuota = 200,000 × [0.01(1.01)^24/((1.01)^24-1)] = $9,414.69.",
+    keywords: ["amortizacion", "amortización", "prestamo", "préstamo", "cuota fija", "credito", "crédito", "hipoteca"],
+    tip: "En cuota fija, al inicio pagas más intereses y menos capital; con el tiempo se invierte."
+  }
+];
+
+// ======== CHAT ENGINE ========
+let msgCount = 0;
+
+function $(id) { return document.getElementById(id); }
+
+function toggleWidget() {
+  const w = $('widget');
+  const isOpen = w.classList.toggle('open');
+  document.body.classList.toggle('chat-open', isOpen);
+  if (isOpen) { scrollToBottom(); $('chatInput').focus(); }
+}
+
+function toggleSearch() {
+  const sp = $('searchPanel');
+  const cl = $('conceptList');
+  const isOpen = sp.classList.toggle('open');
+  cl.classList.toggle('open', isOpen);
+  if (isOpen) $('searchInput').focus();
+  else renderSidebar(); // reset
+}
+
+function clearChat() {
+  $('chatMessages').innerHTML = '';
+  msgCount = 0;
+  showWelcome();
+}
+
+function scrollToBottom() {
+  const el = $('chatMessages');
+  requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+}
+
+function escapeHtml(t) {
+  const d = document.createElement('div');
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+function addMessage(content, isUser) {
+  const el = $('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (isUser ? 'user' : 'bot');
+  div.innerHTML = '<div class="bubble">' + content + '</div>';
+  el.appendChild(div);
+  msgCount++;
+  scrollToBottom();
+}
+
+function formatBotResponse(c) {
+  let h = '<strong>' + escapeHtml(c.title) + '</strong><br><br>';
+  h += escapeHtml(c.description) + '<br><br>';
+  if (c.formula) {
+    h += '<span class="formula">' + escapeHtml(c.formula) + '</span>';
+    if (c.formulaVars) h += '<div class="vars">' + escapeHtml(c.formulaVars) + '</div>';
+  }
+  if (c.formulaSecondary) {
+    if (c.formulaSecondaryDesc) h += '<br><div style="font-size:12px;color:#7c7cff;margin-top:4px;">▸ ' + escapeHtml(c.formulaSecondaryDesc) + '</div>';
+    h += '<span class="formula">' + escapeHtml(c.formulaSecondary) + '</span>';
+  }
+  if (c.example) h += '<br><span class="example">📌 ' + escapeHtml(c.example) + '</span>';
+  if (c.tip) h += '<br><span style="font-size:12px;color:#8888bb;">💡 ' + escapeHtml(c.tip) + '</span>';
+  h += '<br><br><span class="tag">' + escapeHtml(c.category) + '</span>';
+  return h;
+}
+
+function findBestMatch(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) return null;
+  let best = null, bestScore = 0;
+  for (const c of concepts) {
+    let score = 0;
+    if (c.title.toLowerCase().includes(q)) score += 25;
+    for (const kw of c.keywords) {
+      if (kw.includes(q) || q.includes(kw)) { score += 18; break; }
+    }
+    const qWords = q.split(/\s+/);
+    for (const qw of qWords) {
+      if (qw.length < 3) continue;
+      for (const kw of c.keywords) {
+        if (kw.includes(qw)) { score += 6; break; }
+      }
+      if (c.description.toLowerCase().includes(qw)) score += 3;
+      if (c.formula && c.formula.toLowerCase().includes(qw)) score += 4;
+    }
+    if (score > bestScore) { bestScore = score; best = c; }
+  }
+  return bestScore > 2 ? best : null;
+}
+
+function sendMessage() {
+  const input = $('chatInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  addMessage(escapeHtml(q), true);
+  setTimeout(() => {
+    const m = findBestMatch(q);
+    if (m) {
+      addMessage(formatBotResponse(m));
+      highlightConcept(m.id);
+    } else {
+      let r = 'No encontré un concepto para "<em>' + escapeHtml(q) + '</em>".<br><br><strong>Conceptos disponibles:</strong><br>';
+      const cats = [...new Set(concepts.map(x => x.category))];
+      for (const cat of cats) {
+        r += '<br><span class="tag">' + escapeHtml(cat) + '</span><br>';
+        r += concepts.filter(x => x.category === cat).map(x => '• ' + escapeHtml(x.title)).join('<br>');
+      }
+      r += '<br><br>💡 <em>Escribe el nombre de un concepto o usa las sugerencias rápidas.</em>';
+      addMessage(r);
+    }
+  }, 350);
+}
+
+// ======== SIDEBAR LIST ========
+function renderSidebar() {
+  const el = $('conceptList');
+  const cats = [...new Set(concepts.map(x => x.category))];
+  let h = '';
+  for (const cat of cats) {
+    h += '<div class="cat-title">' + escapeHtml(cat) + '</div>';
+    for (const c of concepts.filter(x => x.category === cat)) {
+      h += '<div class="concept-item" data-id="' + c.id + '" onclick="selectConcept(\'' + c.id + '\')">' + escapeHtml(c.title) + '</div>';
+    }
+  }
+  el.innerHTML = h;
+}
+
+function filterConcepts() {
+  const q = $('searchInput').value.toLowerCase().trim();
+  $('conceptList').querySelectorAll('.concept-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+  });
+  $('conceptList').querySelectorAll('.cat-title').forEach(el => {
+    let sib = el.nextElementSibling, ok = false;
+    while (sib && sib.classList.contains('concept-item')) { if (sib.style.display !== 'none') ok = true; sib = sib.nextElementSibling; }
+    el.style.display = ok ? 'block' : 'none';
+  });
+}
+
+function highlightConcept(id) {
+  $('conceptList').querySelectorAll('.concept-item').forEach(el => el.classList.remove('active'));
+  const el = $('conceptList').querySelector('.concept-item[data-id="' + id + '"]');
+  if (el) el.classList.add('active');
+}
+
+function selectConcept(id) {
+  const c = concepts.find(x => x.id === id);
+  if (!c) return;
+  addMessage('📘 <strong>' + escapeHtml(c.title) + '</strong>');
+  addMessage(formatBotResponse(c));
+  highlightConcept(id);
+}
+
+// ======== SUGGESTIONS ========
+const suggestions = [
+  "Interés simple", "Interés compuesto", "VAN / VPN", "TIR",
+  "Tasa efectiva", "Anualidades", "Payback", "Punto equilibrio",
+  "WACC", "Perpetuidad", "Amortización", "Depreciación LR"
+];
+
+function renderSuggestions() {
+  $('suggestions').innerHTML = suggestions.map(s =>
+    '<span class="chip" onclick="quickQuery(\'' + escapeHtml(s) + '\')">' + escapeHtml(s) + '</span>'
+  ).join('');
+}
+
+function quickQuery(q) {
+  $('chatInput').value = q;
+  sendMessage();
+}
+
+// ======== WELCOME ========
+function showWelcome() {
+  const w = `
+    <strong>🤖 ¡Bienvenido!</strong> Pregunta sobre <strong>Ingeniería Económica</strong>:<br><br>
+    • <strong>Conceptos</strong>: VAN, TIR, WACC, interés compuesto...<br>
+    • <strong>Fórmulas</strong> con variables explicadas<br>
+    • <strong>Ejemplos</strong> numéricos resueltos<br>
+    • <strong>Consejos</strong> prácticos de uso<br><br>
+    🔍 <em>Ej: "¿Cómo calculo el VAN?" o "Fórmula de interés compuesto"</em>
+  `;
+  addMessage(w);
+}
+
+// ======== INIT ========
+renderSidebar();
+renderSuggestions();
+showWelcome();
+</script>
+</body>
+</html>
