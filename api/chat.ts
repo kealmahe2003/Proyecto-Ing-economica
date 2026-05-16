@@ -1,4 +1,4 @@
-// Vercel Serverless Function — proxy hacia Gemini 1.5 Flash
+// Vercel Serverless Function — proxy hacia Gemini 1.5 Flash (free tier)
 // La API key vive SOLO en variables de entorno de Vercel (GEMINI_API_KEY)
 
 const SYSTEM_PROMPT = `Eres un asistente académico de Ingeniería Económica para estudiantes universitarios colombianos (2do-4to año). Responde SIEMPRE en español. Usa ejemplos con pesos colombianos (COP) y tasas bancarias colombianas cuando sea relevante.
@@ -104,7 +104,7 @@ export default async function handler(req: any, res: any) {
     ]
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
