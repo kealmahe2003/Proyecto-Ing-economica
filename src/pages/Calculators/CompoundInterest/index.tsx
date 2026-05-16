@@ -10,9 +10,39 @@ type Mode = 'F' | 'P' | 'i' | 'n'
 const MODES = [
   { value: 'F', label: 'Valor Futuro (F)' },
   { value: 'P', label: 'Valor Presente (P)' },
-  { value: 'i', label: 'Tasa (i)' },
+  { value: 'i', label: 'Calcular i (tasa de interés)' },
   { value: 'n', label: 'Períodos (n)' },
 ]
+
+const PERIODS = [
+  { value: 'día',          label: 'Días' },
+  { value: 'semana',       label: 'Semanas' },
+  { value: 'quincena',     label: 'Quincenas' },
+  { value: 'mes',          label: 'Meses' },
+  { value: 'bimestre',     label: 'Bimestres' },
+  { value: 'trimestre',    label: 'Trimestres' },
+  { value: 'cuatrimestre', label: 'Cuatrimestres' },
+  { value: 'semestre',     label: 'Semestres' },
+  { value: 'año',          label: 'Años' },
+]
+
+// Períodos por año — para conversión efectiva de tasas (interés compuesto)
+const PERIOD_FREQ: Record<string, number> = {
+  día: 365, semana: 52, quincena: 24, mes: 12,
+  bimestre: 6, trimestre: 4, cuatrimestre: 3, semestre: 2, año: 1,
+}
+
+const PERIOD_RATE_LABEL: Record<string, string> = {
+  día: 'diaria', semana: 'semanal', quincena: 'quincenal', mes: 'mensual',
+  bimestre: 'bimestral', trimestre: 'trimestral', cuatrimestre: 'cuatrimestral',
+  semestre: 'semestral', año: 'anual',
+}
+
+const PERIOD_N_LABEL: Record<string, string> = {
+  día: 'días', semana: 'semanas', quincena: 'quincenas', mes: 'meses',
+  bimestre: 'bimestres', trimestre: 'trimestres', cuatrimestre: 'cuatrimestres',
+  semestre: 'semestres', año: 'años',
+}
 
 export default function CompoundInterestPage() {
   const [mode, setMode] = useState<Mode>('F')
@@ -20,8 +50,24 @@ export default function CompoundInterestPage() {
   const [iPct, setIPct] = useState('1.8')
   const [n, setN] = useState('24')
   const [F, setF] = useState('')
+  const [period, setPeriod] = useState('mes')
   const [result, setResult] = useState<CompoundResult | null>(null)
   const [error, setError] = useState('')
+
+  // Convierte la tasa con la fórmula de equivalencia efectiva al cambiar período
+  function handlePeriodChange(newPeriod: string) {
+    const parsed = parseFloat(iPct)
+    if (parsed > 0 && !isNaN(parsed)) {
+      const oldFreq = PERIOD_FREQ[period]
+      const newFreq = PERIOD_FREQ[newPeriod]
+      const i_old = parsed / 100
+      const i_new = Math.pow(1 + i_old, oldFreq / newFreq) - 1
+      setIPct(parseFloat((i_new * 100).toFixed(6)).toString())
+    }
+    setPeriod(newPeriod)
+    setResult(null)
+    setError('')
+  }
 
   function calculate() {
     setError('')
@@ -40,6 +86,10 @@ export default function CompoundInterestPage() {
     'Interés Compuesto': Math.round(s.balance),
     'Interés Simple': Math.round(s.interestSimple),
   })) ?? []
+
+  const rateLabel = `Tasa efectiva ${PERIOD_RATE_LABEL[period]} (i)`
+  const nLabel = `Número de ${PERIOD_N_LABEL[period]} n`
+  const nUnit = PERIOD_N_LABEL[period]
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
@@ -72,8 +122,23 @@ export default function CompoundInterestPage() {
           {(mode === 'P' || mode === 'i' || mode === 'n') && (
             <Field label="Valor Futuro F ($)" value={F} onChange={setF} placeholder="ej: 8000000" unit="$" />
           )}
-          {mode !== 'i' && <Field label="Tasa efectiva por período i" value={iPct} onChange={setIPct} placeholder="ej: 1.8" unit="%" />}
-          {mode !== 'n' && <Field label="Número de períodos n" value={n} onChange={setN} placeholder="ej: 24" />}
+          {mode !== 'i' && (
+            <Field
+              label={rateLabel}
+              value={iPct}
+              onChange={setIPct}
+              placeholder="ej: 1.8"
+              unit="%"
+              hint="Tasa efectiva por período seleccionado"
+            />
+          )}
+          {mode !== 'n' && <Field label={nLabel} value={n} onChange={setN} placeholder="ej: 24" />}
+          <Select
+            label="Unidad de período"
+            value={period}
+            onChange={handlePeriodChange}
+            options={PERIODS}
+          />
         </div>
 
         <button className="btn-primary" onClick={calculate}>→ Calcular</button>
@@ -85,12 +150,17 @@ export default function CompoundInterestPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <ResultCard
               accent
-              label={mode === 'F' ? 'Valor Futuro (F)' : mode === 'P' ? 'Valor Presente (P)' : mode === 'i' ? 'Tasa (i)' : 'Períodos (n)'}
+              label={
+                mode === 'F' ? 'Valor Futuro (F)' :
+                mode === 'P' ? 'Valor Presente (P)' :
+                mode === 'i' ? `Tasa ${PERIOD_RATE_LABEL[period]} (i)` :
+                `Períodos (${nUnit})`
+              }
               value={
                 mode === 'F' ? fmtCOP(result.F) :
                 mode === 'P' ? fmtCOP(result.P) :
                 mode === 'i' ? fmtPct(result.i * 100) :
-                `${result.n.toFixed(2)} períodos`
+                `${result.n.toFixed(2)} ${nUnit}`
               }
             />
             <ResultCard label="Interés compuesto" value={fmtCOP(result.I)} />
@@ -127,6 +197,48 @@ export default function CompoundInterestPage() {
               </ResponsiveContainer>
             </div>
           )}
+
+          {result.series.length > 0 && result.n <= 120 && (
+            <div className="card overflow-hidden mt-6">
+              <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+                <p className="text-xs mono uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
+                  Tabla período a período — {result.series.length} {nUnit}
+                  {result.n > 60 ? ' (primeros 60)' : ''}
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr style={{ background: 'var(--surface2)' }}>
+                      {['#', 'Saldo inicial', 'Interés del período', 'Saldo final'].map(h => (
+                        <th key={h} className="py-3 px-4 text-right first:text-center text-xs mono uppercase tracking-wider"
+                          style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', fontWeight: 400 }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.series.map((s, idx) => {
+                      const initBalance = idx === 0 ? result.P : result.series[idx - 1].balance
+                      const intPeriod = s.balance - initBalance
+                      return (
+                        <tr key={s.period} style={{
+                          background: idx % 2 === 0 ? 'transparent' : 'var(--surface2)',
+                          borderBottom: '1px solid var(--border)',
+                        }}>
+                          <td className="py-2.5 px-4 text-center mono text-xs" style={{ color: 'var(--muted)' }}>{s.period}</td>
+                          <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(initBalance)}</td>
+                          <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--destructive)' }}>{fmtCOP(intPeriod)}</td>
+                          <td className="py-2.5 px-4 text-right mono text-xs" style={{ color: 'var(--text)' }}>{fmtCOP(s.balance)}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -142,8 +254,8 @@ export default function CompoundInterestPage() {
         <p>
           La tasa <strong style={{ color: 'var(--text)' }}>i</strong> en la fórmula de interés compuesto debe ser la tasa
           <em> efectiva del período de capitalización</em>. Si el préstamo capitaliza mensualmente, i debe ser mensual.
-          Si capitaliza trimestralmente, i debe ser trimestral. No se puede usar directamente una tasa anual con n mensual.
-          Aquí entra la conversión de tasas.
+          Si capitaliza trimestralmente, i debe ser trimestral. Al cambiar la unidad de período, la tasa se convierte
+          automáticamente usando la fórmula de equivalencia: i_nueva = (1 + i_original)^(factor) − 1.
         </p>
         <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>Valor presente y descuento</h3>
         <p>

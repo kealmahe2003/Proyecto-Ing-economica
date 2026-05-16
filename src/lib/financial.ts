@@ -68,33 +68,38 @@ export function calcGermanAmortization(P: number, iPct: number, n: number): Amor
 
 export function calcSimpleFixedAmort(P: number, iPct: number, n: number): AmortResult {
   // Cuota Fija con interés simple:
-  // Interés siempre calculado sobre el capital ORIGINAL (P*i constante)
-  // Capital por período = P/n (constante)
-  // Cuota = P/n + P*i (constante)
+  // El monto total a pagar = P*(1 + i*n); dividido en n cuotas iguales.
+  // El interés de cada período se calcula sobre el saldo pendiente (decreciente).
+  // La última cuota puede ser menor (cierra exactamente el saldo restante).
   const i = iPct / 100
-  const principalPerPeriod = P / n
-  const interestPerPeriod = P * i  // siempre sobre el original
-  const payment = principalPerPeriod + interestPerPeriod
+  const standardPayment = P / n + P * i  // total simple / n
   const rows: AmortRow[] = []
   let balance = P
   let totalPaid = 0
 
   for (let k = 1; k <= n; k++) {
-    const finalBalance = Math.max(0, balance - principalPerPeriod)
+    const interest = balance * i
+    const targetPrincipal = standardPayment - interest
+    // Si el abono supera el saldo restante, se cierra en este período
+    const principal = targetPrincipal >= balance ? balance : targetPrincipal
+    const actualPayment = interest + principal
+    const finalBalance = Math.max(0, balance - principal)
+
     rows.push({
       period: k,
       initialBalance: balance,
-      payment,
-      interest: interestPerPeriod,
-      principal: principalPerPeriod,
+      payment: actualPayment,
+      interest,
+      principal,
       finalBalance,
     })
     balance = finalBalance
-    totalPaid += payment
+    totalPaid += actualPayment
+    if (balance <= 0) break
   }
 
   return {
-    payment,
+    payment: rows[0].payment,
     totalPaid,
     totalInterest: totalPaid - P,
     totalPrincipal: P,
@@ -169,14 +174,26 @@ export function calcAnnuityFV(PMT: number, iPct: number, n: number): AnnuityResu
   const FV = PMT * (Math.pow(1 + i, n) - 1) / i
   const PV = PMT * (1 - Math.pow(1 + i, -n)) / i
   const totalPaid = PMT * n
-  return { PV, FV, PMT, n, i, totalPaid, totalInterest: FV - totalPaid, series: [] }
+  // Saldo acumulado período a período: FV parcial del ahorro
+  const series = Array.from({ length: Math.min(n, 60) }, (_, k) => ({
+    period: k + 1,
+    payment: PMT,
+    balance: PMT * (Math.pow(1 + i, k + 1) - 1) / i,
+  }))
+  return { PV, FV, PMT, n, i, totalPaid, totalInterest: FV - totalPaid, series }
 }
 
 export function calcAnnuityPMT(PV: number, iPct: number, n: number): AnnuityResult {
   const i = iPct / 100
   const PMT = PV * (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1)
   const FV = PMT * (Math.pow(1 + i, n) - 1) / i
-  return { PV, FV, PMT, n, i, totalPaid: PMT * n, totalInterest: PMT * n - PV, series: [] }
+  // Saldo del crédito pendiente período a período
+  const series = Array.from({ length: Math.min(n, 60) }, (_, k) => ({
+    period: k + 1,
+    payment: PMT,
+    balance: PV * Math.pow(1 + i, k + 1) - PMT * (Math.pow(1 + i, k + 1) - 1) / i,
+  }))
+  return { PV, FV, PMT, n, i, totalPaid: PMT * n, totalInterest: PMT * n - PV, series }
 }
 
 // ============================================================

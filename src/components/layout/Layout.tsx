@@ -5,7 +5,7 @@ import {
   ArrowUpRight, BookOpen, Menu, Sun, Moon
 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
-
+import Chatbot from '../ui/Chatbot'
 const NAV = [
   {
     group: 'Calculadoras',
@@ -45,22 +45,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           borderRight: '1px solid var(--border)',
         }}
       >
-        {/* Logo */}
-        <NavLink
-          to="/"
-          className="flex items-center gap-3 px-5 py-5 border-b"
-          style={{ borderColor: 'var(--border)', textDecoration: 'none' }}
-        >
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
-            style={{ background: 'var(--accent)', color: '#fff' }}
+        {/* Logo + theme toggle */}
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+          <NavLink
+            to="/"
+            className="flex items-center gap-3"
+            style={{ textDecoration: 'none' }}
           >
-            <span style={{ fontFamily: 'Crimson Pro, serif', fontSize: 16 }}>Σ</span>
-          </div>
-          <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-            Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
-          </span>
-        </NavLink>
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+              style={{ background: 'var(--accent)', color: '#fff' }}
+            >
+              <span style={{ fontFamily: 'Crimson Pro, serif', fontSize: 16 }}>Σ</span>
+            </div>
+            <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)', letterSpacing: '-0.02em' }}>
+              Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
+            </span>
+          </NavLink>
+          <button
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+            className="p-2 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center"
+            style={{ color: 'var(--muted)', border: '1px solid var(--border)', background: 'transparent' }}
+          >
+            {theme === 'dark'
+              ? <Sun size={15} strokeWidth={1.75} />
+              : <Moon size={15} strokeWidth={1.75} />
+            }
+          </button>
+        </div>
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
@@ -94,9 +108,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* Footer: toggle + año */}
+        {/* Footer */}
         <div
-          className="px-4 py-3 border-t flex items-center justify-between"
+          className="px-4 py-3 border-t"
           style={{ borderColor: 'var(--border)' }}
         >
           <span
@@ -105,24 +119,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             Ing. Económica · 2026
           </span>
-          <button
-            onClick={toggle}
-            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-            className="p-1.5 rounded-lg transition-all duration-150 cursor-pointer"
-            style={{
-              color: 'var(--muted)',
-              border: '1px solid var(--border)',
-              background: 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {theme === 'dark'
-              ? <Sun size={14} strokeWidth={1.75} />
-              : <Moon size={14} strokeWidth={1.75} />
-            }
-          </button>
         </div>
       </aside>
 
@@ -172,6 +168,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      <Chatbot />
     </div>
   )
 }

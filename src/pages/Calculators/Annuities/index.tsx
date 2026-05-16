@@ -3,7 +3,7 @@ import { PageHeader, Field, ModeTabs, ResultCard, FormulaBox, Callout, Divider, 
 import { calcAnnuityPV, calcAnnuityFV, calcAnnuityPMT } from '../../../lib/financial'
 import { fmtCOP, fmtPct } from '../../../utils/format'
 import type { AnnuityResult } from '../../../types/finance.types'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 const MODES = [
   { value: 'PV', label: 'Valor Presente (PV)' },
@@ -30,6 +30,15 @@ export default function AnnuitiesPage() {
       setResult(res)
     } catch (e: any) { setError(e.message) }
   }
+
+  // Chart: evolución del saldo período a período (limitado a 60 puntos)
+  const chartData = result?.series
+    ? result.series.slice(0, 60).map(s => ({
+        período: s.period,
+        'Saldo acumulado': Math.round(s.balance),
+        'Aportes acumulados': Math.round(result.PMT * s.period),
+      }))
+    : []
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
@@ -59,7 +68,7 @@ export default function AnnuitiesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           {mode !== 'PMT' && <Field label="Pago periódico PMT ($)" value={PMT} onChange={setPMT} unit="$" />}
           {mode === 'PMT' && <Field label="Valor Presente PV ($)" value={PV} onChange={setPV} unit="$" />}
-          <Field label="Tasa efectiva por período i (%)" value={iPct} onChange={setIPct} unit="%" />
+          <Field label="Tasa de interés (i)" value={iPct} onChange={setIPct} unit="%" hint="Tasa efectiva por período" />
           <Field label="Número de períodos n" value={n} onChange={setN} />
         </div>
 
@@ -78,6 +87,42 @@ export default function AnnuitiesPage() {
             <ResultCard label="Total pagado" value={fmtCOP(result.totalPaid)} />
             <ResultCard label="Intereses totales" value={fmtCOP(result.totalInterest)} />
           </div>
+
+          {chartData.length > 1 && (
+            <div className="card p-5 mt-2">
+              <p className="text-xs mono uppercase tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
+                Evolución del valor acumulado vs aportes
+              </p>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
+                  <defs>
+                    <linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorAportes" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                  <XAxis dataKey="período" tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }} />
+                  <YAxis width={56} tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                    tickFormatter={v => `$${(v / 1e6).toFixed(1)}M`} />
+                  <Tooltip
+                    contentStyle={{ background: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                    formatter={(v: number) => [fmtCOP(v)]}
+                    labelFormatter={l => `Período ${l}`}
+                  />
+                  <Area type="monotone" dataKey="Saldo acumulado" stroke="var(--chart-1)" strokeWidth={2} fill="url(#colorSaldo)" />
+                  <Area type="monotone" dataKey="Aportes acumulados" stroke="var(--chart-2)" strokeWidth={1.5} strokeDasharray="4 4" fill="url(#colorAportes)" />
+                </AreaChart>
+              </ResponsiveContainer>
+              <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>
+                La diferencia entre las dos curvas es el <strong style={{ color: 'var(--accent)' }}>rendimiento generado por los intereses</strong>.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

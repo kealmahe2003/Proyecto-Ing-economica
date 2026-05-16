@@ -3,6 +3,7 @@ import { PageHeader, Field, ResultCard, FormulaBox, Callout, Divider, ErrorBox }
 import { calcRealRate } from '../../../lib/financial'
 import { fmtCOP, fmtPct } from '../../../utils/format'
 import type { InflationResult } from '../../../types/finance.types'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
 export default function InflationPage() {
   const [nominal, setNominal] = useState('14')
@@ -18,6 +19,15 @@ export default function InflationPage() {
       setResult(calcRealRate(+nominal, +inflation, +P, +n))
     } catch (e: any) { setError(e.message) }
   }
+
+  // Chart: FV nominal vs FV real año a año
+  const chartData = result
+    ? Array.from({ length: +n + 1 }, (_, k) => ({
+        año: k,
+        'FV Nominal': Math.round(+P * Math.pow(1 + result.nominalRate, k)),
+        'FV Real (poder adquisitivo)': Math.round(+P * Math.pow(1 + result.realRate, k)),
+      }))
+    : []
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
@@ -63,6 +73,34 @@ export default function InflationPage() {
           </div>
 
           <FormulaBox formula={`iReal = (1 + ${fmtPct(+nominal)}) / (1 + ${fmtPct(+inflation)}) − 1 = ${fmtPct(result.realRatePct, 4)}`} />
+
+          {chartData.length > 1 && (
+            <div className="card p-5 mt-6">
+              <p className="text-xs mono uppercase tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
+                FV nominal vs poder adquisitivo real
+              </p>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={chartData} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                  <XAxis dataKey="año" tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                    label={{ value: 'Años', position: 'insideBottom', offset: -4, fill: 'var(--chart-tick)', fontSize: 10 }} />
+                  <YAxis width={56} tick={{ fill: 'var(--chart-tick)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                    tickFormatter={v => `$${(v / 1e6).toFixed(1)}M`} />
+                  <Tooltip
+                    contentStyle={{ background: 'var(--chart-tooltip-bg)', border: '1px solid var(--chart-tooltip-border)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                    formatter={(v: number) => [fmtCOP(v)]}
+                    labelFormatter={l => `Año ${l}`}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'var(--chart-tick)' }} />
+                  <Line type="monotone" dataKey="FV Nominal" stroke="var(--chart-1)" strokeWidth={2.5} dot={false} />
+                  <Line type="monotone" dataKey="FV Real (poder adquisitivo)" stroke="var(--chart-2)" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>
+                La brecha entre ambas curvas representa el <strong style={{ color: 'var(--gold)' }}>poder adquisitivo perdido</strong> por la inflación.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

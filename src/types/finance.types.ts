@@ -2,7 +2,7 @@
 // FINANCE TYPES — shared across all calculation modules
 // ============================================================
 
-export type Period = 'day' | 'month' | 'year'
+export type Period = 'day' | 'week' | 'fortnight' | 'month' | 'bimonth' | 'quarter' | 'quadrimester' | 'semester' | 'year'
 export type RateMode = 'vencido' | 'anticipado'
 export type CapFreq = 1 | 2 | 4 | 12 | 52 | 365
 

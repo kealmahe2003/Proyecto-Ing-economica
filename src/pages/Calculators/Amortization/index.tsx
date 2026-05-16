@@ -63,9 +63,10 @@ export default function AmortizationPage() {
       />
 
       <Callout color="blue">
-        <strong>Cuota Fija:</strong> la cuota total es constante durante todo el crédito. Al inicio se paga más interés
-        que capital; al final, más capital que interés. <strong>Capital Constante + Intereses:</strong> el abono al capital
-        es igual cada período, pero el interés decrece conforme baja el saldo — la cuota total disminuye con el tiempo.
+        <strong>Cuota Fija:</strong> cuota constante; el interés baja cada período (el saldo disminuye) y el abono a capital
+        sube. <strong>Capital Constante:</strong> el abono a capital es igual cada período, el interés baja y la cuota total
+        disminuye con el tiempo. <em>En cuota fija compuesta, la columna "Abono capital" aumenta periodo a periodo — es
+        correcto.</em>
       </Callout>
 
       <div className="space-y-2 mb-6">
@@ -77,7 +78,7 @@ export default function AmortizationPage() {
       <Divider label="Calculadora" />
 
       <div className="card p-6 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
             <p className="text-xs mono uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Tipo de interés</p>
             <ModeTabs options={INTEREST_TYPES} value={interestType} onChange={v => { setInterestType(v); setResult(null) }} />
@@ -97,7 +98,7 @@ export default function AmortizationPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           <Field label="Monto del crédito P ($)" value={P} onChange={setP} placeholder="ej: 10000000" unit="$" />
-          <Field label="Tasa efectiva por período i" value={iPct} onChange={setIPct} placeholder="ej: 1.5" unit="%" />
+          <Field label="Tasa de interés (i)" value={iPct} onChange={setIPct} placeholder="ej: 1.5" unit="%" />
           <Field label="Número de cuotas n" value={n} onChange={setN} placeholder="ej: 24" />
         </div>
 
@@ -135,7 +136,7 @@ export default function AmortizationPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ background: 'var(--surface2)' }}>
-                    {['#', 'Saldo inicial', 'Cuota', 'Interés', 'Capital', 'Saldo final'].map(h => (
+                    {['#', 'Saldo inicial', 'Cuota', 'Interés', 'Abono capital', 'Saldo final'].map(h => (
                       <th key={h} className="py-3 px-4 text-right first:text-center text-xs mono uppercase tracking-wider"
                         style={{ color: 'var(--muted)', borderBottom: '1px solid var(--border)', fontWeight: 400 }}>
                         {h}

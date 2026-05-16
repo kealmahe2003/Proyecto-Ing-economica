@@ -1,37 +1,36 @@
 import { Link } from 'react-router-dom'
 
 const MODULES = [
-  { to: '/simple', num: '01', label: 'Interés Simple', desc: 'Crecimiento lineal. Calcula F, P, i o n.' },
-  { to: '/compuesto', num: '02', label: 'Interés Compuesto', desc: 'Capitalización. El poder del tiempo.' },
-  { to: '/tasas', num: '03', label: 'Conversión de Tasas', desc: 'EA, nominal, anticipada, vencida.' },
-  { to: '/amortizacion', num: '04', label: 'Amortización', desc: 'Tablas francés y alemán completas.' },
-  { to: '/anualidades', num: '05', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
-  { to: '/inflacion', num: '06', label: 'Inflación & Tasas Reales', desc: 'Ecuación de Fisher. Poder adquisitivo.' },
+  { to: '/simple',       num: '01', label: 'Interés Simple',          desc: 'Crecimiento lineal. Calcula F, P, i o n.' },
+  { to: '/compuesto',    num: '02', label: 'Interés Compuesto',       desc: 'Capitalización. El poder del tiempo.' },
+  { to: '/tasas',        num: '03', label: 'Conversión de Tasas',     desc: 'EA, nominal, anticipada, vencida.' },
+  { to: '/amortizacion', num: '04', label: 'Amortización',            desc: 'Tablas francés y alemán completas.' },
+  { to: '/anualidades',  num: '05', label: 'Anualidades',             desc: 'Series uniformes, PV, FV, PMT.' },
+  { to: '/inflacion',    num: '06', label: 'Inflación & Tasas Reales', desc: 'Ecuación de Fisher. Poder adquisitivo.' },
 ]
 
 export default function HomePage() {
   return (
-    <div className="p-6 lg:p-12 max-w-5xl mx-auto">
+    <div className="p-6 lg:p-12 max-w-3xl mx-auto">
 
       {/* Hero */}
-      <div className="mb-14">
-        <span className="section-chip mb-4 inline-flex">Ingeniería Económica · 2026</span>
+      <div className="mb-12">
         <h1
-          className="display text-4xl lg:text-5xl font-semibold mb-4"
-          style={{ color: 'var(--text)', letterSpacing: '-0.03em', lineHeight: 1.15 }}
+          className="display font-semibold mb-3"
+          style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', color: 'var(--text)', letterSpacing: '-0.03em', lineHeight: 1.15 }}
         >
           Calculadora &<br />
           <span style={{ color: 'var(--accent)' }}>Guía de referencia</span>
         </h1>
-        <p className="text-base max-w-xl" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
-          Herramienta para estudiantes de ingeniería. Calculadoras con lógica exacta,
-          explicaciones claras y una wiki de conceptos para dominar la materia.
+        <p style={{ color: 'var(--muted)', lineHeight: 1.75, maxWidth: '44ch', margin: '0 0 1.5rem' }}>
+          Herramienta para estudiantes de ingeniería. Calculadoras con lógica exacta
+          y una wiki de conceptos para dominar la materia.
         </p>
-        <div className="flex flex-wrap gap-3 mt-6">
+        <div className="flex flex-wrap gap-3">
           <Link
             to="/simple"
             className="btn-primary inline-flex items-center gap-2"
-            style={{ width: 'auto', padding: '0.65rem 1.4rem' }}
+            style={{ textDecoration: 'none' }}
           >
             Comenzar →
           </Link>
@@ -45,45 +44,41 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Module grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {MODULES.map(m => (
-          <Link
-            key={m.to}
-            to={m.to}
-            className="card p-5 group transition-all duration-200 hover:scale-[1.01]"
-            style={{ textDecoration: 'none', display: 'block' }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <span className="mono text-xs" style={{ color: 'var(--muted)' }}>{m.num}</span>
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)', marginTop: 4 }} />
-            </div>
-            <h3 className="display text-lg font-semibold mb-1" style={{ color: 'var(--text)' }}>
-              {m.label}
-            </h3>
-            <p className="text-sm" style={{ color: 'var(--muted)' }}>{m.desc}</p>
-            <div className="mt-4 text-xs mono" style={{ color: 'var(--accent)', opacity: 0.8 }}>
-              Abrir →
-            </div>
-          </Link>
+      {/* Module list — editorial numbered rows */}
+      <div style={{ borderTop: '1px solid var(--border)' }}>
+        {MODULES.map((m) => (
+          <div key={m.to}>
+            <Link to={m.to} className="module-row">
+              <span className="module-num">{m.num}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text)', margin: 0, lineHeight: 1.3 }}>
+                  {m.label}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--muted)', margin: 0 }}>
+                  {m.desc}
+                </p>
+              </div>
+              <span className="module-arrow">→</span>
+            </Link>
+            <div style={{ height: 1, background: 'var(--border)', margin: '0 0.75rem' }} />
+          </div>
         ))}
+
+        {/* Wiki row — indicador diferenciado */}
+        <Link to="/wiki" className="module-row">
+          <span className="module-num">07</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p className="text-sm font-semibold" style={{ color: 'var(--text)', margin: 0, lineHeight: 1.3 }}>
+              Wiki de Conceptos
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--muted)', margin: 0 }}>
+              Definiciones, fórmulas y ejemplos — expandibles y buscables.
+            </p>
+          </div>
+          <span className="module-arrow" style={{ fontSize: '1.1rem' }}>◎</span>
+        </Link>
       </div>
 
-      {/* Wiki card */}
-      <Link
-        to="/wiki"
-        className="mt-3 card p-5 flex items-center justify-between group transition-all duration-200 hover:scale-[1.005]"
-        style={{ textDecoration: 'none', display: 'flex' }}
-      >
-        <div>
-          <p className="mono text-xs mb-1" style={{ color: 'var(--accent)' }}>Referencia</p>
-          <h3 className="display text-xl font-semibold" style={{ color: 'var(--text)' }}>Wiki de Conceptos</h3>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--muted)' }}>
-            Definiciones, fórmulas y ejemplos — expandibles y buscables.
-          </p>
-        </div>
-        <span className="text-2xl ml-6" style={{ color: 'var(--accent)' }}>◎</span>
-      </Link>
     </div>
   )
 }

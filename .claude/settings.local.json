@@ -12,7 +12,15 @@
       "Bash(git commit *)",
       "Bash(Test-Path *)",
       "Bash(git push *)",
-      "Bash(gh pr create --title 'feat: rediseño visual, tema claro/oscuro, correcciones de fórmulas y enrutamiento' --body ' *)"
+      "Bash(gh pr create --title 'feat: rediseño visual, tema claro/oscuro, correcciones de fórmulas y enrutamiento' --body ' *)",
+      "Skill(claude-md-management:claude-md-improver)",
+      "Skill(ui-ux-pro-max:ui-ux-pro-max)",
+      "Skill(impeccable)",
+      "Bash(claude mcp *)",
+      "Bash(Get-ChildItem *)",
+      "Skill(superpowers:brainstorming)",
+      "Bash(Select-Object Name)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }

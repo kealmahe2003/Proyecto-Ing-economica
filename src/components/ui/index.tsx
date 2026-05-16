@@ -149,11 +149,16 @@ interface PageHeaderProps {
 export function PageHeader({ chip, title, description }: PageHeaderProps) {
   return (
     <div className="mb-8">
-      <span className="section-chip mb-3 inline-flex">{chip}</span>
-      <h1 className="display text-3xl lg:text-4xl font-semibold mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
-        {title}
-      </h1>
-      <p className="text-sm leading-relaxed max-w-xl" style={{ color: 'var(--muted)' }}>
+      <span className="section-chip mb-4 inline-flex">{chip}</span>
+      <div style={{ borderLeft: '3px solid var(--accent)', paddingLeft: '0.875rem', marginBottom: '0.625rem' }}>
+        <h1
+          className="display text-3xl lg:text-4xl font-semibold"
+          style={{ color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2, margin: 0 }}
+        >
+          {title}
+        </h1>
+      </div>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)', maxWidth: '54ch', marginTop: '0.5rem' }}>
         {description}
       </p>
     </div>
