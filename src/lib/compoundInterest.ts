@@ -41,5 +41,14 @@ export function calcCompN(P: number, F: number, iPct: number): CompoundResult {
   if (F <= P) throw new Error('F debe ser mayor que P')
   const factor = F / P
   const n = Math.log(factor) / Math.log(1 + i)
-  return { P, F, I: F - P, i, n, factor, iSimple: P * i * n, series: buildSeries(P, i, Math.ceil(n)) }
+  return {
+    P,
+    F,
+    I: F - P,
+    i,
+    n,
+    factor,
+    iSimple: P * i * n,
+    series: buildSeries(P, i, Math.ceil(n)),
+  }
 }

@@ -1,8 +1,16 @@
 import { NavLink } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
 import {
-  TrendingUp, BarChart2, ArrowLeftRight, Table2, Sigma,
-  ArrowUpRight, BookOpen, Menu, Sun, Moon
+  TrendingUp,
+  BarChart2,
+  ArrowLeftRight,
+  Table2,
+  Sigma,
+  ArrowUpRight,
+  BookOpen,
+  Menu,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import Chatbot from '../ui/Chatbot'
@@ -20,19 +28,16 @@ const NAV = [
   },
   {
     group: 'Aprender',
-    items: [
-      { to: '/wiki', label: 'Wiki de Conceptos', icon: BookOpen },
-    ],
+    items: [{ to: '/wiki', label: 'Wiki de Conceptos', icon: BookOpen }],
   },
 ]
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   const [sideOpen, setSideOpen] = useState(false)
   const { theme, toggle } = useTheme()
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg)' }}>
-
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col transition-transform duration-300
@@ -46,19 +51,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }}
       >
         {/* Logo + theme toggle */}
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-          <NavLink
-            to="/"
-            className="flex items-center gap-3"
-            style={{ textDecoration: 'none' }}
-          >
+        <div
+          className="flex items-center justify-between px-5 py-4 border-b"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <NavLink to="/" className="flex items-center gap-3" style={{ textDecoration: 'none' }}>
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
               style={{ background: 'var(--accent)', color: '#fff' }}
             >
               <span style={{ fontFamily: 'Crimson Pro, serif', fontSize: 16 }}>Σ</span>
             </div>
-            <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)', letterSpacing: '-0.02em' }}>
+            <span
+              style={{
+                fontFamily: 'Crimson Pro, serif',
+                fontWeight: 600,
+                fontSize: 18,
+                color: 'var(--text)',
+                letterSpacing: '-0.02em',
+              }}
+            >
               Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
             </span>
           </NavLink>
@@ -67,12 +79,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
             title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
             className="p-2 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center"
-            style={{ color: 'var(--muted)', border: '1px solid var(--border)', background: 'transparent' }}
+            style={{
+              color: 'var(--muted)',
+              border: '1px solid var(--border)',
+              background: 'transparent',
+            }}
           >
-            {theme === 'dark'
-              ? <Sun size={15} strokeWidth={1.75} />
-              : <Moon size={15} strokeWidth={1.75} />
-            }
+            {theme === 'dark' ? (
+              <Sun size={15} strokeWidth={1.75} />
+            ) : (
+              <Moon size={15} strokeWidth={1.75} />
+            )}
           </button>
         </div>
 
@@ -95,9 +112,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     `flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 text-sm transition-all duration-150 cursor-pointer
                     ${isActive ? 'font-medium' : 'hover:opacity-80'}`
                   }
-                  style={({ isActive }) => isActive
-                    ? { background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)', textDecoration: 'none' }
-                    : { color: 'var(--muted)', textDecoration: 'none', border: '1px solid transparent' }
+                  style={({ isActive }) =>
+                    isActive
+                      ? {
+                          background: 'var(--accent-bg)',
+                          color: 'var(--accent)',
+                          border: '1px solid var(--accent-border)',
+                          textDecoration: 'none',
+                        }
+                      : {
+                          color: 'var(--muted)',
+                          textDecoration: 'none',
+                          border: '1px solid transparent',
+                        }
                   }
                 >
                   <Icon size={15} strokeWidth={1.75} />
@@ -109,14 +136,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div
-          className="px-4 py-3 border-t"
-          style={{ borderColor: 'var(--border)' }}
-        >
-          <span
-            className="text-xs"
-            style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}
-          >
+        <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
+          <span className="text-xs" style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}>
             Ing. Económica · 2026
           </span>
         </div>
@@ -146,7 +167,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <Menu size={18} strokeWidth={1.75} />
           </button>
-          <span style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 600, fontSize: 18, color: 'var(--text)' }}>
+          <span
+            style={{
+              fontFamily: 'Crimson Pro, serif',
+              fontWeight: 600,
+              fontSize: 18,
+              color: 'var(--text)',
+            }}
+          >
             Fin<span style={{ color: 'var(--accent)' }}>Calc</span>
           </span>
           <div className="ml-auto">
@@ -154,19 +182,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClick={toggle}
               aria-label={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
               className="p-2 rounded-lg cursor-pointer"
-              style={{ color: 'var(--muted)', background: 'transparent', border: '1px solid var(--border)' }}
+              style={{
+                color: 'var(--muted)',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+              }}
             >
-              {theme === 'dark'
-                ? <Sun size={14} strokeWidth={1.75} />
-                : <Moon size={14} strokeWidth={1.75} />
-              }
+              {theme === 'dark' ? (
+                <Sun size={14} strokeWidth={1.75} />
+              ) : (
+                <Moon size={14} strokeWidth={1.75} />
+              )}
             </button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
 
       <Chatbot />

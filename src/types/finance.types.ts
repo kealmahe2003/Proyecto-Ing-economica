@@ -2,34 +2,60 @@
 // FINANCE TYPES — shared across all calculation modules
 // ============================================================
 
-export type Period = 'day' | 'week' | 'fortnight' | 'month' | 'bimonth' | 'quarter' | 'quadrimester' | 'semester' | 'year'
+export type Period =
+  | 'day'
+  | 'week'
+  | 'fortnight'
+  | 'month'
+  | 'bimonth'
+  | 'quarter'
+  | 'quadrimester'
+  | 'semester'
+  | 'year'
 export type RateMode = 'vencido' | 'anticipado'
 export type CapFreq = 1 | 2 | 4 | 12 | 52 | 365
 
-export interface CalcError { field: string; message: string }
+export interface CalcError {
+  field: string
+  message: string
+}
 
 // --- Simple Interest ---
 export interface SimpleResult {
-  P: number; F: number; I: number; i: number; n: number
+  P: number
+  F: number
+  I: number
+  i: number
+  n: number
   iPct: number
 }
 
 // --- Compound Interest ---
 export interface CompoundResult {
-  P: number; F: number; I: number; i: number; n: number
-  factor: number; iSimple: number
+  P: number
+  F: number
+  I: number
+  i: number
+  n: number
+  factor: number
+  iSimple: number
   series: { period: number; balance: number; interestSimple: number }[]
 }
 
 // --- Rate Conversion ---
 export interface RateConversionResult {
-  inputLabel: string; inputPct: number
-  outputLabel: string; outputPct: number
+  inputLabel: string
+  inputPct: number
+  outputLabel: string
+  outputPct: number
   formula: string
   equivalences: {
-    label: string; pct: number; mode?: string
+    label: string
+    pct: number
+    mode?: string
   }[]
-  EA: number; monthly: number
+  EA: number
+  monthly: number
 }
 
 // --- Amortization ---
@@ -55,9 +81,13 @@ export interface AmortResult {
 
 // --- Annuities ---
 export interface AnnuityResult {
-  PV: number; FV: number; PMT: number
-  n: number; i: number
-  totalPaid: number; totalInterest: number
+  PV: number
+  FV: number
+  PMT: number
+  n: number
+  i: number
+  totalPaid: number
+  totalInterest: number
   series: { period: number; payment: number; balance: number }[]
 }
 

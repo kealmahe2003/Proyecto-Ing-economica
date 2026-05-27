@@ -42,7 +42,14 @@ export default function NotFoundPage() {
       >
         Ruta no encontrada
       </h2>
-      <p style={{ color: 'var(--muted)', marginBottom: '1.75rem', maxWidth: '36ch', lineHeight: 1.7 }}>
+      <p
+        style={{
+          color: 'var(--muted)',
+          marginBottom: '1.75rem',
+          maxWidth: '36ch',
+          lineHeight: 1.7,
+        }}
+      >
         Esta dirección no existe en el sistema. Verificá el URL o volvé al inicio.
       </p>
 
@@ -59,8 +66,8 @@ export default function NotFoundPage() {
           width: 'fit-content',
           transition: 'color 0.15s',
         }}
-        onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
       >
         ← Volver al inicio
       </Link>
