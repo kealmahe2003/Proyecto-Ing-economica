@@ -6,7 +6,9 @@ const STORAGE_KEY = 'fincalc_history'
 function loadHistory(): HistoryEntry[] {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-  } catch { return [] }
+  } catch {
+    return []
+  }
 }
 
 interface HistoryStore {
@@ -29,7 +31,7 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
     set({ entries })
   },
   remove(id) {
-    const entries = get().entries.filter(e => e.id !== id)
+    const entries = get().entries.filter((e) => e.id !== id)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
     set({ entries })
   },

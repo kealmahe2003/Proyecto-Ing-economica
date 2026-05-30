@@ -9,6 +9,11 @@ interface Message {
   content: string
 }
 
+let messageIdCounter = 1
+function getNextId() {
+  return messageIdCounter++
+}
+
 const QUICK_TOPICS = [
   'Interés Simple',
   'Interés Compuesto',
@@ -50,13 +55,13 @@ export default function Chatbot() {
     if (!q || loading) return
     setInput('')
 
-    const userMsg: Message = { id: Date.now(), role: 'user', content: q }
+    const userMsg: Message = { id: getNextId(), role: 'user', content: q }
     const nextMessages = [...messages, userMsg]
     setMessages(nextMessages)
     setLoading(true)
 
     try {
-      const history = nextMessages.slice(1, -1).map(m => ({
+      const history = nextMessages.slice(1, -1).map((m) => ({
         role: m.role,
         content: m.content,
       }))
@@ -70,15 +75,12 @@ export default function Chatbot() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const { reply } = await res.json()
 
-      setMessages(prev => [
-        ...prev,
-        { id: Date.now() + 1, role: 'assistant', content: reply },
-      ])
+      setMessages((prev) => [...prev, { id: getNextId(), role: 'assistant', content: reply }])
     } catch {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         {
-          id: Date.now() + 1,
+          id: getNextId(),
           role: 'assistant',
           content: 'Error al conectar con el asistente. Verificá tu conexión e intentá de nuevo.',
         },
@@ -97,7 +99,7 @@ export default function Chatbot() {
     <>
       <button
         className="chatbot-fab"
-        onClick={() => setIsOpen(o => !o)}
+        onClick={() => setIsOpen((o) => !o)}
         aria-label="Abrir asistente"
       >
         {isOpen ? <X size={26} /> : <MessageCircle size={26} />}
@@ -124,7 +126,7 @@ export default function Chatbot() {
         {/* Messages */}
         <div className="chatbot-body">
           <div className="chatbot-msgs">
-            {messages.map(m => (
+            {messages.map((m) => (
               <div key={m.id} className={`msg ${m.role === 'user' ? 'user' : 'bot'}`}>
                 <div className="bubble" style={{ whiteSpace: 'pre-wrap' }}>
                   {m.content}
@@ -148,7 +150,7 @@ export default function Chatbot() {
           {/* Input area */}
           <div className="chatbot-input-area">
             <div className="chips">
-              {QUICK_TOPICS.map(t => (
+              {QUICK_TOPICS.map((t) => (
                 <span key={t} className="chip" onClick={() => send(t)}>
                   {t}
                 </span>
@@ -160,8 +162,8 @@ export default function Chatbot() {
                 type="text"
                 placeholder="Ej: ¿Qué es la tasa EA?"
                 value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !loading && send(input)}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !loading && send(input)}
                 disabled={loading}
               />
               <button onClick={() => send(input)} disabled={loading || !input.trim()}>

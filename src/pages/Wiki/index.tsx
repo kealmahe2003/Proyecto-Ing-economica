@@ -156,9 +156,11 @@ export default function WikiPage() {
   const [cat, setCat] = useState('Todos')
   const [expanded, setExpanded] = useState<string | null>('interes-compuesto')
 
-  const filtered = CONCEPTS.filter(c => {
+  const filtered = CONCEPTS.filter((c) => {
     const matchCat = cat === 'Todos' || c.category === cat
-    const matchSearch = !search || c.title.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch =
+      !search ||
+      c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.body.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
@@ -178,18 +180,35 @@ export default function WikiPage() {
             className="input-field pl-9"
             placeholder="Buscar concepto..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--muted)' }}>⌕</span>
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-sm"
+            style={{ color: 'var(--muted)' }}
+          >
+            ⌕
+          </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {CATEGORIES.map(c => (
-            <button key={c} onClick={() => setCat(c)}
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-              style={c === cat
-                ? { background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }
-                : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)' }
-              }>
+              style={
+                c === cat
+                  ? {
+                      background: 'var(--accent-bg)',
+                      border: '1px solid var(--accent-border)',
+                      color: 'var(--accent)',
+                    }
+                  : {
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      color: 'var(--muted)',
+                    }
+              }
+            >
               {c}
             </button>
           ))}
@@ -200,28 +219,48 @@ export default function WikiPage() {
       <div className="space-y-3">
         {filtered.length === 0 && (
           <p className="text-sm text-center py-12" style={{ color: 'var(--muted)' }}>
-            No se encontraron conceptos para "{search}"
+            No se encontraron conceptos para &quot;{search}&quot;
           </p>
         )}
-        {filtered.map(concept => (
-          <div key={concept.id} className="card overflow-hidden transition-all duration-200"
-            style={{ borderColor: expanded === concept.id ? 'var(--accent-border)' : 'var(--border)' }}>
+        {filtered.map((concept) => (
+          <div
+            key={concept.id}
+            className="card overflow-hidden transition-all duration-200"
+            style={{
+              borderColor: expanded === concept.id ? 'var(--accent-border)' : 'var(--border)',
+            }}
+          >
             <button
               className="w-full flex items-start gap-4 p-5 text-left"
               onClick={() => setExpanded(expanded === concept.id ? null : concept.id)}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs mono uppercase tracking-widest px-2 py-0.5 rounded"
-                    style={{ background: 'var(--blue-bg)', color: 'var(--blue)', border: '1px solid var(--blue-border)' }}>
+                  <span
+                    className="text-xs mono uppercase tracking-widest px-2 py-0.5 rounded"
+                    style={{
+                      background: 'var(--blue-bg)',
+                      color: 'var(--blue)',
+                      border: '1px solid var(--blue-border)',
+                    }}
+                  >
                     {concept.category}
                   </span>
                 </div>
-                <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>{concept.title}</h3>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--muted)' }}>{concept.tagline}</p>
+                <h3 className="display text-lg font-semibold" style={{ color: 'var(--text)' }}>
+                  {concept.title}
+                </h3>
+                <p className="text-sm mt-0.5" style={{ color: 'var(--muted)' }}>
+                  {concept.tagline}
+                </p>
               </div>
-              <span className="text-lg mt-1 flex-shrink-0 transition-transform duration-200"
-                style={{ color: 'var(--muted)', transform: expanded === concept.id ? 'rotate(180deg)' : 'rotate(0)' }}>
+              <span
+                className="text-lg mt-1 flex-shrink-0 transition-transform duration-200"
+                style={{
+                  color: 'var(--muted)',
+                  transform: expanded === concept.id ? 'rotate(180deg)' : 'rotate(0)',
+                }}
+              >
                 ∨
               </span>
             </button>
@@ -231,20 +270,37 @@ export default function WikiPage() {
                 <div className="h-px mb-4" style={{ background: 'var(--border)' }} />
 
                 {concept.formula && (
-                  <div className="rounded-xl px-4 py-3 mb-4 mono text-sm"
-                    style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border)', color: 'var(--gold)' }}>
+                  <div
+                    className="rounded-xl px-4 py-3 mb-4 mono text-sm"
+                    style={{
+                      background: 'var(--gold-bg)',
+                      border: '1px solid var(--gold-border)',
+                      color: 'var(--gold)',
+                    }}
+                  >
                     {concept.formula}
                   </div>
                 )}
 
-                <div className="text-sm space-y-3" style={{ color: 'var(--muted)', lineHeight: 1.8 }}>
+                <div
+                  className="text-sm space-y-3"
+                  style={{ color: 'var(--muted)', lineHeight: 1.8 }}
+                >
                   {concept.body.split('\n\n').map((para, i) => (
-                    <p key={i} style={{ whiteSpace: 'pre-line' }}
+                    <p
+                      key={i}
+                      style={{ whiteSpace: 'pre-line' }}
                       dangerouslySetInnerHTML={{
                         __html: para
-                          .replace(/\*\*(.*?)\*\*/g, `<strong style="color:var(--text)">$1</strong>`)
-                          .replace(/•/g, '<span style="color:var(--accent);margin-right:6px">▸</span>')
-                          .replace(/⚠/g, '<span style="color:var(--gold)">⚠</span>')
+                          .replace(
+                            /\*\*(.*?)\*\*/g,
+                            `<strong style="color:var(--text)">$1</strong>`
+                          )
+                          .replace(
+                            /•/g,
+                            '<span style="color:var(--accent);margin-right:6px">▸</span>'
+                          )
+                          .replace(/⚠/g, '<span style="color:var(--gold)">⚠</span>'),
                       }}
                     />
                   ))}
