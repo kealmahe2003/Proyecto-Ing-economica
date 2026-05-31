@@ -9,6 +9,7 @@ import {
   Callout,
   Divider,
   ErrorBox,
+  CashFlowDiagram,
 } from '../../../components/ui'
 import { calcCompF, calcCompP, calcCompI, calcCompN } from '../../../lib/compoundInterest'
 import { fmtCOP, fmtPct } from '../../../utils/format'
@@ -213,6 +214,14 @@ export default function CompoundInterestPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <CashFlowDiagram
+            p={result.P}
+            f={result.F}
+            iPct={result.i * 100}
+            n={result.n}
+            periodType={period}
+            type="compound"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <ResultCard
               accent

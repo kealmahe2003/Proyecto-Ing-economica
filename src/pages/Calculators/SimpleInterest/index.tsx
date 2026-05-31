@@ -9,6 +9,7 @@ import {
   Callout,
   Divider,
   ErrorBox,
+  CashFlowDiagram,
 } from '../../../components/ui'
 import { calcSimpleF, calcSimpleP, calcSimpleN, calcSimpleI } from '../../../lib/simpleInterest'
 import { fmtCOP, fmtPct } from '../../../utils/format'
@@ -210,6 +211,14 @@ export default function SimpleInterestPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <CashFlowDiagram
+            p={result.P}
+            f={result.F}
+            iPct={result.iPct}
+            n={result.n}
+            periodType={period}
+            type="simple"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <ResultCard
               accent

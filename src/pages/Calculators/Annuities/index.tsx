@@ -8,6 +8,7 @@ import {
   Callout,
   Divider,
   ErrorBox,
+  CashFlowDiagram,
 } from '../../../components/ui'
 import { calcAnnuityPV, calcAnnuityFV, calcAnnuityPMT } from '../../../lib/financial'
 import { fmtCOP } from '../../../utils/format'
@@ -117,6 +118,16 @@ export default function AnnuitiesPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <CashFlowDiagram
+            p={result.PV}
+            f={result.FV}
+            pmt={result.PMT}
+            iPct={+iPct}
+            n={result.n}
+            periodType="período"
+            type="annuities"
+            annuityMode={mode as 'PV' | 'FV' | 'PMT'}
+          />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <ResultCard
               accent
