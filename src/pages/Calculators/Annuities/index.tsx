@@ -59,6 +59,21 @@ export default function AnnuitiesPage() {
         'Aportes acumulados': Math.round(result.PMT * s.period),
       }))
     : []
+  
+  function downloadExcel() {
+    import('xlsx').then((XLSX) => {
+      const data = (result?.series ?? []).map((s) => ({
+        'Período': s.period,
+        'Cuota (PMT)': result!.PMT,
+        'Saldo acumulado': s.balance,
+        'Aportes acumulados': result!.PMT * s.period,
+      }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Anualidades')
+      XLSX.writeFile(wb, 'tabla_anualidades.xlsx')
+    })
+  }   
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
@@ -118,6 +133,19 @@ export default function AnnuitiesPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={downloadExcel}
+              className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+              style={{
+                background: 'var(--accent-bg)',
+                border: '1px solid var(--accent-border)',
+                color: 'var(--accent)',
+              }}
+            >
+              ↓ Descargar Excel
+            </button>
+          </div>
           <CashFlowDiagram
             p={result.PV}
             f={result.FV}

@@ -131,6 +131,31 @@ export default function SimpleInterestPage() {
   const nLabel = `Número de ${PERIOD_N_LABEL[period]} n`
   const nUnit = PERIOD_N_LABEL[period]
 
+  function downloadExcel() {
+    import('xlsx').then((XLSX) => {
+      const data = Array.from({ length: Math.min(Math.ceil(result!.n), 60) }, (_, k) => {
+        const per = k + 1
+        const isLast = per === Math.ceil(result!.n)
+        const initBalance = result!.P * (1 + result!.i * k)
+        const intPeriod =
+          isLast && result!.n !== Math.ceil(result!.n)
+            ? result!.P * result!.i * (result!.n - k)
+            : result!.P * result!.i
+        const finalBal = isLast ? result!.F : result!.P * (1 + result!.i * per)
+        return {
+          '#': per,
+          'Saldo inicial': initBalance,
+          'Interés del período': intPeriod,
+          'Saldo final': finalBal,
+        }
+      })
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Interés Simple')
+      XLSX.writeFile(wb, 'tabla_interes_simple.xlsx')
+    })
+  }
+
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
@@ -307,7 +332,10 @@ export default function SimpleInterestPage() {
 
           {result.n >= 1 && result.n <= 120 && (
             <div className="card overflow-hidden mt-6">
-              <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+              <div
+                className="px-5 py-3 border-b flex items-center justify-between"
+                style={{ borderColor: 'var(--border)' }}
+              >
                 <p
                   className="text-xs mono uppercase tracking-widest"
                   style={{ color: 'var(--muted)' }}
@@ -315,6 +343,17 @@ export default function SimpleInterestPage() {
                   Tabla período a período — {Math.min(Math.ceil(result.n), 60)} {nUnit}
                   {result.n > 60 ? ' (primeros 60)' : ''}
                 </p>
+                <button
+                  onClick={downloadExcel}
+                  className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                  style={{
+                    background: 'var(--accent-bg)',
+                    border: '1px solid var(--accent-border)',
+                    color: 'var(--accent)',
+                  }}
+                >
+                  ↓ Descargar Excel
+                </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
