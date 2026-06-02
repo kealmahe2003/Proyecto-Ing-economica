@@ -6,11 +6,13 @@ const COP = new Intl.NumberFormat('es-CO', {
   style: 'currency',
   currency: 'COP',
   maximumFractionDigits: 0,
+  useGrouping: true,
 })
 const USD = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   maximumFractionDigits: 2,
+  useGrouping: true,
 })
 
 export function fmtCOP(n: number) {
@@ -19,14 +21,19 @@ export function fmtCOP(n: number) {
 export function fmtUSD(n: number) {
   return USD.format(n)
 }
-export function fmtNumber(n: number, decimals = 2) {
-  return new Intl.NumberFormat('es-CO', { maximumFractionDigits: decimals }).format(n)
+export function fmtNumber(n: number, decimals = 2, minDecimals = 0) {
+  return new Intl.NumberFormat('es-CO', {
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: minDecimals,
+    useGrouping: true,
+  }).format(n)
 }
+
 export function fmtPct(n: number, d = 4) {
-  return `${n.toFixed(d)}%`
+  return `${fmtNumber(n, d, d)}%`
 }
 export function fmtPctShort(n: number) {
-  return `${n.toFixed(2)}%`
+  return `${fmtNumber(n, 2, 2)}%`
 }
 
 export function fmtCurrency(n: number, currency: 'COP' | 'USD' = 'COP') {

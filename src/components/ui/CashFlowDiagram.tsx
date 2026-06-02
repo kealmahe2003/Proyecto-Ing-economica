@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react'
 import { fmtCOP, fmtPct } from '../../utils/format'
 
 interface CashFlowDiagramProps {
-  p?: number       // Present Value (Capital / Principal)
-  f?: number       // Future Value (Monto Final)
-  pmt?: number     // Payment (Anualidad / Cuota constante)
-  iPct?: number    // Interest rate (percentage)
-  n: number        // Number of periods
+  p?: number // Present Value (Capital / Principal)
+  f?: number // Future Value (Monto Final)
+  pmt?: number // Payment (Anualidad / Cuota constante)
+  iPct?: number // Interest rate (percentage)
+  n: number // Number of periods
   periodType?: string // e.g. "mes", "año", etc.
   type: 'simple' | 'compound' | 'amortization' | 'annuities' | 'inflation'
   annuityMode?: 'PV' | 'FV' | 'PMT' // For Annuities specific logic
   payments?: { period: number; payment: number; principal: number; interest: number }[] // For Amortization details
   nominalFV?: number // For Inflation specific logic
-  realFV?: number    // For Inflation specific logic
+  realFV?: number // For Inflation specific logic
 }
 
 type Perspective = 'investor' | 'debtor'
@@ -48,13 +48,22 @@ export default function CashFlowDiagram({
   function fmtShortCOP(num: number): string {
     const isNeg = num < 0
     const absNum = Math.abs(num)
+    const format = (value: number, minFraction = 0, maxFraction = 0) =>
+      new Intl.NumberFormat('es-CO', {
+        minimumFractionDigits: minFraction,
+        maximumFractionDigits: maxFraction,
+        useGrouping: true,
+      }).format(value)
+
     let res = ''
     if (absNum >= 1_000_000) {
-      res = `$${(absNum / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+      const value = absNum / 1_000_000
+      res = `$${format(value, 0, 1)}M`
     } else if (absNum >= 1_000) {
-      res = `$${(absNum / 1_000).toFixed(0)}K`
+      const value = absNum / 1_000
+      res = `$${format(value, 0, 0)}K`
     } else {
-      res = `$${absNum.toFixed(0)}`
+      res = `$${format(absNum, 0, 0)}`
     }
     return isNeg ? `-${res}` : res
   }
@@ -91,10 +100,10 @@ export default function CashFlowDiagram({
     const isUp = dir === 'up'
     const yStart = 120
     const amplitude = 65 * heightScale
-    const yEnd = isUp ? (120 - amplitude) : (120 + amplitude)
-    const yHead = isUp ? (yEnd + 10) : (yEnd - 10)
-    const yTextVal = isUp ? (yEnd - 8) : (yEnd + 16)
-    const yTextLabel = isUp ? (yEnd - 20) : (yEnd + 28)
+    const yEnd = isUp ? 120 - amplitude : 120 + amplitude
+    const yHead = isUp ? yEnd + 10 : yEnd - 10
+    const yTextVal = isUp ? yEnd - 8 : yEnd + 16
+    const yTextLabel = isUp ? yEnd - 20 : yEnd + 28
 
     return (
       <g className="transition-all duration-300">
@@ -127,13 +136,7 @@ export default function CashFlowDiagram({
         >
           {value}
         </text>
-        <text
-          x={x}
-          y={yTextLabel}
-          textAnchor="middle"
-          className="text-[9px]"
-          fill="var(--muted)"
-        >
+        <text x={x} y={yTextLabel} textAnchor="middle" className="text-[9px]" fill="var(--muted)">
           {label}
         </text>
       </g>
@@ -153,9 +156,9 @@ export default function CashFlowDiagram({
     const elements: React.JSX.Element[] = []
 
     // Paleta de colores consistente
-    const colInflow = 'var(--accent)'      // Verde
-    const colOutflow = 'var(--destructive)'  // Rojo
-    const colGold = 'var(--gold)'          // Dorado (para inflación real)
+    const colInflow = 'var(--accent)' // Verde
+    const colOutflow = 'var(--destructive)' // Rojo
+    const colGold = 'var(--gold)' // Dorado (para inflación real)
 
     if (type === 'simple' || type === 'compound') {
       // Período 0: Valor Presente (Capital inicial P)
@@ -185,9 +188,7 @@ export default function CashFlowDiagram({
           color={fColor}
         />
       )
-    } 
-    
-    else if (type === 'amortization') {
+    } else if (type === 'amortization') {
       // Período 0: Préstamo / Desembolso (P)
       const pDir = perspective === 'debtor' ? 'up' : 'down'
       const pColor = pDir === 'up' ? colInflow : colOutflow
@@ -203,15 +204,15 @@ export default function CashFlowDiagram({
       )
 
       // Determinar la cuota máxima para escalar la altura de las flechas (útil en amortización alemana)
-      const maxPayment = payments.length > 0 
-        ? Math.max(...payments.map(p => p.payment)) 
-        : pmt
+      const maxPayment = payments.length > 0 ? Math.max(...payments.map((p) => p.payment)) : pmt
 
       // Períodos 1..n: Cuotas mensuales de pago
       const pmtDir = perspective === 'debtor' ? 'down' : 'up'
       const pmtColor = pmtDir === 'up' ? colInflow : colOutflow
 
-      const periodsToDraw = isLongTimeline ? [1, 2, 3, roundedN - 1, roundedN] : Array.from({ length: roundedN }, (_, i) => i + 1)
+      const periodsToDraw = isLongTimeline
+        ? [1, 2, 3, roundedN - 1, roundedN]
+        : Array.from({ length: roundedN }, (_, i) => i + 1)
 
       periodsToDraw.forEach((k) => {
         const xPos = getX(k)
@@ -219,7 +220,7 @@ export default function CashFlowDiagram({
           // Si tenemos el desglose de filas, buscamos el valor exacto de la cuota
           const rowData = payments.find((r) => r.period === k)
           const cuotaVal = rowData ? rowData.payment : pmt
-          
+
           // Escalar altura proporcionalmente (mínimo 0.4 para que se note)
           const scale = maxPayment > 0 ? 0.4 + 0.6 * (cuotaVal / maxPayment) : 1
 
@@ -236,16 +237,16 @@ export default function CashFlowDiagram({
           )
         }
       })
-    } 
-    
-    else if (type === 'annuities') {
+    } else if (type === 'annuities') {
       if (annuityMode === 'FV') {
         // Modo Ahorro/Valor Futuro
         // Período 0: Sin flujo inicial
         // Períodos 1..n: Cuotas de ahorro periódicas
         const pmtDir = perspective === 'investor' ? 'down' : 'up'
         const pmtColor = pmtDir === 'up' ? colInflow : colOutflow
-        const periodsToDraw = isLongTimeline ? [1, 2, 3, roundedN - 1, roundedN] : Array.from({ length: roundedN }, (_, i) => i + 1)
+        const periodsToDraw = isLongTimeline
+          ? [1, 2, 3, roundedN - 1, roundedN]
+          : Array.from({ length: roundedN }, (_, i) => i + 1)
 
         periodsToDraw.forEach((k) => {
           const xPos = getX(k)
@@ -298,7 +299,9 @@ export default function CashFlowDiagram({
         // Períodos 1..n: Cuotas uniformes de amortización (PMT)
         const pmtDir = perspective === 'debtor' ? 'down' : 'up'
         const pmtColor = pmtDir === 'up' ? colInflow : colOutflow
-        const periodsToDraw = isLongTimeline ? [1, 2, 3, roundedN - 1, roundedN] : Array.from({ length: roundedN }, (_, i) => i + 1)
+        const periodsToDraw = isLongTimeline
+          ? [1, 2, 3, roundedN - 1, roundedN]
+          : Array.from({ length: roundedN }, (_, i) => i + 1)
 
         periodsToDraw.forEach((k) => {
           const xPos = getX(k)
@@ -316,9 +319,7 @@ export default function CashFlowDiagram({
           }
         })
       }
-    } 
-    
-    else if (type === 'inflation') {
+    } else if (type === 'inflation') {
       // Módulo de Inflación: Perspectiva Inversionista por excelencia
       // Período 0: Capital inicial P (Outflow, abajo)
       const pDir = perspective === 'investor' ? 'down' : 'up'
@@ -375,7 +376,9 @@ export default function CashFlowDiagram({
   // Ticks y etiquetas del eje horizontal
   const renderTicks = () => {
     const ticks: React.JSX.Element[] = []
-    const periods = isLongTimeline ? [0, 1, 2, 3, roundedN - 1, roundedN] : Array.from({ length: roundedN + 1 }, (_, i) => i)
+    const periods = isLongTimeline
+      ? [0, 1, 2, 3, roundedN - 1, roundedN]
+      : Array.from({ length: roundedN + 1 }, (_, i) => i)
 
     periods.forEach((k) => {
       const x = getX(k)
@@ -385,13 +388,7 @@ export default function CashFlowDiagram({
             {/* Pequeña línea vertical del eje */}
             <line x1={x} y1={116} x2={x} y2={124} stroke="var(--border)" strokeWidth="1.5" />
             {/* Texto de período */}
-            <text
-              x={x}
-              y={136}
-              textAnchor="middle"
-              className="mono text-[10px]"
-              fill="var(--text)"
-            >
+            <text x={x} y={136} textAnchor="middle" className="mono text-[10px]" fill="var(--text)">
               {k}
             </text>
           </g>
@@ -405,18 +402,28 @@ export default function CashFlowDiagram({
   return (
     <div className="card p-5 mb-6 animate-fade-up">
       {/* Cabecera del Flujograma */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b" style={{ borderColor: 'var(--border)' }}>
+      <div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b"
+        style={{ borderColor: 'var(--border)' }}
+      >
         <div>
-          <h4 className="font-semibold text-sm display tracking-wide" style={{ color: 'var(--text)' }}>
+          <h4
+            className="font-semibold text-sm display tracking-wide"
+            style={{ color: 'var(--text)' }}
+          >
             📊 Diagrama de Flujo de Caja
           </h4>
           <p className="text-xs" style={{ color: 'var(--muted)' }}>
-            Línea de tiempo del dinero · Tasa: {fmtPct(iPct, 2)} · {roundedN} {getPeriodLabelPlural()}
+            Línea de tiempo del dinero · Tasa: {fmtPct(iPct, 2)} · {roundedN}{' '}
+            {getPeriodLabelPlural()}
           </p>
         </div>
 
         {/* Interruptor de Perspectiva */}
-        <div className="flex bg-neutral-100 dark:bg-neutral-800 p-0.5 rounded-lg border text-xs" style={{ borderColor: 'var(--border)' }}>
+        <div
+          className="flex bg-neutral-100 dark:bg-neutral-800 p-0.5 rounded-lg border text-xs"
+          style={{ borderColor: 'var(--border)' }}
+        >
           <button
             onClick={() => setPerspective('investor')}
             className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
@@ -513,14 +520,25 @@ export default function CashFlowDiagram({
       </div>
 
       {/* Nota educativa corta */}
-      <div className="mt-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border text-[11px] leading-relaxed" style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}>
+      <div
+        className="mt-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border text-[11px] leading-relaxed"
+        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+      >
         {perspective === 'investor' ? (
           <p>
-            💡 <strong>Perspectiva del Inversionista:</strong> Las flechas hacia abajo (<span style={{ color: 'var(--destructive)' }}>rojas</span>) indican egresos de dinero (la inversión o depósito inicial). Las flechas hacia arriba (<span style={{ color: 'var(--accent)' }}>verdes</span>) representan ingresos de dinero (los retornos, intereses o el retiro final del capital).
+            💡 <strong>Perspectiva del Inversionista:</strong> Las flechas hacia abajo (
+            <span style={{ color: 'var(--destructive)' }}>rojas</span>) indican egresos de dinero
+            (la inversión o depósito inicial). Las flechas hacia arriba (
+            <span style={{ color: 'var(--accent)' }}>verdes</span>) representan ingresos de dinero
+            (los retornos, intereses o el retiro final del capital).
           </p>
         ) : (
           <p>
-            💡 <strong>Perspectiva del Deudor:</strong> Las flechas hacia arriba (<span style={{ color: 'var(--accent)' }}>verdes</span>) representan ingresos de dinero (el crédito o préstamo recibido inicialmente). Las flechas hacia abajo (<span style={{ color: 'var(--destructive)' }}>rojas</span>) indican egresos de dinero (las cuotas periódicas o la devolución de la deuda).
+            💡 <strong>Perspectiva del Deudor:</strong> Las flechas hacia arriba (
+            <span style={{ color: 'var(--accent)' }}>verdes</span>) representan ingresos de dinero
+            (el crédito o préstamo recibido inicialmente). Las flechas hacia abajo (
+            <span style={{ color: 'var(--destructive)' }}>rojas</span>) indican egresos de dinero
+            (las cuotas periódicas o la devolución de la deuda).
           </p>
         )}
       </div>

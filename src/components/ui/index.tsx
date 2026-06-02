@@ -1,6 +1,5 @@
 import { useState, useEffect, ReactNode } from 'react'
 
-// ── FIELD ────────────────────────────────────────────────────
 interface FieldProps {
   label: string
   value: string
@@ -289,4 +288,3 @@ export function ErrorBox({ message }: { message: string }) {
 }
 
 export { default as CashFlowDiagram } from './CashFlowDiagram'
-

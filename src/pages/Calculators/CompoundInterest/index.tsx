@@ -12,7 +12,7 @@ import {
   CashFlowDiagram,
 } from '../../../components/ui'
 import { calcCompF, calcCompP, calcCompI, calcCompN } from '../../../lib/compoundInterest'
-import { fmtCOP, fmtPct } from '../../../utils/format'
+import { fmtCOP, fmtPct, fmtNumber } from '../../../utils/format'
 import type { CompoundResult } from '../../../types/finance.types'
 import {
   LineChart,
@@ -241,13 +241,13 @@ export default function CompoundInterestPage() {
                     ? fmtCOP(result.P)
                     : mode === 'i'
                       ? fmtPct(result.i * 100)
-                      : `${result.n.toFixed(2)} ${nUnit}`
+                      : `${fmtNumber(result.n, 2, 2)} ${nUnit}`
               }
             />
             <ResultCard label="Interés compuesto" value={fmtCOP(result.I)} />
             <ResultCard
               label="Factor (1+i)ⁿ"
-              value={result.factor.toFixed(6)}
+              value={fmtNumber(result.factor, 6, 6)}
               sub={[
                 { label: 'Si fuera simple', value: fmtCOP(result.iSimple) },
                 { label: 'Ventaja compuesto', value: fmtCOP(result.I - result.iSimple) },
@@ -256,7 +256,7 @@ export default function CompoundInterestPage() {
           </div>
 
           <FormulaBox
-            formula={`F = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.i * 100, 4)})^${result.n.toFixed(2)} = ${fmtCOP(result.F)}`}
+            formula={`F = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.i * 100, 4)})^${fmtNumber(result.n, 2, 2)} = ${fmtCOP(result.F)}`}
           />
 
           {chartData.length > 1 && (

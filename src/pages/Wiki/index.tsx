@@ -14,7 +14,83 @@ Un peso hoy es más valioso que un peso en el futuro por tres razones:
 • Riesgo: el futuro es incierto; es preferible tener certeza hoy.
 • Inflación: el poder adquisitivo del dinero disminuye con el tiempo.
 
+El Valor del Dinero en el Tiempo también está afectado por factores como la inflación, la tasa de interés, el riesgo financiero y la equivalencia económica.
+
+Su importancia es clave para evaluar inversiones, comparar alternativas, analizar préstamos, calcular valores presentes y futuros, y tomar decisiones financieras fundamentadas.
+
 Este principio es la base de todos los cálculos de ingeniería económica. Sin él, no tendría sentido descontar flujos futuros ni calcular tasas de interés.`,
+    formula: null,
+  },
+  {
+    id: 'valor-presente-futuro',
+    category: 'Fundamentos',
+    title: 'Valor Presente y Valor Futuro',
+    tagline: 'Dos perspectivas del mismo valor económico a través del tiempo',
+    body: `El valor presente (VP) es la cantidad de dinero que hoy equivale a una suma futura descontada a una tasa de interés. El valor futuro (VF) es el monto que alcanza esa cantidad después de un período de tiempo al aplicarle intereses.
+
+El VP se usa para comparar alternativas financieras al llevar los flujos futuros al presente. El VF se usa para proyectar ahorros, planificar inversiones y medir el crecimiento de un capital.
+
+Variables utilizadas:
+• VP: Valor presente.
+• VF: Valor futuro.
+• i: Tasa de interés por período.
+• n: Número de períodos.`,
+    formula: null,
+  },
+  {
+    id: 'interes-general',
+    category: 'Interés',
+    title: 'Interés',
+    tagline: 'La compensación por prestar, invertir o diferir dinero',
+    body: `El interés es el rendimiento que se obtiene por ceder el uso del dinero durante un período determinado. Puede ser un ingreso para quien presta o un costo para quien recibe el crédito.
+
+Variables básicas:
+• P: Capital inicial.
+• F: Monto final.
+• i: Tasa de interés.
+• n: Número de períodos.
+
+El interés puede ser simple o compuesto, dependiendo de si los intereses se capitalizan y generan intereses en períodos posteriores.`,
+    formula: null,
+  },
+  {
+    id: 'historia-interes',
+    category: 'Interés',
+    title: 'Historia del Interés',
+    tagline: 'Cómo cambió la percepción del interés desde la antigüedad hasta la actualidad',
+    body: `En la antigüedad el interés era visto con recelo y a menudo se rechazaba como injusto. En la Edad Media comenzó a surgir el concepto, pero siguió siendo cuestionado por razones éticas y religiosas.
+
+Durante la evolución histórica, la Iglesia y los pensadores comenzaron a diferenciar entre usura y un interés legítimo. Huguccio distinguió el cobro abusivo del arrendamiento legítimo, y Hostiense introdujo la idea del lucro cesante.
+
+Más tarde, figuras como Francisco de Vitoria defendieron que el interés podía contribuir al desarrollo económico. Claude Saumaise igualó la ganancia del alquiler con la del préstamo de dinero. Richard Cantillon explicó que el interés compensa el riesgo asumido por el prestamista.
+
+Turgot defendió que nadie puede ser obligado a prestar dinero sin recibir una compensación adecuada. Adam Smith ubicó el interés como ingreso del capital, distinto de los salarios y la renta. Con el tiempo, la prohibición religiosa del cobro de intereses fue cediendo y el interés se consolidó como herramienta financiera.`,
+    formula: null,
+  },
+  {
+    id: 'diagramas-flujo-efectivo',
+    category: 'Fundamentos',
+    title: 'Diagramas de Flujo de Efectivo',
+    tagline: 'Representan ingresos y egresos del proyecto en el tiempo',
+    body: `Los diagramas de flujo de efectivo muestran gráficamente los movimientos de dinero de un proyecto a lo largo de los períodos analizados. Facilitan el análisis financiero y hacen visible cuándo ocurren ingresos, egresos e inversiones.
+
+Elementos de un diagrama:
+• Línea de tiempo: los períodos analizados.
+• Período 0: el inicio del análisis.
+• Flechas hacia arriba: ingresos, beneficios o recuperaciones de capital.
+• Flechas hacia abajo: egresos, inversiones o costos.
+
+Su utilidad principal es ayudar a visualizar flujos, comparar alternativas financieras y aplicar factores de equivalencia económica.`,
+    formula: null,
+  },
+  {
+    id: 'equivalencia-financiera',
+    category: 'Fundamentos',
+    title: 'Equivalencia Financiera',
+    tagline: 'Dos montos en tiempos distintos son equivalentes si tienen igual valor económico',
+    body: `La equivalencia financiera establece que dos o más cantidades de dinero en momentos diferentes pueden considerarse equivalentes si generan el mismo valor al compararlas con una tasa de interés adecuada.
+
+El principio fundamental es que dos alternativas son equivalentes cuando producen el mismo valor en un mismo punto del tiempo usando la tasa correcta. Esto permite convertir valores futuros a presentes, o viceversa, y comparar opciones con diferentes momentos de pago.`,
     formula: null,
   },
   {
@@ -137,6 +213,15 @@ La relación entre PV y PMT es exactamente la fórmula de amortización de cuota
 
 TASA NOMINAL: lo que el banco anuncia o cobra. Incluye la compensación por inflación.
 TASA REAL: el rendimiento o costo después de descontar el efecto de la inflación. Refleja el aumento real de poder adquisitivo.
+
+El poder adquisitivo es la cantidad de bienes y servicios que una persona puede comprar con una cantidad fija de dinero. Si los precios suben más rápido que los ingresos, el poder adquisitivo cae aunque el monto nominal sea mayor.
+
+La inflación afecta especialmente a ahorradores, pensionados, personas con ingresos fijos e inversionistas conservadores. Los deudores con tasas de interés fijas pueden ver reducido el valor real de sus pagos cuando la inflación es alta.
+
+Factores que influyen en la inflación:
+• Oferta y demanda.
+• Confianza económica.
+• Políticas monetarias y fiscales.
 
 ECUACIÓN DE FISHER (exacta):
 (1 + iNominal) = (1 + iReal) × (1 + π)
