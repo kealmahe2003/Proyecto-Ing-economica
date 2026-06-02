@@ -69,9 +69,28 @@ export default function AmortizationPage() {
     }
   }
 
+  
+
   const rows = result?.rows ?? []
   const totalPages = Math.ceil(rows.length / PAGE_SIZE)
   const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
+  function downloadExcel() {
+    import('xlsx').then((XLSX) => {
+      const data = rows.map((row) => ({
+        '#': row.period,
+        'Saldo inicial': row.initialBalance,
+        'Cuota': row.payment,
+        'Interés': row.interest,
+        'Abono capital': row.principal,
+        'Saldo final': row.finalBalance,
+      }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Amortización')
+      XLSX.writeFile(wb, 'tabla_amortizacion.xlsx')
+    })
+  }
 
   return (
     <div className="p-6 lg:p-10 max-w-5xl mx-auto">
@@ -92,9 +111,9 @@ export default function AmortizationPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="Cuota fija (interés compuesto) = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]" />
-        <FormulaBox formula="Cuota fija (interés simple) = P / n + P × i     (interés sobre capital original)" />
-        <FormulaBox formula="Capital constante: Kₜ = P / n     Interésₜ = Saldoₜ × i" />
+        <FormulaBox title="Cuota fija (interés compuesto)" formula="Cuota = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]" />
+        <FormulaBox title="Cuota fija (interés simple)" formula="Cuota = P / n + P × i" />
+        <FormulaBox title="Capital constante" formula="Kₜ = P / n     Interésₜ = Saldoₜ × i" />
       </div>
 
       <Divider label="Calculadora" />
@@ -214,7 +233,10 @@ export default function AmortizationPage() {
           </div>
 
           <div className="card overflow-hidden">
-            <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+            <div
+              className="px-5 py-3 border-b flex items-center justify-between"
+              style={{ borderColor: 'var(--border)' }}
+            >
               <p
                 className="text-xs mono uppercase tracking-widest"
                 style={{ color: 'var(--muted)' }}
@@ -223,6 +245,17 @@ export default function AmortizationPage() {
                 {result.system === 'fixed-payment' ? 'Cuota Fija' : 'Capital Constante + Intereses'}{' '}
                 · Interés {result.interestType === 'compound' ? 'Compuesto' : 'Simple'}
               </p>
+              <button
+                onClick={downloadExcel}
+                className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                style={{
+                  background: 'var(--accent-bg)',
+                  border: '1px solid var(--accent-border)',
+                  color: 'var(--accent)',
+                }}
+              >
+                ↓ Descargar Excel
+              </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

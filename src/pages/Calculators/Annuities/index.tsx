@@ -59,6 +59,21 @@ export default function AnnuitiesPage() {
         'Aportes acumulados': Math.round(result.PMT * s.period),
       }))
     : []
+  
+  function downloadExcel() {
+    import('xlsx').then((XLSX) => {
+      const data = (result?.series ?? []).map((s) => ({
+        'Período': s.period,
+        'Cuota (PMT)': result!.PMT,
+        'Saldo acumulado': s.balance,
+        'Aportes acumulados': result!.PMT * s.period,
+      }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Anualidades')
+      XLSX.writeFile(wb, 'tabla_anualidades.xlsx')
+    })
+  }   
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
@@ -76,9 +91,9 @@ export default function AnnuitiesPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="PV = PMT × [1 − (1+i)^−n] / i     (Valor Presente de la serie)" />
-        <FormulaBox formula="FV = PMT × [(1+i)^n − 1] / i       (Valor Futuro de la serie)" />
-        <FormulaBox formula="PMT = PV × [i(1+i)^n] / [(1+i)^n − 1]   (Cuota dada PV)" />
+        <FormulaBox title="Valor presente de la serie" formula="PV = PMT × [1 - (1+i)^-n] / i" />
+        <FormulaBox title="Valor futuro de la serie" formula="FV = PMT × [(1+i)^n - 1] / i" />
+        <FormulaBox title="Cuota dada el valor presente" formula="PMT = PV × [i(1+i)^n] / [(1+i)^n - 1]" />
       </div>
 
       <Divider label="Calculadora" />
@@ -118,6 +133,19 @@ export default function AnnuitiesPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={downloadExcel}
+              className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+              style={{
+                background: 'var(--accent-bg)',
+                border: '1px solid var(--accent-border)',
+                color: 'var(--accent)',
+              }}
+            >
+              ↓ Descargar Excel
+            </button>
+          </div>
           <CashFlowDiagram
             p={result.PV}
             f={result.FV}

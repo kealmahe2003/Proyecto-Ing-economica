@@ -5,9 +5,11 @@
 const COP = new Intl.NumberFormat('es-CO', {
   style: 'currency',
   currency: 'COP',
-  maximumFractionDigits: 0,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
   useGrouping: true,
 })
+
 const USD = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',

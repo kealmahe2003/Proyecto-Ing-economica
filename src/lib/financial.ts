@@ -22,7 +22,6 @@ export function calcFrenchAmortization(
   if (mode === 'vencido') {
     payment = (P * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1)
   } else {
-    // Anticipada: cuota al inicio del período
     payment = (P * (i * Math.pow(1 + i, n))) / ((Math.pow(1 + i, n) - 1) * (1 + i))
   }
 
@@ -30,13 +29,30 @@ export function calcFrenchAmortization(
   let balance = P
 
   for (let k = 1; k <= n; k++) {
-    const interest = mode === 'vencido' ? balance * i : (balance * i) / (1 + i)
-    const principal = payment - interest
+    let interest: number
+    let principal: number
+
+    if (mode === 'vencido') {
+      interest = balance * i
+      principal = payment - interest
+    } else {
+      principal = payment - (balance * i) / (1 + i)
+      interest = payment - principal
+    }
+
+    // Última cuota: ajustar exactamente al saldo restante
+    if (k === n) {
+      principal = balance
+      interest = balance * (mode === 'vencido' ? i : i / (1 + i))
+    }
+
+    const actualPayment = k === n ? principal + interest : payment
     const finalBalance = Math.max(0, balance - principal)
+
     rows.push({
       period: k,
       initialBalance: balance,
-      payment,
+      payment: actualPayment,
       interest,
       principal,
       finalBalance,

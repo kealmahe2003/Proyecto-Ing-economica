@@ -182,7 +182,7 @@ export function ResultCard({ label, value, accent, sub }: ResultCardProps) {
 }
 
 // ── FORMULA BOX ───────────────────────────────────────────────
-export function FormulaBox({ formula }: { formula: string }) {
+export function FormulaBox({ formula, title}: { formula: string; title?: string}) {
   return (
     <div
       className="rounded-lg px-4 py-3 text-sm mono overflow-x-auto"
@@ -192,6 +192,14 @@ export function FormulaBox({ formula }: { formula: string }) {
         color: 'var(--gold)',
       }}
     >
+      {title && (
+        <p
+          className="text-xs uppercase tracking-widest mb-1.5"
+          style={{ color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '0.08em' }}
+        >
+          {title}
+        </p>
+      )}
       <span className="whitespace-nowrap">{formula}</span>
     </div>
   )

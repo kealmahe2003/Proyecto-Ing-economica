@@ -74,6 +74,20 @@ export default function RateConversionPage() {
     }
   }
 
+  function downloadExcel() {
+    if (!result) return
+    import('xlsx').then((XLSX) => {
+      const data = result.equivalences.map((eq) => ({
+        'Tipo de tasa': eq.label,
+        'Tasa (%)': eq.pct,
+      }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Equivalencias')
+      XLSX.writeFile(wb, 'tabla_equivalencias.xlsx')
+    })
+  }
+
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
@@ -201,12 +215,25 @@ export default function RateConversionPage() {
 
           {/* Equivalence matrix */}
           <div className="card p-5">
-            <p
-              className="text-xs mono uppercase tracking-widest mb-4"
-              style={{ color: 'var(--muted)' }}
-            >
-              Tabla de equivalencias — todas las tasas equivalentes
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <p
+                className="text-xs mono uppercase tracking-widest"
+                style={{ color: 'var(--muted)' }}
+              >
+                Tabla de equivalencias — todas las tasas equivalentes
+              </p>
+              <button
+                onClick={downloadExcel}
+                className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                style={{
+                  background: 'var(--accent-bg)',
+                  border: '1px solid var(--accent-border)',
+                  color: 'var(--accent)',
+                }}
+              >
+                ↓ Descargar Excel
+              </button>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {result.equivalences.map((eq) => (
                 <div
