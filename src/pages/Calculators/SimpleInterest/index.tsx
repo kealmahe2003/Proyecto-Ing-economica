@@ -12,7 +12,7 @@ import {
   CashFlowDiagram,
 } from '../../../components/ui'
 import { calcSimpleF, calcSimpleP, calcSimpleN, calcSimpleI } from '../../../lib/simpleInterest'
-import { fmtCOP, fmtPct } from '../../../utils/format'
+import { fmtCOP, fmtPct, fmtNumber } from '../../../utils/format'
 import type { SimpleResult } from '../../../types/finance.types'
 import {
   LineChart,
@@ -237,7 +237,7 @@ export default function SimpleInterestPage() {
                   : mode === 'P'
                     ? fmtCOP(result.P)
                     : mode === 'n'
-                      ? `${result.n.toFixed(2)} ${nUnit}`
+                      ? `${fmtNumber(result.n, 2, 2)} ${nUnit}`
                       : fmtPct(result.iPct)
               }
             />
@@ -252,7 +252,7 @@ export default function SimpleInterestPage() {
           </div>
 
           <FormulaBox
-            formula={`M = VF = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.iPct, 2)} × ${result.n.toFixed(2)}) = ${fmtCOP(result.F)}`}
+            formula={`M = VF = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.iPct, 2)} × ${fmtNumber(result.n, 2, 2)}) = ${fmtCOP(result.F)}`}
           />
 
           {chartData.length > 1 && (
