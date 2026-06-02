@@ -64,8 +64,8 @@ export default function InflationPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="(1 + iReal) = (1 + iNominal) / (1 + π)     — Fisher exacta" />
-        <FormulaBox formula="iReal ≈ iNominal − π     — aproximación lineal" />
+        <FormulaBox title="Ecuación de Fisher exacta" formula="(1 + iReal) = (1 + iNominal) / (1 + π)" />
+        <FormulaBox title="Aproximación lineal de Fisher" formula="iReal ≈ iNominal - π" />
       </div>
 
       <Divider label="Calculadora" />
