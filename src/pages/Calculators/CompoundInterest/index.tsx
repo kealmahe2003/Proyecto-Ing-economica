@@ -149,11 +149,11 @@ export default function CompoundInterestPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="F = P × (1 + i)ⁿ" />
-        <FormulaBox formula="P = F × (1 + i)⁻ⁿ" />
-        <FormulaBox formula="i = (F/P)^(1/n) − 1" />
-        <FormulaBox formula="n = ln(F/P) / ln(1 + i)" />
-      </div>
+        <FormulaBox title="Valor futuro / Monto" formula="F = P × (1 + i)ⁿ" />
+        <FormulaBox title="Valor presente / Capital inicial" formula="P = F × (1 + i)⁻ⁿ" />
+        <FormulaBox title="Tasa de interés" formula="i = (F/P)^(1/n) − 1" />
+        <FormulaBox title="Número de períodos" formula="n = ln(F/P) / ln(1 + i)" />      
+        </div>
 
       <Divider label="Calculadora" />
 

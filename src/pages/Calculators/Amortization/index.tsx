@@ -92,9 +92,9 @@ export default function AmortizationPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="Cuota fija (interés compuesto) = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]" />
-        <FormulaBox formula="Cuota fija (interés simple) = P / n + P × i     (interés sobre capital original)" />
-        <FormulaBox formula="Capital constante: Kₜ = P / n     Interésₜ = Saldoₜ × i" />
+        <FormulaBox title="Cuota fija (interés compuesto)" formula="Cuota = P × [i × (1+i)ⁿ] / [(1+i)ⁿ − 1]" />
+        <FormulaBox title="Cuota fija (interés simple)" formula="Cuota = P / n + P × i" />
+        <FormulaBox title="Capital constante" formula="Kₜ = P / n     Interésₜ = Saldoₜ × i" />
       </div>
 
       <Divider label="Calculadora" />

@@ -147,9 +147,9 @@ export default function SimpleInterestPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="I = P × i × n" />
-        <FormulaBox formula="M = VF = P × (1 + i × n)" />
-        <FormulaBox formula="P = M / (1 + i × n)" />
+        <FormulaBox title="Interés generado" formula="I = P × i × n" />
+        <FormulaBox title="Valor futuro / Monto" formula="M = VF = P × (1 + i × n)" />
+        <FormulaBox title="Capital inicial" formula="P = M / (1 + i × n)" />
       </div>
 
       <Divider label="Calculadora" />

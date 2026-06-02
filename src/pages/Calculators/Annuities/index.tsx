@@ -76,9 +76,9 @@ export default function AnnuitiesPage() {
       </Callout>
 
       <div className="space-y-2 mb-6">
-        <FormulaBox formula="PV = PMT × [1 − (1+i)^−n] / i     (Valor Presente de la serie)" />
-        <FormulaBox formula="FV = PMT × [(1+i)^n − 1] / i       (Valor Futuro de la serie)" />
-        <FormulaBox formula="PMT = PV × [i(1+i)^n] / [(1+i)^n − 1]   (Cuota dada PV)" />
+        <FormulaBox title="Valor presente de la serie" formula="PV = PMT × [1 - (1+i)^-n] / i" />
+        <FormulaBox title="Valor futuro de la serie" formula="FV = PMT × [(1+i)^n - 1] / i" />
+        <FormulaBox title="Cuota dada el valor presente" formula="PMT = PV × [i(1+i)^n] / [(1+i)^n - 1]" />
       </div>
 
       <Divider label="Calculadora" />
