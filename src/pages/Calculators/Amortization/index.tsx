@@ -8,6 +8,7 @@ import {
   Callout,
   Divider,
   ErrorBox,
+  CashFlowDiagram,
 } from '../../../components/ui'
 import {
   calcFrenchAmortization,
@@ -179,6 +180,15 @@ export default function AmortizationPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <CashFlowDiagram
+            p={result.totalPrincipal}
+            pmt={result.payment}
+            iPct={+iPct}
+            n={+n}
+            periodType="mes"
+            payments={result.rows}
+            type="amortization"
+          />
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <ResultCard
               accent

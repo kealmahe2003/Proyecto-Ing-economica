@@ -287,3 +287,6 @@ export function ErrorBox({ message }: { message: string }) {
     </div>
   )
 }
+
+export { default as CashFlowDiagram } from './CashFlowDiagram'
+

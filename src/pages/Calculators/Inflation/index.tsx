@@ -7,6 +7,7 @@ import {
   Callout,
   Divider,
   ErrorBox,
+  CashFlowDiagram,
 } from '../../../components/ui'
 import { calcRealRate } from '../../../lib/financial'
 import { fmtCOP, fmtPct } from '../../../utils/format'
@@ -97,6 +98,15 @@ export default function InflationPage() {
 
       {result && (
         <div className="animate-fade-up">
+          <CashFlowDiagram
+            p={+P}
+            nominalFV={result.nominalFV}
+            realFV={result.realFV}
+            iPct={result.realRatePct}
+            n={+n}
+            periodType="año"
+            type="inflation"
+          />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
             <ResultCard accent label="Tasa Real (Fisher)" value={fmtPct(result.realRatePct, 4)} />
             <ResultCard
