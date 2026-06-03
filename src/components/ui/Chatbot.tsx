@@ -24,9 +24,12 @@ const QUICK_TOPICS = [
   'Anualidades',
   'Inflación',
   'Valor del dinero',
+  'Factor F/P',
+  'Factor P/A',
+  'Gradiente aritmético',
 ]
 
-const WELCOME = `Hola. Puedo explicarte los conceptos de Ingeniería Económica que están en la Wiki: interés simple y compuesto, tasas nominales y efectivas, amortización, anualidades e inflación.
+const WELCOME = `Hola. Puedo explicarte los conceptos de Ingeniería Económica que están en la Wiki: interés simple y compuesto, tasas, amortización, anualidades, inflación y factores de capitalización.
 
 ¿Sobre qué quieres aprender?`
 
@@ -111,7 +114,7 @@ export default function Chatbot() {
           <div className="icon">◎</div>
           <div className="info">
             <h2>Asistente IA</h2>
-            <p>Wiki · 9 conceptos · Gemini</p>
+            <p>Wiki · 17 conceptos · Gemini</p>
           </div>
           <div className="actions">
             <button onClick={clearChat} title="Limpiar conversación">
