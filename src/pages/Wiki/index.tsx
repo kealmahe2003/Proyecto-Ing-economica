@@ -232,9 +232,136 @@ iReal ≈ iNominal − π
 En Colombia, el IPC (Índice de Precios al Consumidor) es la medida oficial de inflación, publicada mensualmente por el DANE. El Banco de la República fija su meta de inflación anual (generalmente 3%).`,
     formula: '(1 + iₙ) = (1 + iᵣ) × (1 + π)     →     iᵣ = (1+iₙ)/(1+π) − 1',
   },
+
+{
+    id: 'factor-fp',
+    category: 'Factores',
+    title: 'Factor De Cantidad Compuesta Pago Único (F/P)  ',
+    tagline: 'Busca el Futuro dado un Presente',
+    body: `Se usa cuando conoces un capital hoy (P) y quieres saber cuánto valdrá en el futuro después de n períodos a una tasa i.
+
+Casos de uso:
+- ¿Cuánto valdrá mi inversión de $1.000.000 en 3 años al 2% mensual?
+- ¿Cuál será el saldo de una deuda si no se paga en n períodos?
+- Proyectar el valor futuro de cualquier capital inicial.
+
+Notación: F = P(F/P, i%, n)`,
+    formula: 'F = P × (1 + i)ⁿ',
+  },
+  {
+    id: 'factor-pf',
+    category: 'Factores',
+    title: 'Factor De Descuento Pago Único (P/F)  ',
+    tagline: 'Busca el Presente dado un Futuro',
+    body: `Se usa cuando conoces un valor futuro (F) y quieres saber cuánto equivale hoy, descontado a una tasa i durante n períodos.
+
+Casos de uso:
+- ¿Cuánto debo invertir hoy para tener $5.000.000 en 2 años al 1.5% mensual?
+- Calcular el valor presente de un pago único que ocurrirá en el futuro.
+- Comparar alternativas que tienen beneficios en momentos distintos.
+
+Notación: P = F(P/F, i%, n)`,
+    formula: 'P = F × (1 + i)⁻ⁿ',
+  },
+  {
+    id: 'factor-fa',
+    category: 'Factores',
+    title: 'Factor De Cantidad Compuesta Serie Uniforme (F/A)  ',
+    tagline: 'Busca el Futuro dada una Anualidad',
+    body: `Se usa cuando realizas pagos o aportes iguales (A) al final de cada período y quieres saber cuánto acumularás al final de n períodos.
+
+Casos de uso:
+- ¿Cuánto acumularé si ahorro $200.000 cada mes durante 5 años al 1% mensual?
+- Calcular el valor futuro de un plan de ahorro con aportes periódicos iguales.
+- Proyectar el valor final de una serie de ingresos regulares.
+
+Notación: F = A(F/A, i%, n)`,
+    formula: 'F = A × [(1+i)ⁿ − 1] / i',
+  },
+  {
+    id: 'factor-af',
+    category: 'Factores',
+    title: 'Factor De Fondo de Amortización(A/F)  ',
+    tagline: 'Busca la Anualidad dado un Futuro',
+    body: `Se usa cuando necesitas acumular un monto futuro (F) y quieres saber qué cuota igual debes depositar al final de cada período durante n períodos.
+
+Casos de uso:
+- ¿Cuánto debo ahorrar cada mes para tener $10.000.000 en 3 años al 1% mensual?
+- Planificar aportes periódicos para alcanzar una meta futura específica.
+- Calcular cuotas de un fondo de reserva o reemplazo de activos.
+
+Notación: A = F(A/F, i%, n)`,
+    formula: 'A = F × i / [(1+i)ⁿ − 1]',
+  },
+  {
+    id: 'factor-pa',
+    category: 'Factores',
+    title: 'Factor De Valor Presente Serie Uniforme (P/A)  ',
+    tagline: 'Busca el Presente dada una Anualidad',
+    body: `Se usa cuando recibirás o pagarás cuotas iguales (A) durante n períodos y quieres saber cuánto vale hoy esa serie de pagos.
+
+Casos de uso:
+- ¿Cuánto vale hoy una serie de 24 pagos de $500.000 al 1.5% mensual?
+- Calcular el monto máximo que puedes pedir prestado si puedes pagar una cuota fija.
+- Valorar una renta, pensión o flujo de ingresos regulares.
+
+Notación: P = A(P/A, i%, n)`,
+    formula: 'P = A × [1 − (1+i)⁻ⁿ] / i',
+  },
+  {
+    id: 'factor-ap',
+    category: 'Factores',
+    title: 'Factor De Recuperación de Capital (A/P)  ',
+    tagline: 'Busca la Anualidad dado un Presente',
+    body: `Se usa cuando tienes un capital hoy (P) o una deuda, y quieres saber qué cuota igual debes pagar al final de cada período durante n períodos para recuperarlo o saldarlo.
+
+Casos de uso:
+- ¿Cuál es la cuota mensual de un crédito de $10.000.000 a 24 meses al 1.5%?
+- Calcular la cuota fija de cualquier crédito o préstamo.
+- Determinar los ingresos periódicos necesarios para recuperar una inversión.
+
+⚠ Este factor es exactamente la fórmula de cuota fija (sistema francés).
+
+Notación: A = P(A/P, i%, n)`,
+    formula: 'A = P × [i(1+i)ⁿ] / [(1+i)ⁿ − 1]',
+  },
+  {
+    id: 'factor-pg',
+    category: 'Factores',
+    title: 'Factor De Valor Presente Gradiente Aritmético (P/G)  ',
+    tagline: 'Busca el Presente de una serie que crece en cantidad constante',
+    body: `Se usa cuando los pagos NO son iguales sino que aumentan (o disminuyen) en una cantidad constante G cada período. El primer pago del gradiente puro ocurre en el período 2.
+
+Casos de uso:
+- Proyectos donde los costos de mantenimiento aumentan $50.000 cada año.
+- Ingresos que crecen una cantidad fija por período.
+- Combinado con (P/A) cuando hay una base uniforme más un gradiente.
+
+Nota: G es el incremento constante entre períodos consecutivos. Si los pagos son 0, G, 2G, 3G... se aplica el factor puro. Si los pagos son A, A+G, A+2G... se combina P/A + P/G.
+
+Notación: P = G(P/G, i%, n)`,
+    formula: 'P = G × [(1+i)ⁿ − i×n − 1] / [i² × (1+i)ⁿ]',
+  },
+  {
+    id: 'factor-ag',
+    category: 'Factores',
+    title: 'Factor De Serie Uniforme Gradiente Aritmético (A/G)  ',
+    tagline: 'Convierte un gradiente aritmético en una anualidad equivalente',
+    body: `Se usa para convertir una serie en gradiente aritmético en una serie uniforme equivalente. Es útil cuando necesitas expresar un gradiente como una cuota fija equivalente.
+
+Casos de uso:
+- Comparar un gradiente con una anualidad uniforme.
+- Simplificar cálculos combinando (A/G) con una anualidad base.
+- Encontrar la cuota equivalente de una serie creciente.
+
+Relación con otros factores: A_total = A_base + G × (A/G, i%, n)
+
+Notación: A = G(A/G, i%, n)`,
+    formula: 'A = G × [1/i − n/((1+i)ⁿ − 1)]',
+  },  
 ]
 
-const CATEGORIES = ['Todos', 'Fundamentos', 'Interés', 'Tasas', 'Crédito', 'Series', 'Inflación']
+const CATEGORIES = ['Todos', 'Fundamentos', 'Interés', 'Tasas', 'Crédito', 'Series', 'Inflación', 'Factores']
 
 export default function WikiPage() {
   const [search, setSearch] = useState('')
