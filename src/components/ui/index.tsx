@@ -1,4 +1,5 @@
-import { useState, useEffect, ReactNode } from 'react'
+import { useState, useEffect, ReactNode, useRef } from 'react'
+import { formatMoneyInput, parseMoneyInput } from '../../utils/format'
 
 interface FieldProps {
   label: string
@@ -22,6 +23,61 @@ export function Field({
   hint,
   type = 'number',
 }: FieldProps) {
+  const isMoney = unit === '$'
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isMoney) {
+      onChange(e.target.value)
+      return
+    }
+
+    const rawValue = e.target.value
+    const rawCursorPos = e.target.selectionStart || 0
+
+    // Clean value (only digits)
+    const cleanValue = parseMoneyInput(rawValue)
+
+    // Format the clean value
+    const formattedValue = formatMoneyInput(cleanValue)
+
+    // Count digits up to the cursor position in the raw value
+    let digitsBeforeCursor = 0
+    for (let i = 0; i < rawCursorPos; i++) {
+      if (/\d/.test(rawValue[i])) {
+        digitsBeforeCursor++
+      }
+    }
+
+    // Find where that digit count lands in the new formatted value
+    let newCursorPos = 0
+    let digitsCount = 0
+    for (let i = 0; i < formattedValue.length; i++) {
+      if (digitsCount === digitsBeforeCursor) {
+        newCursorPos = i
+        break
+      }
+      if (/\d/.test(formattedValue[i])) {
+        digitsCount++
+      }
+      if (i === formattedValue.length - 1) {
+        newCursorPos = formattedValue.length
+      }
+    }
+
+    // Notify parent with clean value
+    onChange(cleanValue)
+
+    // Set selection range after state update / render
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.setSelectionRange(newCursorPos, newCursorPos)
+      }
+    }, 0)
+  }
+
+  const displayValue = isMoney ? formatMoneyInput(value) : value
+
   return (
     <div className="flex flex-col gap-1">
       <label className="text-xs font-medium" style={{ color: 'var(--muted)' }}>
@@ -29,13 +85,15 @@ export function Field({
       </label>
       <div className="relative">
         <input
-          type={type}
+          ref={inputRef}
+          type={isMoney ? 'text' : type}
+          inputMode={isMoney ? 'numeric' : undefined}
           className="input-field pr-12"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={displayValue}
+          onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          min={0}
+          min={isMoney ? undefined : 0}
           style={disabled ? { opacity: 0.45, cursor: 'not-allowed' } : {}}
         />
         {unit && (
@@ -47,6 +105,7 @@ export function Field({
           </span>
         )}
       </div>
+
       {error && (
         <p className="text-xs" style={{ color: 'var(--destructive)' }}>
           {error}

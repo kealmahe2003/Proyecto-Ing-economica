@@ -170,8 +170,8 @@ export default function CompoundInterestPage() {
         <FormulaBox title="Valor futuro / Monto" formula="F = P × (1 + i)ⁿ" />
         <FormulaBox title="Valor presente / Capital inicial" formula="P = F × (1 + i)⁻ⁿ" />
         <FormulaBox title="Tasa de interés" formula="i = (F/P)^(1/n) − 1" />
-        <FormulaBox title="Número de períodos" formula="n = ln(F/P) / ln(1 + i)" />      
-        </div>
+        <FormulaBox title="Número de períodos" formula="n = ln(F/P) / ln(1 + i)" />
+      </div>
 
       <Divider label="Calculadora" />
 
@@ -192,7 +192,7 @@ export default function CompoundInterestPage() {
               label="Valor Presente P ($)"
               value={P}
               onChange={setP}
-              placeholder="ej: 5000000"
+              placeholder="ej: 5.000.000"
               unit="$"
             />
           )}
@@ -201,7 +201,7 @@ export default function CompoundInterestPage() {
               label="Valor Futuro F ($)"
               value={F}
               onChange={setF}
-              placeholder="ej: 8000000"
+              placeholder="ej: 8.000.000"
               unit="$"
             />
           )}

@@ -69,7 +69,7 @@ export default function AmortizationPage() {
     }
   }
 
-  
+
 
   const rows = result?.rows ?? []
   const totalPages = Math.ceil(rows.length / PAGE_SIZE)
@@ -178,7 +178,7 @@ export default function AmortizationPage() {
             label="Monto del crédito P ($)"
             value={P}
             onChange={setP}
-            placeholder="ej: 10000000"
+            placeholder="ej: 10.000.000"
             unit="$"
           />
           <Field

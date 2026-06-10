@@ -452,7 +452,7 @@ export default function CashFlowDiagram({
         <svg
           viewBox="0 0 800 250"
           className="w-full h-auto min-w-[650px] mx-auto select-none"
-          style={{ fontFamily: 'JetBrains Mono, monospace' }}
+          style={{ fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
         >
           {/* Fondo o cuadrículas decorativas */}
           <rect width="800" height="250" fill="transparent" />
