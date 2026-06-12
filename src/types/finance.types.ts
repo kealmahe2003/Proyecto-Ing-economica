@@ -20,6 +20,13 @@ export interface CalcError {
   message: string
 }
 
+// --- Paso a paso (explicación didáctica de un cálculo) ---
+export interface CalcStep {
+  title: string // "Paso 1 — Pasar la tasa a decimal"
+  expr?: string // "i = 2,5% ÷ 100 = 0,025"
+  detail?: string // explicación en lenguaje sencillo
+}
+
 // --- Simple Interest ---
 export interface SimpleResult {
   P: number

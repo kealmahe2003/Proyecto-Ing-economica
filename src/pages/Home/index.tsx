@@ -2,30 +2,30 @@ import { Link } from 'react-router-dom'
 
 const MODULES = [
   {
-    to: '/simple',
+    to: '/tasas',
     num: '01',
+    label: 'Conversión de Tasas',
+    desc: 'EA, nominal, anticipada, vencida.',
+  },
+  {
+    to: '/simple',
+    num: '02',
     label: 'Interés Simple',
     desc: 'Crecimiento lineal. Calcula F, P, i o n.',
   },
   {
     to: '/compuesto',
-    num: '02',
+    num: '03',
     label: 'Interés Compuesto',
     desc: 'Capitalización. El poder del tiempo.',
   },
-  {
-    to: '/tasas',
-    num: '03',
-    label: 'Conversión de Tasas',
-    desc: 'EA, nominal, anticipada, vencida.',
-  },
+  { to: '/anualidades', num: '04', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
   {
     to: '/amortizacion',
-    num: '04',
+    num: '05',
     label: 'Amortización',
     desc: 'Tablas francés y alemán completas.',
   },
-  { to: '/anualidades', num: '05', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
   {
     to: '/inflacion',
     num: '06',
@@ -48,8 +48,8 @@ export default function HomePage() {
             lineHeight: 1.15,
           }}
         >
-          Calculadora &<br />
-          <span style={{ color: 'var(--accent)' }}>Guía de referencia</span>
+          Software de apoyo al cálculo de<br />
+          <span style={{ color: 'var(--accent)' }}>operaciones y transacciones</span>
         </h1>
         <p
           style={{
@@ -64,7 +64,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
-            to="/simple"
+            to="/tasas"
             className="btn-primary inline-flex items-center gap-2"
             style={{ textDecoration: 'none' }}
           >

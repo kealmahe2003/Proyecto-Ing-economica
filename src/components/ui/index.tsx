@@ -1,7 +1,7 @@
 import { useState, useEffect, ReactNode } from 'react'
 
 interface FieldProps {
-  label: string
+  label: ReactNode
   value: string
   onChange: (v: string) => void
   placeholder?: string
@@ -182,7 +182,7 @@ export function ResultCard({ label, value, accent, sub }: ResultCardProps) {
 }
 
 // ── FORMULA BOX ───────────────────────────────────────────────
-export function FormulaBox({ formula, title}: { formula: string; title?: string}) {
+export function FormulaBox({ formula, title }: { formula: string; title?: string }) {
   return (
     <div
       className="rounded-lg px-4 py-3 text-sm mono overflow-x-auto"
@@ -296,3 +296,15 @@ export function ErrorBox({ message }: { message: string }) {
 }
 
 export { default as CashFlowDiagram } from './CashFlowDiagram'
+export { InfoTip } from './InfoTip'
+export { StepByStep } from './StepByStep'
+export { ModuleNav, useCarryReceive } from './ModuleNav'
+export {
+  ModeSwitch,
+  WizardShell,
+  BigChoice,
+  BigSlider,
+  MoneyField,
+  type UiMode,
+  type BigChoiceOption,
+} from './guided'

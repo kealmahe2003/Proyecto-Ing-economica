@@ -10,9 +10,26 @@ import {
   Divider,
   ErrorBox,
   CashFlowDiagram,
+  InfoTip,
+  StepByStep,
+  ModuleNav,
+  useCarryReceive,
+  ModeSwitch,
+  WizardShell,
+  BigChoice,
+  BigSlider,
+  MoneyField,
+  type UiMode,
+  type BigChoiceOption,
 } from '../../../components/ui'
-import { calcSimpleF, calcSimpleP, calcSimpleN, calcSimpleI } from '../../../lib/simpleInterest'
-import { fmtCOP, fmtPct, fmtNumber } from '../../../utils/format'
+import {
+  calcSimpleF,
+  calcSimpleP,
+  calcSimpleN,
+  calcSimpleI,
+  buildSimpleSteps,
+} from '../../../lib/simpleInterest'
+import { fmtCOP, fmtPct, fmtNumber, fmtPctShort } from '../../../utils/format'
 import type { SimpleResult } from '../../../types/finance.types'
 import {
   LineChart,
@@ -82,7 +99,113 @@ const PERIOD_N_LABEL: Record<string, string> = {
   año: 'años',
 }
 
+// Traduce errores técnicos a mensajes amables
+function friendlyError(msg: string): string {
+  if (/F debe ser mayor que P/i.test(msg))
+    return 'El valor final debe ser mayor que el inicial. Revisa los datos 🙂'
+  if (/no puede ser 0/i.test(msg)) return 'Ese campo no puede ser 0. Prueba con otro número 🙂'
+  if (/requerido/i.test(msg)) return 'Falta llenar un campo. Complétalo para calcular 🙂'
+  if (/negativo/i.test(msg)) return 'Los valores no pueden ser negativos. Usa números positivos 🙂'
+  return msg
+}
+
+// Cálculo compartido por el modo experto y el asistente
+function runCalc(m: Mode, v: { P: number; F: number; iPct: number; n: number }): SimpleResult {
+  if (m === 'F') return calcSimpleF(v.P, v.iPct, v.n)
+  if (m === 'P') return calcSimpleP(v.F, v.iPct, v.n)
+  if (m === 'n') return calcSimpleN(v.P, v.F, v.iPct)
+  return calcSimpleI(v.P, v.F, v.n)
+}
+
+// ── Configuración del asistente (modo simple) ────────────────
+const money0 = (v: number) => `$ ${fmtNumber(v, 0, 0)}`
+
+const CHOICES: BigChoiceOption[] = [
+  {
+    value: 'F',
+    emoji: '💰',
+    label: '¿Cuánto tendré al final?',
+    desc: 'Sé cuánto pongo hoy y quiero ver a cuánto llega.',
+  },
+  {
+    value: 'P',
+    emoji: '🎯',
+    label: '¿Cuánto debo poner hoy?',
+    desc: 'Sé la meta y quiero saber con cuánto empezar.',
+  },
+  {
+    value: 'n',
+    emoji: '⏳',
+    label: '¿Cuánto tiempo necesito?',
+    desc: 'Quiero saber en cuántos meses llego a la meta.',
+  },
+  {
+    value: 'i',
+    emoji: '📈',
+    label: '¿Qué tasa necesito?',
+    desc: 'Quiero saber qué interés me hace falta.',
+  },
+]
+
+type FieldKey = 'P' | 'F' | 'i' | 'n'
+const WIZ_FIELDS: Record<Mode, FieldKey[]> = {
+  F: ['P', 'i', 'n'],
+  P: ['F', 'i', 'n'],
+  n: ['P', 'F', 'i'],
+  i: ['P', 'F', 'n'],
+}
+const SLIDER: Record<
+  FieldKey,
+  {
+    q: string
+    hint: string
+    min: number
+    max: number
+    step: number
+    fmt: (v: number) => string
+    init: number
+  }
+> = {
+  P: {
+    q: '¿Cuánta plata tienes hoy?',
+    hint: 'El dinero con el que empiezas (capital).',
+    min: 100000,
+    max: 50000000,
+    step: 100000,
+    fmt: money0,
+    init: 1000000,
+  },
+  F: {
+    q: '¿A cuánto quieres llegar?',
+    hint: 'El valor final que esperas tener.',
+    min: 100000,
+    max: 80000000,
+    step: 100000,
+    fmt: money0,
+    init: 1500000,
+  },
+  i: {
+    q: '¿Cuánto crece cada mes?',
+    hint: 'La tasa de interés mensual, en porcentaje.',
+    min: 0.1,
+    max: 10,
+    step: 0.1,
+    fmt: fmtPctShort,
+    init: 2.5,
+  },
+  n: {
+    q: '¿Por cuántos meses?',
+    hint: 'El tiempo que dejas el dinero.',
+    min: 1,
+    max: 60,
+    step: 1,
+    fmt: (v) => `${v} ${v === 1 ? 'mes' : 'meses'}`,
+    init: 12,
+  },
+}
+
 export default function SimpleInterestPage() {
+  const [uiMode, setUiMode] = useState<UiMode>('simple')
   const [mode, setMode] = useState<Mode>('F')
   const [P, setP] = useState('1000000')
   const [iPct, setIPct] = useState('2.5')
@@ -92,7 +215,45 @@ export default function SimpleInterestPage() {
   const [result, setResult] = useState<SimpleResult | null>(null)
   const [error, setError] = useState('')
 
-  // Convierte la tasa proporcionalmente cuando cambia el período
+  // Estado del asistente (modo simple)
+  const [wizMode, setWizMode] = useState<Mode | null>(null)
+  const [wizStep, setWizStep] = useState(0)
+  const [wizVals, setWizVals] = useState({
+    P: SLIDER.P.init,
+    F: SLIDER.F.init,
+    i: SLIDER.i.init,
+    n: SLIDER.n.init,
+  })
+
+  const carried = useCarryReceive((p) => {
+    setUiMode('experto')
+    const np = p.amount != null ? String(Math.round(p.amount)) : P
+    const ni = p.rate != null ? String(+p.rate.toFixed(6)) : iPct
+    const nn = p.periods != null ? String(Math.round(p.periods)) : n
+    setMode('F')
+    setP(np)
+    setIPct(ni)
+    setN(nn)
+    try {
+      setResult(calcSimpleF(+np, +ni, +nn))
+    } catch {
+      /* noop */
+    }
+  })
+
+  function resetAll() {
+    setResult(null)
+    setError('')
+    setWizMode(null)
+    setWizStep(0)
+  }
+
+  function switchUiMode(m: UiMode) {
+    setUiMode(m)
+    resetAll()
+  }
+
+  // Convierte la tasa proporcionalmente cuando cambia el período (modo experto)
   function handlePeriodChange(newPeriod: string) {
     const parsed = parseFloat(iPct)
     if (parsed > 0 && !isNaN(parsed)) {
@@ -109,14 +270,65 @@ export default function SimpleInterestPage() {
   function calculate() {
     setError('')
     try {
-      let res: SimpleResult
-      if (mode === 'F') res = calcSimpleF(+P, +iPct, +n)
-      else if (mode === 'P') res = calcSimpleP(+F, +iPct, +n)
-      else if (mode === 'n') res = calcSimpleN(+P, +F, +iPct)
-      else res = calcSimpleI(+P, +F, +n)
-      setResult(res)
+      setResult(runCalc(mode, { P: +P, F: +F, iPct: +iPct, n: +n }))
     } catch (e: any) {
-      setError(e.message)
+      setError(friendlyError(e.message))
+    }
+  }
+
+  function loadExample() {
+    setUiMode('experto')
+    setMode('F')
+    setPeriod('mes')
+    setP('1000000')
+    setIPct('2.5')
+    setN('12')
+    setF('')
+    setError('')
+    try {
+      setResult(calcSimpleF(1000000, 2.5, 12))
+    } catch {
+      /* noop */
+    }
+  }
+
+  // ── Asistente: navegación ──
+  function pickWhat(value: string) {
+    const m = value as Mode
+    setWizMode(m)
+    setWizVals({ P: SLIDER.P.init, F: SLIDER.F.init, i: SLIDER.i.init, n: SLIDER.n.init })
+    setWizStep(1)
+    setError('')
+  }
+  function wizBack() {
+    if (wizStep <= 1) {
+      setWizMode(null)
+      setWizStep(0)
+    } else {
+      setWizStep((s) => s - 1)
+    }
+  }
+  function wizNext() {
+    if (!wizMode) return
+    const fields = WIZ_FIELDS[wizMode]
+    if (wizStep < fields.length) {
+      setWizStep((s) => s + 1)
+      return
+    }
+    // Último paso → calcular
+    try {
+      const res = runCalc(wizMode, {
+        P: wizVals.P,
+        F: wizVals.F,
+        iPct: wizVals.i,
+        n: wizVals.n,
+      })
+      setMode(wizMode)
+      setPeriod('mes')
+      setResult(res)
+      setError('')
+    } catch (e: any) {
+      setError(friendlyError(e.message))
     }
   }
 
@@ -156,83 +368,182 @@ export default function SimpleInterestPage() {
     })
   }
 
+  // ── Render del asistente (modo simple) ──
+  function renderWizard() {
+    if (wizStep === 0 || !wizMode) {
+      return (
+        <WizardShell
+          step={1}
+          total={4}
+          question="¿Qué quieres averiguar?"
+          hint="Elige la opción que más se parezca a tu duda."
+        >
+          <BigChoice options={CHOICES} onPick={pickWhat} />
+        </WizardShell>
+      )
+    }
+    const fields = WIZ_FIELDS[wizMode]
+    const key = fields[wizStep - 1]
+    const cfg = SLIDER[key]
+    const isLast = wizStep === fields.length
+    return (
+      <WizardShell
+        step={wizStep + 1}
+        total={fields.length + 1}
+        question={cfg.q}
+        hint={cfg.hint}
+        onBack={wizBack}
+        onNext={wizNext}
+        nextLabel={isLast ? 'Ver resultado' : 'Siguiente'}
+        onRestart={resetAll}
+      >
+        <BigSlider
+          value={wizVals[key]}
+          onChange={(v) => setWizVals((w) => ({ ...w, [key]: v }))}
+          min={cfg.min}
+          max={cfg.max}
+          step={cfg.step}
+          format={cfg.fmt}
+        />
+      </WizardShell>
+    )
+  }
+
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
-        chip="Módulo 01"
+        chip="Módulo 02"
         title="Interés Simple"
         description="El interés se calcula siempre sobre el capital inicial. No hay capitalización: los intereses no generan más intereses."
       />
 
-      <Callout color="blue">
-        <strong>¿Cómo funciona?</strong> — En interés simple, el rendimiento es proporcional al
-        tiempo y al capital. Si tienes $1.000.000 al 2% mensual durante 6 meses, cada mes ganas
-        exactamente $20.000, sin importar el período. Total de intereses: $120.000. El dinero crece
-        de forma <em>lineal</em>.
-      </Callout>
+      <ModeSwitch value={uiMode} onChange={switchUiMode} />
 
-      <div className="space-y-2 mb-6">
-        <FormulaBox title="Interés generado" formula="I = P × i × n" />
-        <FormulaBox title="Valor futuro / Monto" formula="M = VF = P × (1 + i × n)" />
-        <FormulaBox title="Capital inicial" formula="P = M / (1 + i × n)" />
-      </div>
+      {carried && (
+        <Callout color="accent">
+          📥 Trajimos los datos del módulo anterior y los calculamos por ti. Puedes ajustarlos.
+        </Callout>
+      )}
 
-      <Divider label="Calculadora" />
+      {uiMode === 'simple' ? (
+        <>
+          <Callout color="blue">
+            <strong>Modo simple:</strong> te haré unas preguntas, una por una. Mueve la barra para
+            elegir cada número y al final verás el resultado explicado paso a paso. 🙂
+          </Callout>
+          {renderWizard()}
+          {error && <ErrorBox message={error} />}
+        </>
+      ) : (
+        <>
+          <Callout color="blue">
+            <strong>¿Cómo funciona?</strong> — En interés simple, el rendimiento es proporcional al
+            tiempo y al capital. Si tienes $1.000.000 al 2% mensual durante 6 meses, cada mes ganas
+            exactamente $20.000, sin importar el período. Total de intereses: $120.000. El dinero
+            crece de forma <em>lineal</em>.
+          </Callout>
 
-      <div className="card p-6 mb-6">
-        <ModeTabs
-          options={MODES}
-          value={mode}
-          onChange={(v) => {
-            setMode(v as Mode)
-            setResult(null)
-            setError('')
-          }}
-        />
+          <div className="space-y-2 mb-6">
+            <FormulaBox title="Interés generado" formula="I = P × i × n" />
+            <FormulaBox title="Valor futuro / Monto" formula="M = VF = P × (1 + i × n)" />
+            <FormulaBox title="Capital inicial" formula="P = M / (1 + i × n)" />
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          {mode !== 'P' && (
-            <Field
-              label="Capital Inicial P ($)"
-              value={P}
-              onChange={setP}
-              placeholder="ej: 1000000"
-              unit="$"
+          <Divider label="Calculadora" />
+
+          <div className="card p-6 mb-6">
+            <ModeTabs
+              options={MODES}
+              value={mode}
+              onChange={(v) => {
+                setMode(v as Mode)
+                setResult(null)
+                setError('')
+              }}
             />
-          )}
-          {(mode === 'P' || mode === 'n' || mode === 'i') && (
-            <Field
-              label="Valor Futuro F ($)"
-              value={F}
-              onChange={setF}
-              placeholder="ej: 1300000"
-              unit="$"
-            />
-          )}
-          {mode !== 'i' && (
-            <Field
-              label={rateLabel}
-              value={iPct}
-              onChange={setIPct}
-              placeholder="ej: 2.5"
-              unit="%"
-              hint="La tasa debe corresponder al período seleccionado"
-            />
-          )}
-          {mode !== 'n' && <Field label={nLabel} value={n} onChange={setN} placeholder="ej: 12" />}
-          <Select
-            label="Unidad de período"
-            value={period}
-            onChange={handlePeriodChange}
-            options={PERIODS}
-          />
-        </div>
 
-        <button className="btn-primary" onClick={calculate}>
-          → Calcular
-        </button>
-        {error && <ErrorBox message={error} />}
-      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {mode !== 'P' && (
+                <MoneyField
+                  label={
+                    <>
+                      Capital Inicial P{' '}
+                      <InfoTip>
+                        El <strong>capital</strong> es el dinero con el que empiezas hoy, antes de
+                        ganar intereses.
+                      </InfoTip>
+                    </>
+                  }
+                  value={P}
+                  onChange={setP}
+                  placeholder="ej: 1000000"
+                />
+              )}
+              {(mode === 'P' || mode === 'n' || mode === 'i') && (
+                <MoneyField
+                  label={
+                    <>
+                      Valor Futuro F{' '}
+                      <InfoTip>
+                        El <strong>valor futuro</strong> es cuánto dinero tendrás al final, sumando
+                        capital e intereses.
+                      </InfoTip>
+                    </>
+                  }
+                  value={F}
+                  onChange={setF}
+                  placeholder="ej: 1300000"
+                />
+              )}
+              {mode !== 'i' && (
+                <Field
+                  label={
+                    <>
+                      {rateLabel}{' '}
+                      <InfoTip>
+                        La <strong>tasa</strong> dice cuánto crece tu dinero por período. Debe estar
+                        en la misma unidad que el tiempo (si n está en meses, la tasa es mensual).
+                      </InfoTip>
+                    </>
+                  }
+                  value={iPct}
+                  onChange={setIPct}
+                  placeholder="ej: 2.5"
+                  unit="%"
+                  hint="La tasa debe corresponder al período seleccionado"
+                />
+              )}
+              {mode !== 'n' && (
+                <Field label={nLabel} value={n} onChange={setN} placeholder="ej: 12" />
+              )}
+              <Select
+                label="Unidad de período"
+                value={period}
+                onChange={handlePeriodChange}
+                options={PERIODS}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-primary" onClick={calculate}>
+                → Calcular
+              </button>
+              <button
+                onClick={loadExample}
+                className="text-sm px-4 py-2.5 rounded-lg cursor-pointer"
+                style={{
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                }}
+              >
+                ✨ Cargar ejemplo
+              </button>
+            </div>
+            {error && <ErrorBox message={error} />}
+          </div>
+        </>
+      )}
 
       {result && (
         <div className="animate-fade-up">
@@ -275,6 +586,8 @@ export default function SimpleInterestPage() {
               ]}
             />
           </div>
+
+          <StepByStep steps={buildSimpleSteps(result, mode, nUnit)} />
 
           <FormulaBox
             formula={`M = VF = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.iPct, 2)} × ${fmtNumber(result.n, 2, 2)}) = ${fmtCOP(result.F)}`}
@@ -425,6 +738,17 @@ export default function SimpleInterestPage() {
             </div>
           )}
         </div>
+      )}
+
+      {result && (
+        <ModuleNav
+          current="/simple"
+          buildCarry={() => ({
+            rate: result.iPct,
+            amount: result.P,
+            periods: Math.round(result.n),
+          })}
+        />
       )}
 
       <Divider label="Teoría completa" />

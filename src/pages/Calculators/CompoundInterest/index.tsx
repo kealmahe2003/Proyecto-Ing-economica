@@ -10,9 +10,26 @@ import {
   Divider,
   ErrorBox,
   CashFlowDiagram,
+  InfoTip,
+  StepByStep,
+  ModuleNav,
+  useCarryReceive,
+  ModeSwitch,
+  WizardShell,
+  BigChoice,
+  BigSlider,
+  MoneyField,
+  type UiMode,
+  type BigChoiceOption,
 } from '../../../components/ui'
-import { calcCompF, calcCompP, calcCompI, calcCompN } from '../../../lib/compoundInterest'
-import { fmtCOP, fmtPct, fmtNumber } from '../../../utils/format'
+import {
+  calcCompF,
+  calcCompP,
+  calcCompI,
+  calcCompN,
+  buildCompoundSteps,
+} from '../../../lib/compoundInterest'
+import { fmtCOP, fmtPct, fmtNumber, fmtPctShort } from '../../../utils/format'
 import type { CompoundResult } from '../../../types/finance.types'
 import {
   LineChart,
@@ -83,7 +100,110 @@ const PERIOD_N_LABEL: Record<string, string> = {
   año: 'años',
 }
 
+function friendlyError(msg: string): string {
+  if (/F debe ser mayor que P/i.test(msg))
+    return 'El valor final debe ser mayor que el inicial. Revisa los datos 🙂'
+  if (/positivos/i.test(msg)) return 'Usa números positivos para el capital y el valor futuro 🙂'
+  if (/no puede ser 0/i.test(msg)) return 'Ese campo no puede ser 0. Prueba con otro número 🙂'
+  return msg
+}
+
+function runCalc(m: Mode, v: { P: number; F: number; iPct: number; n: number }): CompoundResult {
+  if (m === 'F') return calcCompF(v.P, v.iPct, v.n)
+  if (m === 'P') return calcCompP(v.F, v.iPct, v.n)
+  if (m === 'i') return calcCompI(v.P, v.F, v.n)
+  return calcCompN(v.P, v.F, v.iPct)
+}
+
+// ── Configuración del asistente (modo simple) ────────────────
+const money0 = (v: number) => `$ ${fmtNumber(v, 0, 0)}`
+
+const CHOICES: BigChoiceOption[] = [
+  {
+    value: 'F',
+    emoji: '🚀',
+    label: '¿Cuánto tendré al final?',
+    desc: 'Pongo una cantidad hoy y la dejo crecer con capitalización.',
+  },
+  {
+    value: 'P',
+    emoji: '🎯',
+    label: '¿Cuánto debo poner hoy?',
+    desc: 'Sé la meta futura y quiero saber con cuánto empezar.',
+  },
+  {
+    value: 'i',
+    emoji: '📈',
+    label: '¿Qué tasa necesito?',
+    desc: 'Sé el inicio y la meta, quiero saber el interés.',
+  },
+  {
+    value: 'n',
+    emoji: '⏳',
+    label: '¿Cuánto tiempo necesito?',
+    desc: 'Quiero saber en cuántos meses llego a la meta.',
+  },
+]
+
+type FieldKey = 'P' | 'F' | 'i' | 'n'
+const WIZ_FIELDS: Record<Mode, FieldKey[]> = {
+  F: ['P', 'i', 'n'],
+  P: ['F', 'i', 'n'],
+  i: ['P', 'F', 'n'],
+  n: ['P', 'F', 'i'],
+}
+const SLIDER: Record<
+  FieldKey,
+  {
+    q: string
+    hint: string
+    min: number
+    max: number
+    step: number
+    fmt: (v: number) => string
+    init: number
+  }
+> = {
+  P: {
+    q: '¿Cuánta plata pones hoy?',
+    hint: 'El capital o valor presente.',
+    min: 100000,
+    max: 50000000,
+    step: 100000,
+    fmt: money0,
+    init: 5000000,
+  },
+  F: {
+    q: '¿A cuánto quieres llegar?',
+    hint: 'El valor futuro que esperas tener.',
+    min: 100000,
+    max: 100000000,
+    step: 100000,
+    fmt: money0,
+    init: 8000000,
+  },
+  i: {
+    q: '¿Cuánto crece cada mes?',
+    hint: 'La tasa efectiva mensual, en porcentaje.',
+    min: 0.1,
+    max: 10,
+    step: 0.1,
+    fmt: fmtPctShort,
+    init: 1.8,
+  },
+  n: {
+    q: '¿Por cuántos meses?',
+    hint: 'El tiempo que dejas crecer el dinero.',
+    min: 1,
+    max: 60,
+    step: 1,
+    fmt: (v) => `${v} ${v === 1 ? 'mes' : 'meses'}`,
+    init: 24,
+  },
+}
+
 export default function CompoundInterestPage() {
+  const [uiMode, setUiMode] = useState<UiMode>('simple')
   const [mode, setMode] = useState<Mode>('F')
   const [P, setP] = useState('5000000')
   const [iPct, setIPct] = useState('1.8')
@@ -93,7 +213,43 @@ export default function CompoundInterestPage() {
   const [result, setResult] = useState<CompoundResult | null>(null)
   const [error, setError] = useState('')
 
-  // Convierte la tasa con la fórmula de equivalencia efectiva al cambiar período
+  // Estado del asistente (modo simple)
+  const [wizMode, setWizMode] = useState<Mode | null>(null)
+  const [wizStep, setWizStep] = useState(0)
+  const [wizVals, setWizVals] = useState({
+    P: SLIDER.P.init,
+    F: SLIDER.F.init,
+    i: SLIDER.i.init,
+    n: SLIDER.n.init,
+  })
+
+  const carried = useCarryReceive((p) => {
+    setUiMode('experto')
+    const np = p.amount != null ? String(Math.round(p.amount)) : P
+    const ni = p.rate != null ? String(+p.rate.toFixed(6)) : iPct
+    const nn = p.periods != null ? String(Math.round(p.periods)) : n
+    setMode('F')
+    setP(np)
+    setIPct(ni)
+    setN(nn)
+    try {
+      setResult(calcCompF(+np, +ni, +nn))
+    } catch {
+      /* noop */
+    }
+  })
+
+  function resetAll() {
+    setResult(null)
+    setError('')
+    setWizMode(null)
+    setWizStep(0)
+  }
+  function switchUiMode(m: UiMode) {
+    setUiMode(m)
+    resetAll()
+  }
+
   function handlePeriodChange(newPeriod: string) {
     const parsed = parseFloat(iPct)
     if (parsed > 0 && !isNaN(parsed)) {
@@ -111,14 +267,58 @@ export default function CompoundInterestPage() {
   function calculate() {
     setError('')
     try {
-      let res: CompoundResult
-      if (mode === 'F') res = calcCompF(+P, +iPct, +n)
-      else if (mode === 'P') res = calcCompP(+F, +iPct, +n)
-      else if (mode === 'i') res = calcCompI(+P, +F, +n)
-      else res = calcCompN(+P, +F, +iPct)
-      setResult(res)
+      setResult(runCalc(mode, { P: +P, F: +F, iPct: +iPct, n: +n }))
     } catch (e: any) {
-      setError(e.message)
+      setError(friendlyError(e.message))
+    }
+  }
+
+  function loadExample() {
+    setUiMode('experto')
+    setMode('F')
+    setPeriod('mes')
+    setP('5000000')
+    setIPct('1.8')
+    setN('24')
+    setF('')
+    setError('')
+    try {
+      setResult(calcCompF(5000000, 1.8, 24))
+    } catch {
+      /* noop */
+    }
+  }
+
+  function pickWhat(value: string) {
+    const m = value as Mode
+    setWizMode(m)
+    setWizVals({ P: SLIDER.P.init, F: SLIDER.F.init, i: SLIDER.i.init, n: SLIDER.n.init })
+    setWizStep(1)
+    setError('')
+  }
+  function wizBack() {
+    if (wizStep <= 1) {
+      setWizMode(null)
+      setWizStep(0)
+    } else {
+      setWizStep((s) => s - 1)
+    }
+  }
+  function wizNext() {
+    if (!wizMode) return
+    const fields = WIZ_FIELDS[wizMode]
+    if (wizStep < fields.length) {
+      setWizStep((s) => s + 1)
+      return
+    }
+    try {
+      const res = runCalc(wizMode, { P: wizVals.P, F: wizVals.F, iPct: wizVals.i, n: wizVals.n })
+      setMode(wizMode)
+      setPeriod('mes')
+      setResult(res)
+      setError('')
+    } catch (e: any) {
+      setError(friendlyError(e.message))
     }
   }
 
@@ -151,84 +351,182 @@ export default function CompoundInterestPage() {
     })
   }
 
+  function renderWizard() {
+    if (wizStep === 0 || !wizMode) {
+      return (
+        <WizardShell
+          step={1}
+          total={4}
+          question="¿Qué quieres averiguar?"
+          hint="Elige la opción que más se parezca a tu duda."
+        >
+          <BigChoice options={CHOICES} onPick={pickWhat} />
+        </WizardShell>
+      )
+    }
+    const fields = WIZ_FIELDS[wizMode]
+    const key = fields[wizStep - 1]
+    const cfg = SLIDER[key]
+    const isLast = wizStep === fields.length
+    return (
+      <WizardShell
+        step={wizStep + 1}
+        total={fields.length + 1}
+        question={cfg.q}
+        hint={cfg.hint}
+        onBack={wizBack}
+        onNext={wizNext}
+        nextLabel={isLast ? 'Ver resultado' : 'Siguiente'}
+        onRestart={resetAll}
+      >
+        <BigSlider
+          value={wizVals[key]}
+          onChange={(v) => setWizVals((w) => ({ ...w, [key]: v }))}
+          min={cfg.min}
+          max={cfg.max}
+          step={cfg.step}
+          format={cfg.fmt}
+        />
+      </WizardShell>
+    )
+  }
+
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
-        chip="Módulo 02"
+        chip="Módulo 03"
         title="Interés Compuesto"
         description="Los intereses generados se suman al capital al final de cada período, generando intereses sobre intereses. El dinero crece exponencialmente."
       />
 
-      <Callout color="accent">
-        <strong>La clave:</strong> En interés compuesto, cada período los intereses se
-        <em> capitalizan</em> — se agregan al principal. Así, en el período siguiente, los intereses
-        se calculan sobre un capital mayor. Esto es lo que genera el crecimiento exponencial y lo
-        que hace tan poderoso al ahorro a largo plazo.
-      </Callout>
+      <ModeSwitch value={uiMode} onChange={switchUiMode} />
 
-      <div className="space-y-2 mb-6">
-        <FormulaBox title="Valor futuro / Monto" formula="F = P × (1 + i)ⁿ" />
-        <FormulaBox title="Valor presente / Capital inicial" formula="P = F × (1 + i)⁻ⁿ" />
-        <FormulaBox title="Tasa de interés" formula="i = (F/P)^(1/n) − 1" />
-        <FormulaBox title="Número de períodos" formula="n = ln(F/P) / ln(1 + i)" />      
-        </div>
+      {carried && (
+        <Callout color="accent">
+          📥 Trajimos los datos del módulo anterior y los calculamos por ti. Puedes ajustarlos.
+        </Callout>
+      )}
 
-      <Divider label="Calculadora" />
+      {uiMode === 'simple' ? (
+        <>
+          <Callout color="accent">
+            <strong>Modo simple:</strong> responde unas preguntas moviendo la barra y al final verás
+            el resultado explicado paso a paso. 🙂
+          </Callout>
+          {renderWizard()}
+          {error && <ErrorBox message={error} />}
+        </>
+      ) : (
+        <>
+          <Callout color="accent">
+            <strong>La clave:</strong> En interés compuesto, cada período los intereses se
+            <em> capitalizan</em> — se agregan al principal. Así, en el período siguiente, los
+            intereses se calculan sobre un capital mayor. Esto es lo que genera el crecimiento
+            exponencial y lo que hace tan poderoso al ahorro a largo plazo.
+          </Callout>
 
-      <div className="card p-6 mb-6">
-        <ModeTabs
-          options={MODES}
-          value={mode}
-          onChange={(v) => {
-            setMode(v as Mode)
-            setResult(null)
-            setError('')
-          }}
-        />
+          <div className="space-y-2 mb-6">
+            <FormulaBox title="Valor futuro / Monto" formula="F = P × (1 + i)ⁿ" />
+            <FormulaBox title="Valor presente / Capital inicial" formula="P = F × (1 + i)⁻ⁿ" />
+            <FormulaBox title="Tasa de interés" formula="i = (F/P)^(1/n) − 1" />
+            <FormulaBox title="Número de períodos" formula="n = ln(F/P) / ln(1 + i)" />
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          {mode !== 'P' && (
-            <Field
-              label="Valor Presente P ($)"
-              value={P}
-              onChange={setP}
-              placeholder="ej: 5000000"
-              unit="$"
+          <Divider label="Calculadora" />
+
+          <div className="card p-6 mb-6">
+            <ModeTabs
+              options={MODES}
+              value={mode}
+              onChange={(v) => {
+                setMode(v as Mode)
+                setResult(null)
+                setError('')
+              }}
             />
-          )}
-          {(mode === 'P' || mode === 'i' || mode === 'n') && (
-            <Field
-              label="Valor Futuro F ($)"
-              value={F}
-              onChange={setF}
-              placeholder="ej: 8000000"
-              unit="$"
-            />
-          )}
-          {mode !== 'i' && (
-            <Field
-              label={rateLabel}
-              value={iPct}
-              onChange={setIPct}
-              placeholder="ej: 1.8"
-              unit="%"
-              hint="Tasa efectiva por período seleccionado"
-            />
-          )}
-          {mode !== 'n' && <Field label={nLabel} value={n} onChange={setN} placeholder="ej: 24" />}
-          <Select
-            label="Unidad de período"
-            value={period}
-            onChange={handlePeriodChange}
-            options={PERIODS}
-          />
-        </div>
 
-        <button className="btn-primary" onClick={calculate}>
-          → Calcular
-        </button>
-        {error && <ErrorBox message={error} />}
-      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {mode !== 'P' && (
+                <MoneyField
+                  label={
+                    <>
+                      Valor Presente P{' '}
+                      <InfoTip>
+                        El <strong>valor presente</strong> es el dinero que tienes hoy, antes de que
+                        gane intereses.
+                      </InfoTip>
+                    </>
+                  }
+                  value={P}
+                  onChange={setP}
+                  placeholder="ej: 5000000"
+                />
+              )}
+              {(mode === 'P' || mode === 'i' || mode === 'n') && (
+                <MoneyField
+                  label={
+                    <>
+                      Valor Futuro F{' '}
+                      <InfoTip>
+                        El <strong>valor futuro</strong> es cuánto dinero tendrás al final, ya con
+                        los intereses capitalizados.
+                      </InfoTip>
+                    </>
+                  }
+                  value={F}
+                  onChange={setF}
+                  placeholder="ej: 8000000"
+                />
+              )}
+              {mode !== 'i' && (
+                <Field
+                  label={
+                    <>
+                      {rateLabel}{' '}
+                      <InfoTip>
+                        La <strong>tasa efectiva</strong> es la que ya incluye la capitalización del
+                        período. Debe ir en la misma unidad que el tiempo.
+                      </InfoTip>
+                    </>
+                  }
+                  value={iPct}
+                  onChange={setIPct}
+                  placeholder="ej: 1.8"
+                  unit="%"
+                  hint="Tasa efectiva por período seleccionado"
+                />
+              )}
+              {mode !== 'n' && (
+                <Field label={nLabel} value={n} onChange={setN} placeholder="ej: 24" />
+              )}
+              <Select
+                label="Unidad de período"
+                value={period}
+                onChange={handlePeriodChange}
+                options={PERIODS}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-primary" onClick={calculate}>
+                → Calcular
+              </button>
+              <button
+                onClick={loadExample}
+                className="text-sm px-4 py-2.5 rounded-lg cursor-pointer"
+                style={{
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                }}
+              >
+                ✨ Cargar ejemplo
+              </button>
+            </div>
+            {error && <ErrorBox message={error} />}
+          </div>
+        </>
+      )}
 
       {result && (
         <div className="animate-fade-up">
@@ -272,6 +570,8 @@ export default function CompoundInterestPage() {
               ]}
             />
           </div>
+
+          <StepByStep steps={buildCompoundSteps(result, mode, nUnit)} />
 
           <FormulaBox
             formula={`F = ${fmtCOP(result.P)} × (1 + ${fmtPct(result.i * 100, 4)})^${fmtNumber(result.n, 2, 2)} = ${fmtCOP(result.F)}`}
@@ -424,6 +724,17 @@ export default function CompoundInterestPage() {
             </div>
           )}
         </div>
+      )}
+
+      {result && (
+        <ModuleNav
+          current="/compuesto"
+          buildCarry={() => ({
+            rate: result.i * 100,
+            amount: result.P,
+            periods: Math.round(result.n),
+          })}
+        />
       )}
 
       <Divider label="Teoría completa" />

@@ -9,9 +9,25 @@ import {
   Divider,
   ErrorBox,
   CashFlowDiagram,
+  InfoTip,
+  StepByStep,
+  ModuleNav,
+  useCarryReceive,
+  ModeSwitch,
+  WizardShell,
+  BigChoice,
+  BigSlider,
+  MoneyField,
+  type UiMode,
+  type BigChoiceOption,
 } from '../../../components/ui'
-import { calcAnnuityPV, calcAnnuityFV, calcAnnuityPMT } from '../../../lib/financial'
-import { fmtCOP } from '../../../utils/format'
+import {
+  calcAnnuityPV,
+  calcAnnuityFV,
+  calcAnnuityPMT,
+  buildAnnuitySteps,
+} from '../../../lib/financial'
+import { fmtCOP, fmtNumber, fmtPctShort } from '../../../utils/format'
 import type { AnnuityResult } from '../../../types/finance.types'
 import {
   AreaChart,
@@ -23,14 +39,107 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
+type Mode = 'PV' | 'FV' | 'PMT'
+
 const MODES = [
   { value: 'PV', label: 'Valor Presente (PV)' },
   { value: 'FV', label: 'Valor Futuro (FV)' },
   { value: 'PMT', label: 'Cuota (PMT)' },
 ]
 
+function friendlyError(msg: string): string {
+  if (/no puede ser 0/i.test(msg)) return 'Ese campo no puede ser 0. Prueba con otro número 🙂'
+  return msg
+}
+
+function runCalc(m: Mode, v: { PMT: number; PV: number; iPct: number; n: number }): AnnuityResult {
+  if (m === 'FV') return calcAnnuityFV(v.PMT, v.iPct, v.n)
+  if (m === 'PV') return calcAnnuityPV(v.PMT, v.iPct, v.n)
+  return calcAnnuityPMT(v.PV, v.iPct, v.n)
+}
+
+const money0 = (v: number) => `$ ${fmtNumber(v, 0, 0)}`
+
+const CHOICES: BigChoiceOption[] = [
+  {
+    value: 'FV',
+    emoji: '🐷',
+    label: '¿Cuánto ahorraré?',
+    desc: 'Guardo la misma cuota cada mes: cuánto junto al final.',
+  },
+  {
+    value: 'PMT',
+    emoji: '🧾',
+    label: '¿De cuánto será mi cuota?',
+    desc: 'Sé el préstamo y quiero saber cuánto pago cada mes.',
+  },
+  {
+    value: 'PV',
+    emoji: '📅',
+    label: '¿Cuánto valen hoy esos pagos?',
+    desc: 'Tengo una serie de pagos y quiero su valor de hoy.',
+  },
+]
+
+type FieldKey = 'PMT' | 'PV' | 'i' | 'n'
+const WIZ_FIELDS: Record<Mode, FieldKey[]> = {
+  FV: ['PMT', 'i', 'n'],
+  PV: ['PMT', 'i', 'n'],
+  PMT: ['PV', 'i', 'n'],
+}
+const SLIDER: Record<
+  FieldKey,
+  {
+    q: string
+    hint: string
+    min: number
+    max: number
+    step: number
+    fmt: (v: number) => string
+    init: number
+  }
+> = {
+  PMT: {
+    q: '¿Cuánto aportas cada mes?',
+    hint: 'El pago o cuota periódica.',
+    min: 50000,
+    max: 5000000,
+    step: 50000,
+    fmt: money0,
+    init: 500000,
+  },
+  PV: {
+    q: '¿De cuánto es el préstamo?',
+    hint: 'El valor presente o monto prestado hoy.',
+    min: 500000,
+    max: 100000000,
+    step: 500000,
+    fmt: money0,
+    init: 10000000,
+  },
+  i: {
+    q: '¿Cuánto es la tasa por mes?',
+    hint: 'La tasa efectiva mensual, en porcentaje.',
+    min: 0.1,
+    max: 10,
+    step: 0.1,
+    fmt: fmtPctShort,
+    init: 1.5,
+  },
+  n: {
+    q: '¿Cuántas cuotas (meses)?',
+    hint: 'El número de pagos.',
+    min: 1,
+    max: 120,
+    step: 1,
+    fmt: (v) => `${v} ${v === 1 ? 'cuota' : 'cuotas'}`,
+    init: 36,
+  },
+}
+
 export default function AnnuitiesPage() {
-  const [mode, setMode] = useState('FV')
+  const [uiMode, setUiMode] = useState<UiMode>('simple')
+  const [mode, setMode] = useState<Mode>('FV')
   const [PMT, setPMT] = useState('500000')
   const [iPct, setIPct] = useState('1.5')
   const [n, setN] = useState('36')
@@ -38,20 +147,115 @@ export default function AnnuitiesPage() {
   const [result, setResult] = useState<AnnuityResult | null>(null)
   const [error, setError] = useState('')
 
+  // Asistente
+  const [wizMode, setWizMode] = useState<Mode | null>(null)
+  const [wizStep, setWizStep] = useState(0)
+  const [wizVals, setWizVals] = useState({
+    PMT: SLIDER.PMT.init,
+    PV: SLIDER.PV.init,
+    i: SLIDER.i.init,
+    n: SLIDER.n.init,
+  })
+
+  const carried = useCarryReceive((p) => {
+    setUiMode('experto')
+    const ni = p.rate != null ? String(+p.rate.toFixed(6)) : iPct
+    const nn = p.periods != null ? String(Math.round(p.periods)) : n
+    setIPct(ni)
+    setN(nn)
+    if (p.amount != null) {
+      const npv = String(Math.round(p.amount))
+      setMode('PMT')
+      setPV(npv)
+      try {
+        setResult(calcAnnuityPMT(+npv, +ni, +nn))
+      } catch {
+        /* noop */
+      }
+    } else {
+      try {
+        setResult(runCalc(mode, { PMT: +PMT, PV: +PV, iPct: +ni, n: +nn }))
+      } catch {
+        /* noop */
+      }
+    }
+  })
+
+  function resetAll() {
+    setResult(null)
+    setError('')
+    setWizMode(null)
+    setWizStep(0)
+  }
+  function switchUiMode(m: UiMode) {
+    setUiMode(m)
+    resetAll()
+  }
+
   function calculate() {
     setError('')
     try {
-      let res: AnnuityResult
-      if (mode === 'FV') res = calcAnnuityFV(+PMT, +iPct, +n)
-      else if (mode === 'PV') res = calcAnnuityPV(+PMT, +iPct, +n)
-      else res = calcAnnuityPMT(+PV, +iPct, +n)
-      setResult(res)
+      setResult(runCalc(mode, { PMT: +PMT, PV: +PV, iPct: +iPct, n: +n }))
     } catch (e: any) {
-      setError(e.message)
+      setError(friendlyError(e.message))
     }
   }
 
-  // Chart: evolución del saldo período a período (limitado a 60 puntos)
+  function loadExample() {
+    setUiMode('experto')
+    setMode('FV')
+    setPMT('500000')
+    setIPct('1.5')
+    setN('36')
+    setError('')
+    try {
+      setResult(calcAnnuityFV(500000, 1.5, 36))
+    } catch {
+      /* noop */
+    }
+  }
+
+  function pickWhat(value: string) {
+    const m = value as Mode
+    setWizMode(m)
+    setWizVals({ PMT: SLIDER.PMT.init, PV: SLIDER.PV.init, i: SLIDER.i.init, n: SLIDER.n.init })
+    setWizStep(1)
+    setError('')
+  }
+  function wizBack() {
+    if (wizStep <= 1) {
+      setWizMode(null)
+      setWizStep(0)
+    } else {
+      setWizStep((s) => s - 1)
+    }
+  }
+  function wizNext() {
+    if (!wizMode) return
+    const fields = WIZ_FIELDS[wizMode]
+    if (wizStep < fields.length) {
+      setWizStep((s) => s + 1)
+      return
+    }
+    try {
+      const res = runCalc(wizMode, {
+        PMT: wizVals.PMT,
+        PV: wizVals.PV,
+        iPct: wizVals.i,
+        n: wizVals.n,
+      })
+      setMode(wizMode)
+      setPMT(String(wizVals.PMT))
+      setPV(String(wizVals.PV))
+      setIPct(String(wizVals.i))
+      setN(String(wizVals.n))
+      setResult(res)
+      setError('')
+    } catch (e: any) {
+      setError(friendlyError(e.message))
+    }
+  }
+
   const chartData = result?.series
     ? result.series.slice(0, 60).map((s) => ({
         período: s.period,
@@ -59,11 +263,11 @@ export default function AnnuitiesPage() {
         'Aportes acumulados': Math.round(result.PMT * s.period),
       }))
     : []
-  
+
   function downloadExcel() {
     import('xlsx').then((XLSX) => {
       const data = (result?.series ?? []).map((s) => ({
-        'Período': s.period,
+        Período: s.period,
         'Cuota (PMT)': result!.PMT,
         'Saldo acumulado': s.balance,
         'Aportes acumulados': result!.PMT * s.period,
@@ -73,63 +277,173 @@ export default function AnnuitiesPage() {
       XLSX.utils.book_append_sheet(wb, ws, 'Anualidades')
       XLSX.writeFile(wb, 'tabla_anualidades.xlsx')
     })
-  }   
+  }
+
+  function renderWizard() {
+    if (wizStep === 0 || !wizMode) {
+      return (
+        <WizardShell
+          step={1}
+          total={4}
+          question="¿Qué quieres averiguar?"
+          hint="Elige la opción que más se parezca a tu duda."
+        >
+          <BigChoice options={CHOICES} onPick={pickWhat} />
+        </WizardShell>
+      )
+    }
+    const fields = WIZ_FIELDS[wizMode]
+    const key = fields[wizStep - 1]
+    const cfg = SLIDER[key]
+    const isLast = wizStep === fields.length
+    return (
+      <WizardShell
+        step={wizStep + 1}
+        total={fields.length + 1}
+        question={cfg.q}
+        hint={cfg.hint}
+        onBack={wizBack}
+        onNext={wizNext}
+        nextLabel={isLast ? 'Ver resultado' : 'Siguiente'}
+        onRestart={resetAll}
+      >
+        <BigSlider
+          value={wizVals[key]}
+          onChange={(v) => setWizVals((w) => ({ ...w, [key]: v }))}
+          min={cfg.min}
+          max={cfg.max}
+          step={cfg.step}
+          format={cfg.fmt}
+        />
+      </WizardShell>
+    )
+  }
 
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
-        chip="Módulo 05"
+        chip="Módulo 04"
         title="Anualidades y Series Uniformes"
         description="Una serie uniforme es un conjunto de pagos iguales realizados en intervalos iguales de tiempo. Permiten calcular créditos, ahorros programados y planes de pensión."
       />
 
-      <Callout color="blue">
-        <strong>Serie uniforme ordinaria:</strong> pagos iguales PMT al final de cada período. El
-        valor presente PV es el valor hoy de todos esos pagos. El valor futuro FV es la acumulación
-        de todos los pagos con sus intereses. Esta es la base matemática de todo crédito y plan de
-        ahorro.
-      </Callout>
+      <ModeSwitch value={uiMode} onChange={switchUiMode} />
 
-      <div className="space-y-2 mb-6">
-        <FormulaBox title="Valor presente de la serie" formula="PV = PMT × [1 - (1+i)^-n] / i" />
-        <FormulaBox title="Valor futuro de la serie" formula="FV = PMT × [(1+i)^n - 1] / i" />
-        <FormulaBox title="Cuota dada el valor presente" formula="PMT = PV × [i(1+i)^n] / [(1+i)^n - 1]" />
-      </div>
+      {carried && (
+        <Callout color="blue">
+          📥 Trajimos los datos del módulo anterior y los calculamos por ti. Puedes ajustarlos.
+        </Callout>
+      )}
 
-      <Divider label="Calculadora" />
+      {uiMode === 'simple' ? (
+        <>
+          <Callout color="blue">
+            <strong>Modo simple:</strong> elige qué quieres saber, responde moviendo la barra y
+            verás el resultado explicado paso a paso. 🙂
+          </Callout>
+          {renderWizard()}
+          {error && <ErrorBox message={error} />}
+        </>
+      ) : (
+        <>
+          <Callout color="blue">
+            <strong>Serie uniforme ordinaria:</strong> pagos iguales PMT al final de cada período.
+            El valor presente PV es el valor hoy de todos esos pagos. El valor futuro FV es la
+            acumulación de todos los pagos con sus intereses. Esta es la base matemática de todo
+            crédito y plan de ahorro.
+          </Callout>
 
-      <div className="card p-6 mb-6">
-        <ModeTabs
-          options={MODES}
-          value={mode}
-          onChange={(v) => {
-            setMode(v)
-            setResult(null)
-          }}
-        />
+          <div className="space-y-2 mb-6">
+            <FormulaBox
+              title="Valor presente de la serie"
+              formula="PV = PMT × [1 - (1+i)^-n] / i"
+            />
+            <FormulaBox title="Valor futuro de la serie" formula="FV = PMT × [(1+i)^n - 1] / i" />
+            <FormulaBox
+              title="Cuota dada el valor presente"
+              formula="PMT = PV × [i(1+i)^n] / [(1+i)^n - 1]"
+            />
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          {mode !== 'PMT' && (
-            <Field label="Pago periódico PMT ($)" value={PMT} onChange={setPMT} unit="$" />
-          )}
-          {mode === 'PMT' && (
-            <Field label="Valor Presente PV ($)" value={PV} onChange={setPV} unit="$" />
-          )}
-          <Field
-            label="Tasa de interés (i)"
-            value={iPct}
-            onChange={setIPct}
-            unit="%"
-            hint="Tasa efectiva por período"
-          />
-          <Field label="Número de períodos n" value={n} onChange={setN} />
-        </div>
+          <Divider label="Calculadora" />
 
-        <button className="btn-primary" onClick={calculate}>
-          → Calcular
-        </button>
-        {error && <ErrorBox message={error} />}
-      </div>
+          <div className="card p-6 mb-6">
+            <ModeTabs
+              options={MODES}
+              value={mode}
+              onChange={(v) => {
+                setMode(v as Mode)
+                setResult(null)
+              }}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {mode !== 'PMT' && (
+                <MoneyField
+                  label={
+                    <>
+                      Pago periódico PMT{' '}
+                      <InfoTip>
+                        El <strong>PMT</strong> es la cuota: el pago igual que haces cada período.
+                      </InfoTip>
+                    </>
+                  }
+                  value={PMT}
+                  onChange={setPMT}
+                />
+              )}
+              {mode === 'PMT' && (
+                <MoneyField
+                  label={
+                    <>
+                      Valor Presente PV{' '}
+                      <InfoTip>
+                        El <strong>valor presente</strong> es el monto del préstamo o el valor hoy
+                        de la serie.
+                      </InfoTip>
+                    </>
+                  }
+                  value={PV}
+                  onChange={setPV}
+                />
+              )}
+              <Field
+                label={
+                  <>
+                    Tasa de interés (i){' '}
+                    <InfoTip>
+                      La tasa efectiva por período (si las cuotas son mensuales, mensual).
+                    </InfoTip>
+                  </>
+                }
+                value={iPct}
+                onChange={setIPct}
+                unit="%"
+                hint="Tasa efectiva por período"
+              />
+              <Field label="Número de períodos n" value={n} onChange={setN} />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-primary" onClick={calculate}>
+                → Calcular
+              </button>
+              <button
+                onClick={loadExample}
+                className="text-sm px-4 py-2.5 rounded-lg cursor-pointer"
+                style={{
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                }}
+              >
+                ✨ Cargar ejemplo
+              </button>
+            </div>
+            {error && <ErrorBox message={error} />}
+          </div>
+        </>
+      )}
 
       {result && (
         <div className="animate-fade-up">
@@ -154,7 +468,7 @@ export default function AnnuitiesPage() {
             n={result.n}
             periodType="período"
             type="annuities"
-            annuityMode={mode as 'PV' | 'FV' | 'PMT'}
+            annuityMode={mode}
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <ResultCard
@@ -179,8 +493,10 @@ export default function AnnuitiesPage() {
             <ResultCard label="Intereses totales" value={fmtCOP(result.totalInterest)} />
           </div>
 
+          <StepByStep steps={buildAnnuitySteps(result, mode)} />
+
           {chartData.length > 1 && (
-            <div className="card p-5 mt-2">
+            <div className="card p-5 mt-6">
               <p
                 className="text-xs mono uppercase tracking-widest mb-4"
                 style={{ color: 'var(--muted)' }}
@@ -247,6 +563,17 @@ export default function AnnuitiesPage() {
             </div>
           )}
         </div>
+      )}
+
+      {result && (
+        <ModuleNav
+          current="/anualidades"
+          buildCarry={() => ({
+            rate: result.i * 100,
+            amount: result.PV,
+            periods: Math.round(result.n),
+          })}
+        />
       )}
 
       <Divider label="Teoría completa" />

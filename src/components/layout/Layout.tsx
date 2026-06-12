@@ -18,11 +18,11 @@ const NAV = [
   {
     group: 'Calculadoras',
     items: [
+      { to: '/tasas', label: 'Conversión de Tasas', icon: ArrowLeftRight },
       { to: '/simple', label: 'Interés Simple', icon: TrendingUp },
       { to: '/compuesto', label: 'Interés Compuesto', icon: BarChart2 },
-      { to: '/tasas', label: 'Conversión de Tasas', icon: ArrowLeftRight },
-      { to: '/amortizacion', label: 'Amortización', icon: Table2 },
       { to: '/anualidades', label: 'Anualidades', icon: Sigma },
+      { to: '/amortizacion', label: 'Amortización', icon: Table2 },
       { to: '/inflacion', label: 'Inflación & Tasas Reales', icon: ArrowUpRight },
     ],
   },
