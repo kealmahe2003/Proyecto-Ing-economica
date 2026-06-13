@@ -20,7 +20,13 @@
       "Bash(Get-ChildItem *)",
       "Skill(superpowers:brainstorming)",
       "Bash(Select-Object Name)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_click",
+      "Bash(git check-ignore *)",
+      "mcp__playwright__browser_snapshot"
     ]
   }
 }

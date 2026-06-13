@@ -1,4 +1,5 @@
-import type { RateConversionResult, CapFreq } from '../types/finance.types'
+import type { RateConversionResult, CapFreq, CalcStep } from '../types/finance.types'
+import { fmtNumber, fmtPct } from '../utils/format'
 
 // ============================================================
 // RATE CONVERSION
@@ -133,4 +134,89 @@ export function convertVencidaToAnticipated(iVPct: number): RateConversionResult
     EA: +(EA * 100).toFixed(8),
     monthly: +(monthly * 100).toFixed(8),
   }
+}
+
+// ============================================================
+// PASO A PASO — explicación didáctica de cada conversión
+// ============================================================
+export function buildRateSteps(conv: string, inputPct: number, m: number): CalcStep[] {
+  const x = inputPct / 100
+  const out = (v: number) => fmtPct(v * 100, 6)
+  const dec = (v: number) => fmtNumber(v, 8, 0)
+
+  if (conv === 'NOM-EA') {
+    const ip = x / m
+    return [
+      {
+        title: `Paso 1 — Hallar la tasa de cada período (dividir entre ${m})`,
+        expr: `i = ${fmtPct(inputPct, 2)} ÷ ${m} = ${out(ip)}`,
+        detail: `La tasa nominal se reparte en sus ${m} capitalizaciones del año.`,
+      },
+      {
+        title: `Paso 2 — Capitalizar: elevar a ${m} y restar 1`,
+        expr: `EA = (1 + ${dec(ip)})^${m} − 1 = ${out(Math.pow(1 + ip, m) - 1)}`,
+        detail: 'Aquí se nota el "interés sobre interés" que la nominal escondía.',
+      },
+    ]
+  }
+  if (conv === 'EA-NOM') {
+    const ip = Math.pow(1 + x, 1 / m) - 1
+    return [
+      {
+        title: `Paso 1 — Hallar la tasa de cada período (raíz ${m})`,
+        expr: `i = (1 + ${fmtPct(inputPct, 2)})^(1/${m}) − 1 = ${out(ip)}`,
+      },
+      {
+        title: `Paso 2 — Multiplicar por ${m} para volverla nominal`,
+        expr: `Nominal = ${dec(ip)} × ${m} = ${out(ip * m)}`,
+      },
+    ]
+  }
+  if (conv === 'EA-EFF') {
+    const ip = Math.pow(1 + x, 1 / m) - 1
+    return [
+      {
+        title: `Paso 1 — Sacar la raíz ${m} de (1 + EA)`,
+        expr: `(1 + ${fmtPct(inputPct, 2)})^(1/${m}) = ${dec(Math.pow(1 + x, 1 / m))}`,
+      },
+      { title: 'Paso 2 — Restar 1', expr: `i = ${dec(Math.pow(1 + x, 1 / m))} − 1 = ${out(ip)}` },
+    ]
+  }
+  if (conv === 'EFF-EA') {
+    return [
+      {
+        title: `Paso 1 — Elevar (1 + i) a ${m}`,
+        expr: `(1 + ${fmtPct(inputPct, 2)})^${m} = ${dec(Math.pow(1 + x, m))}`,
+      },
+      {
+        title: 'Paso 2 — Restar 1',
+        expr: `EA = ${dec(Math.pow(1 + x, m))} − 1 = ${out(Math.pow(1 + x, m) - 1)}`,
+      },
+    ]
+  }
+  if (conv === 'ANT-VEN') {
+    return [
+      {
+        title: 'Paso 1 — Restar la tasa anticipada de 1',
+        expr: `1 − iₐ = 1 − ${dec(x)} = ${dec(1 - x)}`,
+      },
+      {
+        title: 'Paso 2 — Dividir la anticipada entre ese resultado',
+        expr: `iᵥ = ${dec(x)} ÷ ${dec(1 - x)} = ${out(x / (1 - x))}`,
+        detail: 'La vencida siempre es un poco mayor que la anticipada.',
+      },
+    ]
+  }
+  // VEN-ANT
+  return [
+    {
+      title: 'Paso 1 — Sumar 1 a la tasa vencida',
+      expr: `1 + iᵥ = 1 + ${dec(x)} = ${dec(1 + x)}`,
+    },
+    {
+      title: 'Paso 2 — Dividir la vencida entre ese resultado',
+      expr: `iₐ = ${dec(x)} ÷ ${dec(1 + x)} = ${out(x / (1 + x))}`,
+      detail: 'La anticipada siempre es un poco menor que la vencida.',
+    },
+  ]
 }
