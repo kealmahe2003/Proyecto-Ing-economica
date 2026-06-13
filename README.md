@@ -9,6 +9,9 @@
 - Miguel Angel Sanclemente Mejia - 202459488
 - Nini Johanna Cambindo - 202380511
 - Juan Camilo Gutierrez - 202159874
+- Juan jose Gonzalez Trujillo - 202459536
+- Melissa Espitia Marín - 2359439
+- 
 
 ---
 
