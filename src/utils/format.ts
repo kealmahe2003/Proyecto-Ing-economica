@@ -49,3 +49,22 @@ export function parseNumber(s: string): number {
 export function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(val, min), max)
 }
+
+/**
+ * Formatea una cadena de dígitos en pesos con separadores de miles y millones (puntos).
+ * Ejemplo: "1000000" -> "1.000.000"
+ */
+export function formatMoneyInput(val: string): string {
+  if (!val) return ''
+  const clean = val.replace(/\D/g, '')
+  return clean.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+/**
+ * Limpia cualquier separador para obtener una cadena de números pura.
+ * Ejemplo: "1.000.000" -> "1000000"
+ */
+export function parseMoneyInput(val: string): string {
+  return val.replace(/\D/g, '')
+}
+

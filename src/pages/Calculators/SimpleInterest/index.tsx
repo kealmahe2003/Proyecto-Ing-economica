@@ -334,9 +334,9 @@ export default function SimpleInterestPage() {
 
   const chartData = result
     ? Array.from({ length: Math.min(Math.ceil(result.n) + 1, 25) }, (_, k) => ({
-        n: k,
-        'Monto (M)': Math.round(result.P + result.P * result.i * k),
-      }))
+      n: k,
+      'Monto (M)': Math.round(result.P + result.P * result.i * k),
+    }))
     : []
 
   const rateLabel = `Tasa de interés ${PERIOD_RATE_LABEL[period]} (i)`
