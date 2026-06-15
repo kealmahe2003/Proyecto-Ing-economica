@@ -16,6 +16,10 @@ import { useTheme } from '../../hooks/useTheme'
 import Chatbot from '../ui/Chatbot'
 const NAV = [
   {
+    group: 'Aprender',
+    items: [{ to: '/wiki', label: 'Wiki de Conceptos', icon: BookOpen }],
+  },
+  {
     group: 'Calculadoras',
     items: [
       { to: '/tasas', label: 'Conversión de Tasas', icon: ArrowLeftRight },
@@ -25,10 +29,6 @@ const NAV = [
       { to: '/amortizacion', label: 'Amortización', icon: Table2 },
       { to: '/inflacion', label: 'Inflación & Tasas Reales', icon: ArrowUpRight },
     ],
-  },
-  {
-    group: 'Aprender',
-    items: [{ to: '/wiki', label: 'Wiki de Conceptos', icon: BookOpen }],
   },
 ]
 
