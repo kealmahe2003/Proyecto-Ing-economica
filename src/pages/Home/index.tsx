@@ -2,33 +2,39 @@ import { Link } from 'react-router-dom'
 
 const MODULES = [
   {
-    to: '/tasas',
+    to: '/wiki',
     num: '01',
+    label: 'Wiki de Conceptos',
+    desc: 'Definiciones, fórmulas y ejemplos — expandibles y buscables.',
+  },
+  {
+    to: '/tasas',
+    num: '02',
     label: 'Conversión de Tasas',
     desc: 'EA, nominal, anticipada, vencida.',
   },
   {
     to: '/simple',
-    num: '02',
+    num: '03',
     label: 'Interés Simple',
     desc: 'Crecimiento lineal. Calcula F, P, i o n.',
   },
   {
     to: '/compuesto',
-    num: '03',
+    num: '04',
     label: 'Interés Compuesto',
     desc: 'Capitalización. El poder del tiempo.',
   },
-  { to: '/anualidades', num: '04', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
+  { to: '/anualidades', num: '05', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
   {
     to: '/amortizacion',
-    num: '05',
+    num: '06',
     label: 'Amortización',
     desc: 'Tablas francés y alemán completas.',
   },
   {
     to: '/inflacion',
-    num: '06',
+    num: '07',
     label: 'Inflación & Tasas Reales',
     desc: 'Ecuación de Fisher. Poder adquisitivo.',
   },
@@ -48,7 +54,8 @@ export default function HomePage() {
             lineHeight: 1.15,
           }}
         >
-          Software de apoyo al cálculo de<br />
+          Software de apoyo al cálculo de
+          <br />
           <span style={{ color: 'var(--accent)' }}>operaciones y transacciones</span>
         </h1>
         <p
@@ -64,14 +71,14 @@ export default function HomePage() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
-            to="/tasas"
+            to="/wiki"
             className="btn-primary inline-flex items-center gap-2"
             style={{ textDecoration: 'none' }}
           >
             Comenzar →
           </Link>
           <Link
-            to="/wiki"
+            to="/tasas"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
             style={{
               border: '1px solid var(--border)',
@@ -79,7 +86,7 @@ export default function HomePage() {
               textDecoration: 'none',
             }}
           >
-            Wiki de conceptos
+            Calculadoras
           </Link>
         </div>
       </div>
@@ -106,25 +113,6 @@ export default function HomePage() {
             <div style={{ height: 1, background: 'var(--border)', margin: '0 0.75rem' }} />
           </div>
         ))}
-
-        {/* Wiki row — indicador diferenciado */}
-        <Link to="/wiki" className="module-row">
-          <span className="module-num">07</span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p
-              className="text-sm font-semibold"
-              style={{ color: 'var(--text)', margin: 0, lineHeight: 1.3 }}
-            >
-              Wiki de Conceptos
-            </p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--muted)', margin: 0 }}>
-              Definiciones, fórmulas y ejemplos — expandibles y buscables.
-            </p>
-          </div>
-          <span className="module-arrow" style={{ fontSize: '1.1rem' }}>
-            ◎
-          </span>
-        </Link>
       </div>
     </div>
   )
