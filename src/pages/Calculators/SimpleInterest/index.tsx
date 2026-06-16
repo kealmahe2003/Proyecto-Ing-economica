@@ -688,15 +688,17 @@ export default function SimpleInterestPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.from({ length: Math.min(Math.ceil(result.n), 60) }, (_, k) => {
-                      const per = k + 1
+                    {Array.from({ length: Math.min(Math.ceil(result.n) + 1, 61) }, (_, k) => {
+                      const per = k
                       const isLast = per === Math.ceil(result.n)
-                      const initBalance = result.P * (1 + result.i * k)
+                      const initBalance = k === 0 ? result.P : result.P * (1 + result.i * k)
                       const intPeriod =
-                        isLast && result.n !== Math.ceil(result.n)
-                          ? result.P * result.i * (result.n - k)
-                          : result.P * result.i
-                      const finalBal = isLast ? result.F : result.P * (1 + result.i * per)
+                        k === 0
+                          ? 0
+                          : isLast && result.n !== Math.ceil(result.n)
+                            ? result.P * result.i * (result.n - k)
+                            : result.P * result.i
+                      const finalBal = k === 0 ? result.P : isLast ? result.F : result.P * (1 + result.i * per)
                       return (
                         <tr
                           key={per}
@@ -809,3 +811,4 @@ export default function SimpleInterestPage() {
     </div>
   )
 }
+
