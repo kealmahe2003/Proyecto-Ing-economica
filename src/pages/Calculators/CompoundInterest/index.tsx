@@ -680,9 +680,9 @@ export default function CompoundInterestPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.series.map((s, idx) => {
-                      const initBalance = idx === 0 ? result.P : result.series[idx - 1].balance
-                      const intPeriod = s.balance - initBalance
+                    {[{ period: 0, balance: result.P }, ...result.series].map((s, idx) => {
+                      const initBalance = idx === 0 ? result.P : result.series[idx - 2]?.balance ?? result.P
+                      const intPeriod = idx === 0 ? 0 : s.balance - initBalance
                       return (
                         <tr
                           key={s.period}
