@@ -10,6 +10,7 @@ export interface CarryPayload {
 
 // Orden didáctico de los módulos (define qué es "anterior" y "siguiente").
 export const MODULE_ORDER: { path: string; label: string }[] = [
+  { path: '/wiki', label: 'Wiki de Conceptos' },
   { path: '/tasas', label: 'Conversión de Tasas' },
   { path: '/simple', label: 'Interés Simple' },
   { path: '/compuesto', label: 'Interés Compuesto' },

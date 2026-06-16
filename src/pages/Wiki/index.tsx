@@ -20,6 +20,7 @@ Su importancia es clave para evaluar inversiones, comparar alternativas, analiza
 
 Este principio es la base de todos los cálculos de ingeniería económica. Sin él, no tendría sentido descontar flujos futuros ni calcular tasas de interés.`,
     formula: null,
+    variables: null,
   },
   {
     id: 'valor-presente-futuro',
@@ -28,14 +29,14 @@ Este principio es la base de todos los cálculos de ingeniería económica. Sin 
     tagline: 'Dos perspectivas del mismo valor económico a través del tiempo',
     body: `El valor presente (VP) es la cantidad de dinero que hoy equivale a una suma futura descontada a una tasa de interés. El valor futuro (VF) es el monto que alcanza esa cantidad después de un período de tiempo al aplicarle intereses.
 
-El VP se usa para comparar alternativas financieras al llevar los flujos futuros al presente. El VF se usa para proyectar ahorros, planificar inversiones y medir el crecimiento de un capital.
-
-Variables utilizadas:
-• VP: Valor presente.
-• VF: Valor futuro.
-• i: Tasa de interés por período.
-• n: Número de períodos.`,
+El VP se usa para comparar alternativas financieras al llevar los flujos futuros al presente. El VF se usa para proyectar ahorros, planificar inversiones y medir el crecimiento de un capital.`,
     formula: null,
+    variables: [
+      ['VP', 'Valor presente — cantidad equivalente hoy a un pago futuro'],
+      ['VF', 'Valor futuro — monto que alcanza un capital después de n períodos'],
+      ['i', 'Tasa de interés efectiva por período'],
+      ['n', 'Número de períodos'],
+    ],
   },
   {
     id: 'interes-general',
@@ -44,14 +45,14 @@ Variables utilizadas:
     tagline: 'La compensación por prestar, invertir o diferir dinero',
     body: `El interés es el rendimiento que se obtiene por ceder el uso del dinero durante un período determinado. Puede ser un ingreso para quien presta o un costo para quien recibe el crédito.
 
-Variables básicas:
-• P: Capital inicial.
-• F: Monto final.
-• i: Tasa de interés.
-• n: Número de períodos.
-
 El interés puede ser simple o compuesto, dependiendo de si los intereses se capitalizan y generan intereses en períodos posteriores.`,
     formula: null,
+    variables: [
+      ['P', 'Capital inicial o monto del préstamo'],
+      ['F', 'Monto final (capital + intereses)'],
+      ['i', 'Tasa de interés por período'],
+      ['n', 'Número de períodos'],
+    ],
   },
   {
     id: 'historia-interes',
@@ -66,6 +67,7 @@ Más tarde, figuras como Francisco de Vitoria defendieron que el interés podía
 
 Turgot defendió que nadie puede ser obligado a prestar dinero sin recibir una compensación adecuada. Adam Smith ubicó el interés como ingreso del capital, distinto de los salarios y la renta. Con el tiempo, la prohibición religiosa del cobro de intereses fue cediendo y el interés se consolidó como herramienta financiera.`,
     formula: null,
+    variables: null,
   },
   {
     id: 'diagramas-flujo-efectivo',
@@ -82,6 +84,7 @@ Elementos de un diagrama:
 
 Su utilidad principal es ayudar a visualizar flujos, comparar alternativas financieras y aplicar factores de equivalencia económica.`,
     formula: null,
+    variables: null,
   },
   {
     id: 'equivalencia-financiera',
@@ -92,6 +95,7 @@ Su utilidad principal es ayudar a visualizar flujos, comparar alternativas finan
 
 El principio fundamental es que dos alternativas son equivalentes cuando producen el mismo valor en un mismo punto del tiempo usando la tasa correcta. Esto permite convertir valores futuros a presentes, o viceversa, y comparar opciones con diferentes momentos de pago.`,
     formula: null,
+    variables: null,
   },
   {
     id: 'interes-simple',
@@ -106,6 +110,13 @@ Usos comunes: descuentos comerciales, operaciones de corto plazo (< 1 año), pr�
 
 ⚠ Advertencia: para períodos mayores a un año, el interés simple subestima significativamente el costo/rendimiento real frente al compuesto.`,
     formula: 'I = P × i × n     F = P × (1 + i × n)',
+    variables: [
+      ['P', 'Capital inicial (valor presente)'],
+      ['i', 'Tasa de interés por período (debe coincidir en unidad con n)'],
+      ['n', 'Número de períodos (días, meses, años, etc.)'],
+      ['I', 'Interés total ganado: I = P × i × n'],
+      ['F', 'Valor futuro (monto final): F = P + I'],
+    ],
   },
   {
     id: 'interes-compuesto',
@@ -121,6 +132,12 @@ El crecimiento es EXPONENCIAL. Si inviertes $1.000.000 al 2% mensual con capital
 
 La diferencia parece pequeña al principio pero se hace enorme con el tiempo. A 10 años al 2% mensual, el compuesto da $9.5M vs $3.4M del simple sobre $1M inicial.`,
     formula: 'F = P × (1 + i)^n     P = F × (1 + i)^-n',
+    variables: [
+      ['P', 'Capital presente (valor hoy)'],
+      ['F', 'Valor futuro (monto después de n períodos)'],
+      ['i', 'Tasa efectiva por período (debe ser efectiva, no nominal)'],
+      ['n', 'Número de períodos de capitalización'],
+    ],
   },
   {
     id: 'tasa-nominal',
@@ -138,6 +155,11 @@ Notación común en Colombia:
 • NTV: Nominal Trimestral Vencido
 • NSV: Nominal Semestral Vencido`,
     formula: 'iₙ = m × iₑ     donde m = veces de capitalización por año',
+    variables: [
+      ['iₙ', 'Tasa nominal anual (la que se anuncia)'],
+      ['m', 'Número de capitalizaciones por año (12=mensual, 4=trimestral, etc.)'],
+      ['iₑ', 'Tasa efectiva por período'],
+    ],
   },
   {
     id: 'tasa-ea',
@@ -155,6 +177,12 @@ El CDT del 22% NMV es ligeramente mejor aunque la nominal parezca menor.
 
 ⚠ Siempre usa la EA para comparar. La tasa nominal sola no es suficiente.`,
     formula: 'EA = (1 + iₙ/m)^m − 1     |     iₑ = (1 + EA)^(1/m) − 1',
+    variables: [
+      ['EA', 'Tasa Efectiva Anual (costo/rendimiento real anual)'],
+      ['iₙ', 'Tasa nominal anual'],
+      ['m', 'Número de capitalizaciones por año'],
+      ['iₑ', 'Tasa efectiva por período'],
+    ],
   },
   {
     id: 'tasa-anticipada',
@@ -169,6 +197,10 @@ ANTICIPADA (MA — Mes Anticipado): el interés se cobra al INICIO del período.
 
 El impacto: una tasa anticipada del 2% equivale a una tasa vencida del 2.0408% (mayor). Por eso la modalidad anticipada siempre es más costosa para el deudor.`,
     formula: 'iᵥ = iₐ / (1 − iₐ)     |     iₐ = iᵥ / (1 + iᵥ)',
+    variables: [
+      ['iᵥ', 'Tasa vencida (se cobra al final del período)'],
+      ['iₐ', 'Tasa anticipada (se cobra al inicio del período)'],
+    ],
   },
   {
     id: 'amortizacion',
@@ -183,6 +215,11 @@ CAPITAL CONSTANTE + INTERESES: el abono al capital es IGUAL en cada período. Co
 
 SISTEMA AMERICANO: durante toda la vida del préstamo solo se pagan intereses; el capital completo se paga al vencimiento en un solo pago "bullet".`,
     formula: 'Cuota fija = P × [i(1+i)^n] / [(1+i)^n − 1]',
+    variables: [
+      ['P', 'Monto total del crédito (capital prestado)'],
+      ['i', 'Tasa de interés efectiva por período'],
+      ['n', 'Número de cuotas o períodos del préstamo'],
+    ],
   },
   {
     id: 'anualidad',
@@ -203,6 +240,13 @@ APLICACIONES: cualquier crédito bancario, un plan de ahorro, pensiones voluntar
 
 La relación entre PV y PMT es exactamente la fórmula de amortización de cuota fija — son el mismo fenómeno visto desde perspectivas distintas.`,
     formula: 'PV = PMT × [1 − (1+i)^−n] / i     FV = PMT × [(1+i)^n − 1] / i',
+    variables: [
+      ['PV', 'Valor presente de la serie (equivalente hoy)'],
+      ['FV', 'Valor futuro de la serie (acumulado al final)'],
+      ['PMT', 'Pago periódico uniforme (cuota constante)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos de la serie'],
+    ],
   },
   {
     id: 'inflacion',
@@ -231,12 +275,16 @@ iReal ≈ iNominal − π
 
 En Colombia, el IPC (Índice de Precios al Consumidor) es la medida oficial de inflación, publicada mensualmente por el DANE. El Banco de la República fija su meta de inflación anual (generalmente 3%).`,
     formula: '(1 + iₙ) = (1 + iᵣ) × (1 + π)     →     iᵣ = (1+iₙ)/(1+π) − 1',
+    variables: [
+      ['iₙ', 'Tasa nominal (la que el banco anuncia o cobra)'],
+      ['iᵣ', 'Tasa real (después de descontar inflación)'],
+      ['π', 'Tasa de inflación del período'],
+    ],
   },
-
-{
+  {
     id: 'factor-fp',
     category: 'Factores',
-    title: 'Factor De Cantidad Compuesta Pago Único (F/P)  ',
+    title: 'Factor De Cantidad Compuesta Pago Único (F/P)',
     tagline: 'Busca el Futuro dado un Presente',
     body: `Se usa cuando conoces un capital hoy (P) y quieres saber cuánto valdrá en el futuro después de n períodos a una tasa i.
 
@@ -247,11 +295,17 @@ Casos de uso:
 
 Notación: F = P(F/P, i%, n)`,
     formula: 'F = P × (1 + i)ⁿ',
+    variables: [
+      ['P', 'Capital presente (invertido hoy)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['F', 'Valor futuro resultante'],
+    ],
   },
   {
     id: 'factor-pf',
     category: 'Factores',
-    title: 'Factor De Descuento Pago Único (P/F)  ',
+    title: 'Factor De Descuento Pago Único (P/F)',
     tagline: 'Busca el Presente dado un Futuro',
     body: `Se usa cuando conoces un valor futuro (F) y quieres saber cuánto equivale hoy, descontado a una tasa i durante n períodos.
 
@@ -262,11 +316,17 @@ Casos de uso:
 
 Notación: P = F(P/F, i%, n)`,
     formula: 'P = F × (1 + i)⁻ⁿ',
+    variables: [
+      ['F', 'Valor futuro (monto a recibir en el futuro)'],
+      ['i', 'Tasa de descuento efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['P', 'Valor presente resultante'],
+    ],
   },
   {
     id: 'factor-fa',
     category: 'Factores',
-    title: 'Factor De Cantidad Compuesta Serie Uniforme (F/A)  ',
+    title: 'Factor De Cantidad Compuesta Serie Uniforme (F/A)',
     tagline: 'Busca el Futuro dada una Anualidad',
     body: `Se usa cuando realizas pagos o aportes iguales (A) al final de cada período y quieres saber cuánto acumularás al final de n períodos.
 
@@ -277,11 +337,17 @@ Casos de uso:
 
 Notación: F = A(F/A, i%, n)`,
     formula: 'F = A × [(1+i)ⁿ − 1] / i',
+    variables: [
+      ['A', 'Anualidad (pago periódico igual al final de cada período)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['F', 'Valor futuro acumulado'],
+    ],
   },
   {
     id: 'factor-af',
     category: 'Factores',
-    title: 'Factor De Fondo de Amortización(A/F)  ',
+    title: 'Factor De Fondo de Amortización (A/F)',
     tagline: 'Busca la Anualidad dado un Futuro',
     body: `Se usa cuando necesitas acumular un monto futuro (F) y quieres saber qué cuota igual debes depositar al final de cada período durante n períodos.
 
@@ -292,11 +358,17 @@ Casos de uso:
 
 Notación: A = F(A/F, i%, n)`,
     formula: 'A = F × i / [(1+i)ⁿ − 1]',
+    variables: [
+      ['F', 'Valor futuro deseado (meta a alcanzar)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['A', 'Anualidad (cuota periódica a depositar)'],
+    ],
   },
   {
     id: 'factor-pa',
     category: 'Factores',
-    title: 'Factor De Valor Presente Serie Uniforme (P/A)  ',
+    title: 'Factor De Valor Presente Serie Uniforme (P/A)',
     tagline: 'Busca el Presente dada una Anualidad',
     body: `Se usa cuando recibirás o pagarás cuotas iguales (A) durante n períodos y quieres saber cuánto vale hoy esa serie de pagos.
 
@@ -307,11 +379,17 @@ Casos de uso:
 
 Notación: P = A(P/A, i%, n)`,
     formula: 'P = A × [1 − (1+i)⁻ⁿ] / i',
+    variables: [
+      ['A', 'Anualidad (pago periódico igual)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['P', 'Valor presente de la serie'],
+    ],
   },
   {
     id: 'factor-ap',
     category: 'Factores',
-    title: 'Factor De Recuperación de Capital (A/P)  ',
+    title: 'Factor De Recuperación de Capital (A/P)',
     tagline: 'Busca la Anualidad dado un Presente',
     body: `Se usa cuando tienes un capital hoy (P) o una deuda, y quieres saber qué cuota igual debes pagar al final de cada período durante n períodos para recuperarlo o saldarlo.
 
@@ -324,11 +402,17 @@ Casos de uso:
 
 Notación: A = P(A/P, i%, n)`,
     formula: 'A = P × [i(1+i)ⁿ] / [(1+i)ⁿ − 1]',
+    variables: [
+      ['P', 'Capital presente (monto del préstamo o inversión)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['A', 'Anualidad (cuota periódica a pagar)'],
+    ],
   },
   {
     id: 'factor-pg',
     category: 'Factores',
-    title: 'Factor De Valor Presente Gradiente Aritmético (P/G)  ',
+    title: 'Factor De Valor Presente Gradiente Aritmético (P/G)',
     tagline: 'Busca el Presente de una serie que crece en cantidad constante',
     body: `Se usa cuando los pagos NO son iguales sino que aumentan (o disminuyen) en una cantidad constante G cada período. El primer pago del gradiente puro ocurre en el período 2.
 
@@ -341,11 +425,17 @@ Nota: G es el incremento constante entre períodos consecutivos. Si los pagos so
 
 Notación: P = G(P/G, i%, n)`,
     formula: 'P = G × [(1+i)ⁿ − i×n − 1] / [i² × (1+i)ⁿ]',
+    variables: [
+      ['G', 'Gradiente (incremento constante entre períodos consecutivos)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['P', 'Valor presente del gradiente'],
+    ],
   },
   {
     id: 'factor-ag',
     category: 'Factores',
-    title: 'Factor De Serie Uniforme Gradiente Aritmético (A/G)  ',
+    title: 'Factor De Serie Uniforme Gradiente Aritmético (A/G)',
     tagline: 'Convierte un gradiente aritmético en una anualidad equivalente',
     body: `Se usa para convertir una serie en gradiente aritmético en una serie uniforme equivalente. Es útil cuando necesitas expresar un gradiente como una cuota fija equivalente.
 
@@ -358,10 +448,25 @@ Relación con otros factores: A_total = A_base + G × (A/G, i%, n)
 
 Notación: A = G(A/G, i%, n)`,
     formula: 'A = G × [1/i − n/((1+i)ⁿ − 1)]',
-  },  
+    variables: [
+      ['G', 'Gradiente (incremento constante entre períodos consecutivos)'],
+      ['i', 'Tasa efectiva por período'],
+      ['n', 'Número de períodos'],
+      ['A', 'Anualidad equivalente resultante'],
+    ],
+  },
 ]
 
-const CATEGORIES = ['Todos', 'Fundamentos', 'Interés', 'Tasas', 'Crédito', 'Series', 'Inflación', 'Factores']
+const CATEGORIES = [
+  'Todos',
+  'Fundamentos',
+  'Interés',
+  'Tasas',
+  'Crédito',
+  'Series',
+  'Inflación',
+  'Factores',
+]
 
 export default function WikiPage() {
   const [search, setSearch] = useState('')
@@ -482,16 +587,47 @@ export default function WikiPage() {
                 <div className="h-px mb-4" style={{ background: 'var(--border)' }} />
 
                 {concept.formula && (
-                  <div
-                    className="rounded-xl px-4 py-3 mb-4 mono text-sm"
-                    style={{
-                      background: 'var(--gold-bg)',
-                      border: '1px solid var(--gold-border)',
-                      color: 'var(--gold)',
-                    }}
-                  >
-                    {concept.formula}
-                  </div>
+                  <>
+                    <div
+                      className="rounded-xl px-4 py-3 mb-3 mono text-sm"
+                      style={{
+                        background: 'var(--gold-bg)',
+                        border: '1px solid var(--gold-border)',
+                        color: 'var(--gold)',
+                      }}
+                    >
+                      {concept.formula}
+                    </div>
+                    {concept.variables && (
+                      <div
+                        className="rounded-xl px-4 py-3 mb-4 text-xs"
+                        style={{
+                          background: 'var(--surface2)',
+                          border: '1px solid var(--border)',
+                        }}
+                      >
+                        <p
+                          className="mono uppercase tracking-widest mb-2 font-semibold"
+                          style={{ color: 'var(--muted)', fontSize: '0.65rem' }}
+                        >
+                          Variables
+                        </p>
+                        <ul className="space-y-1">
+                          {concept.variables.map(([varName, varDesc]) => (
+                            <li key={varName} className="flex gap-2">
+                              <span
+                                className="mono font-semibold flex-shrink-0"
+                                style={{ color: 'var(--accent)', minWidth: 28 }}
+                              >
+                                {varName}
+                              </span>
+                              <span style={{ color: 'var(--muted)' }}>{varDesc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <div
