@@ -16,6 +16,7 @@ export const MODULE_ORDER: { path: string; label: string }[] = [
   { path: '/compuesto', label: 'Interés Compuesto' },
   { path: '/anualidades', label: 'Anualidades' },
   { path: '/amortizacion', label: 'Amortización' },
+  { path: '/credito-educativo', label: 'Crédito Educativo' },
   { path: '/inflacion', label: 'Inflación & Tasas Reales' },
 ]
 

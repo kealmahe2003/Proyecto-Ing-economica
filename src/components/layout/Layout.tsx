@@ -11,6 +11,7 @@ import {
   Menu,
   Sun,
   Moon,
+  GraduationCap,
 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import Chatbot from '../ui/Chatbot'
@@ -27,6 +28,7 @@ const NAV = [
       { to: '/compuesto', label: 'Interés Compuesto', icon: BarChart2 },
       { to: '/anualidades', label: 'Anualidades', icon: Sigma },
       { to: '/amortizacion', label: 'Amortización', icon: Table2 },
+      { to: '/credito-educativo', label: 'Crédito Educativo', icon: GraduationCap },
       { to: '/inflacion', label: 'Inflación & Tasas Reales', icon: ArrowUpRight },
     ],
   },
