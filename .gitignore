@@ -33,10 +33,19 @@ Thumbs.db
 # TypeScript cache
 *.tsbuildinfo
 
-CLAUDE.md
-GEMINI.md 
-.claude
-docs
-PRODUCT.md
-.agent
+# Vercel
 .vercel
+
+# Archivos de agentes IA / herramientas locales (repo público)
+CLAUDE.md
+claude.md
+CLAUDE.local.md
+ponytail.md
+GEMINI.md
+AGENTS.md
+PRODUCT.md
+.claude/
+.agent/
+.mcp.json
+graphify-out/
+docs/

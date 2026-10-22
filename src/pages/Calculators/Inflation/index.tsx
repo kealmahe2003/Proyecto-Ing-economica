@@ -210,7 +210,7 @@ export default function InflationPage() {
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto">
       <PageHeader
-        chip="Módulo 06"
+        chip="Módulo 07"
         title="Inflación & Tasas Reales"
         description="La inflación erosiona el poder adquisitivo del dinero. La tasa real mide el rendimiento verdadero después de descontar el efecto inflacionario."
       />

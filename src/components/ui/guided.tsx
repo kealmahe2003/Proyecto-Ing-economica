@@ -22,7 +22,7 @@ export function ModeSwitch({ value, onChange }: { value: UiMode; onChange: (m: U
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer"
           style={
             value === v
-              ? { background: 'var(--accent)', color: '#fff', border: 'none' }
+              ? { background: 'var(--accent)', color: 'var(--on-accent)', border: 'none' }
               : { background: 'transparent', color: 'var(--muted)', border: 'none' }
           }
         >
@@ -123,7 +123,7 @@ export function WizardShell({
             className="flex items-center justify-center gap-1.5 flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all"
             style={{
               background: 'var(--accent)',
-              color: '#fff',
+              color: 'var(--on-accent)',
               border: 'none',
               opacity: canNext ? 1 : 0.45,
             }}

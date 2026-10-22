@@ -208,6 +208,7 @@ export default function Chatbot() {
               <input
                 ref={inputRef}
                 type="text"
+                maxLength={500}
                 placeholder="Ej: ¿Qué es la tasa EA?"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
