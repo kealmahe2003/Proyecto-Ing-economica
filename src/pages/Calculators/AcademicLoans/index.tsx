@@ -239,7 +239,7 @@ export default function AcademicLoansPage() {
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto">
       <PageHeader
-        chip="Módulo Premium"
+        chip="Módulo 06"
         title="Crédito Educativo & Desembolsos Periódicos"
         description="Calcula créditos como los del ICETEX, donde recibes desembolsos cada semestre, acumulas intereses en la carrera, tienes un periodo de gracia y luego amortizas la deuda."
       />
@@ -250,7 +250,7 @@ export default function AcademicLoansPage() {
         {/* INPUTS COLUMN */}
         <div className="lg:col-span-1 space-y-6">
           <div className="card p-6 space-y-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2 border-b pb-2">
               <span>1. Fase de Estudio</span>
             </h3>
 
@@ -274,7 +274,7 @@ export default function AcademicLoansPage() {
                 placeholder="6"
               />
               <div>
-                <label className="text-xs font-medium block mb-1 text-muted-foreground">Frecuencia</label>
+                <label className="text-xs font-medium block mb-1 text-muted">Frecuencia</label>
                 <select
                   className="select-field w-full"
                   value={frequency}
@@ -299,7 +299,7 @@ export default function AcademicLoansPage() {
             />
 
             <div>
-              <label className="text-xs font-medium block mb-1 text-muted-foreground">Método en Carrera</label>
+              <label className="text-xs font-medium block mb-1 text-muted">Método en Carrera</label>
               <select
                 className="select-field w-full text-xs"
                 value={studyAccrualMethod}
@@ -315,7 +315,7 @@ export default function AcademicLoansPage() {
           </div>
 
           <div className="card p-6 space-y-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2 border-b pb-2">
               <span>2. Gracia & Amortización</span>
             </h3>
 
@@ -335,7 +335,7 @@ export default function AcademicLoansPage() {
             </div>
 
             <div>
-              <label className="text-xs font-medium block mb-1 text-muted-foreground">Tipo de Gracia</label>
+              <label className="text-xs font-medium block mb-1 text-muted">Tipo de Gracia</label>
               <select
                 className="select-field w-full text-xs"
                 value={gracePeriodType}
@@ -351,7 +351,7 @@ export default function AcademicLoansPage() {
             </div>
 
             <div>
-              <label className="text-xs font-medium block mb-1 text-muted-foreground">Sistema de Amortización</label>
+              <label className="text-xs font-medium block mb-1 text-muted">Sistema de Amortización</label>
               <select
                 className="select-field w-full text-xs"
                 value={amortizationSystem}
@@ -411,21 +411,21 @@ export default function AcademicLoansPage() {
 
               {/* EFFECTIVE RATES CARD */}
               <div className="card p-5">
-                <h4 className="text-xs mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                <h4 className="text-xs mono uppercase tracking-wider text-muted mb-3 flex items-center gap-2">
                   <GraduationCap size={14} className="text-accent" />
                   a. Equivalencia de Tasas de Crédito
                 </h4>
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                   <div className="p-3 bg-surface rounded-lg border">
-                    <p className="text-xs text-muted-foreground">Efectiva Mensual (EM)</p>
+                    <p className="text-xs text-muted">Efectiva Mensual (EM)</p>
                     <p className="text-lg font-bold text-accent">{fmtPct(result.effectiveRates.monthly, 2)}</p>
                   </div>
                   <div className="p-3 bg-surface rounded-lg border">
-                    <p className="text-xs text-muted-foreground">Efectiva Semestral (ES)</p>
+                    <p className="text-xs text-muted">Efectiva Semestral (ES)</p>
                     <p className="text-lg font-bold text-accent">{fmtPct(result.effectiveRates.semester, 2)}</p>
                   </div>
                   <div className="p-3 bg-surface rounded-lg border">
-                    <p className="text-xs text-muted-foreground">Efectiva Anual (EA)</p>
+                    <p className="text-xs text-muted">Efectiva Anual (EA)</p>
                     <p className="text-lg font-bold text-accent">{fmtPct(result.effectiveRates.annual, 2)}</p>
                   </div>
                 </div>
@@ -433,18 +433,18 @@ export default function AcademicLoansPage() {
 
               {/* FIRST MONTH COMPARISON - SIDE BY SIDE (Solves d) */}
               <div className="card p-5">
-                <h4 className="text-xs mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                <h4 className="text-xs mono uppercase tracking-wider text-muted mb-3 flex items-center gap-2">
                   <Info size={14} className="text-accent" />
                   d. Comparación del Primer Mes de Amortización (Sistemas)
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Case 1: German (Cuota Capital Fija) */}
-                  <div className={`p-4 rounded-xl border-2 transition-all ${amortizationSystem === 'german' ? 'border-accent bg-accent-bg/10' : 'border-border bg-surface2'}`}>
+                  <div className={`p-4 rounded-xl border-2 transition-all ${amortizationSystem === 'german' ? 'border-accent bg-accent-bg' : 'border-border bg-surface2'}`}>
                     <div className="flex justify-between items-center mb-2">
                       <p className="font-semibold text-sm">1. Abono fijo a capital</p>
-                      {amortizationSystem === 'german' && <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Activo</span>}
+                      {amortizationSystem === 'german' && <span className="text-[10px] bg-accent text-on-accent px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Activo</span>}
                     </div>
-                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="space-y-1.5 text-xs text-muted">
                       <div className="flex justify-between">
                         <span>Pago Primer Mes (Cuota):</span>
                         <strong className="text-foreground">{fmtCOP(result.firstMonthAmortization.german.payment)}</strong>
@@ -465,12 +465,12 @@ export default function AcademicLoansPage() {
                   </div>
 
                   {/* Case 2: French (Cuota Fija) */}
-                  <div className={`p-4 rounded-xl border-2 transition-all ${amortizationSystem === 'french' ? 'border-accent bg-accent-bg/10' : 'border-border bg-surface2'}`}>
+                  <div className={`p-4 rounded-xl border-2 transition-all ${amortizationSystem === 'french' ? 'border-accent bg-accent-bg' : 'border-border bg-surface2'}`}>
                     <div className="flex justify-between items-center mb-2">
                       <p className="font-semibold text-sm">2. Cuota fija</p>
-                      {amortizationSystem === 'french' && <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Activo</span>}
+                      {amortizationSystem === 'french' && <span className="text-[10px] bg-accent text-on-accent px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Activo</span>}
                     </div>
-                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="space-y-1.5 text-xs text-muted">
                       <div className="flex justify-between">
                         <span>Pago Primer Mes (Cuota):</span>
                         <strong className="text-foreground">{fmtCOP(result.firstMonthAmortization.french.payment)}</strong>
@@ -494,7 +494,7 @@ export default function AcademicLoansPage() {
 
               {/* CASH FLOW GRAPH */}
               <div className="card p-5">
-                <h4 className="text-xs mono uppercase tracking-wider text-muted-foreground mb-4">
+                <h4 className="text-xs mono uppercase tracking-wider text-muted mb-4">
                   Visualización del Flujo de Fondos (Carrera y Pagos)
                 </h4>
                 <ResponsiveContainer width="100%" height={240}>
@@ -520,7 +520,7 @@ export default function AcademicLoansPage() {
                     <Line type="monotone" dataKey="Saldo" stroke="var(--chart-2)" strokeWidth={2} dot={true} />
                   </ComposedChart>
                 </ResponsiveContainer>
-                <p className="text-[10px] text-muted-foreground mt-2 italic text-center">
+                <p className="text-[10px] text-muted mt-2 italic text-center">
                   Las barras hacia arriba muestran desembolsos recibidos en carrera (ingresos). Las barras hacia abajo muestran cuotas pagadas en gracia/amortización (egresos). La línea muestra el saldo acumulado.
                 </p>
               </div>
@@ -541,7 +541,7 @@ export default function AcademicLoansPage() {
               {/* STUDY ACCRUAL TABLE */}
               <div className="card overflow-hidden">
                 <div className="px-5 py-3 border-b flex justify-between items-center bg-surface2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted">
                     Tabla de Acumulación durante la Carrera ({result.disbursementsTable.length} Periodos)
                   </span>
                 </div>
@@ -576,7 +576,7 @@ export default function AcademicLoansPage() {
               {/* AMORTIZATION TABLE */}
               <div className="card overflow-hidden">
                 <div className="px-5 py-3 border-b flex items-center justify-between bg-surface2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted flex items-center gap-2">
                     <Table2 size={14} className="text-accent" />
                     Tabla de Amortización Post-Gracia ({result.amortizationTable.length} meses)
                   </span>
@@ -646,7 +646,7 @@ export default function AcademicLoansPage() {
                     >
                       ← Anterior
                     </button>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted">
                       Pág {page + 1} / {totalPages}
                     </span>
                     <button

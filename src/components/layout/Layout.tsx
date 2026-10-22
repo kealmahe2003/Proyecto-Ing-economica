@@ -60,7 +60,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NavLink to="/" className="flex items-center gap-3" style={{ textDecoration: 'none' }}>
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
-              style={{ background: 'var(--accent)', color: '#fff' }}
+              style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}
             >
               <span style={{ fontFamily: 'Crimson Pro, serif', fontSize: 16 }}>Σ</span>
             </div>
@@ -138,10 +138,23 @@ export default function Layout({ children }: { children: ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
-          <span className="text-xs" style={{ color: 'var(--muted)', fontFamily: 'JetBrains Mono' }}>
-            Ing. Económica · 2026
-          </span>
+        <div
+          className="px-4 py-3 border-t flex flex-col gap-1 text-xs"
+          style={{
+            borderColor: 'var(--border)',
+            color: 'var(--muted)',
+            fontFamily: 'JetBrains Mono',
+          }}
+        >
+          <span>© 2026 Equipo FinCalc</span>
+          <NavLink
+            to="/privacidad"
+            onClick={() => setSideOpen(false)}
+            className="underline"
+            style={{ color: 'var(--muted)' }}
+          >
+            Privacidad y términos
+          </NavLink>
         </div>
       </aside>
 
@@ -183,7 +196,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <button
               onClick={toggle}
               aria-label={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
-              className="p-2 rounded-lg cursor-pointer"
+              className="p-2 rounded-lg cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
               style={{
                 color: 'var(--muted)',
                 background: 'transparent',

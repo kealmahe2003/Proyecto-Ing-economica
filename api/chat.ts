@@ -56,9 +56,46 @@ REGLAS DE COMPORTAMIENTO:
 - No hagas cálculos numéricos tú mismo; orienta al usuario a la calculadora correspondiente.
 - Si el usuario saluda, responde brevemente y pregunta en qué concepto puede ayudar.`
 
+// Límites anti-abuso: acotan el costo máximo de cada request a Gemini
+const MAX_MESSAGE_CHARS = 500
+const MAX_HISTORY_ITEMS = 10
+const MAX_HISTORY_ITEM_CHARS = 2000
+const RATE_LIMIT = 10 // requests por IP
+const RATE_WINDOW_MS = 60_000
+
+// ponytail: memoria por instancia serverless; Vercel puede levantar varias instancias,
+// así que el límite real es RATE_LIMIT × instancias. Para un límite global usar una
+// regla de Rate Limiting en Vercel Firewall o Upstash Redis.
+const hits = new Map<string, number[]>()
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now()
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS)
+  recent.push(now)
+  hits.set(ip, recent)
+  if (hits.size > 5000) hits.clear() // evita crecer sin límite en una instancia larga
+  return recent.length > RATE_LIMIT
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
+
+  // Solo aceptar llamadas desde la propia app (bloquea uso desde otros sitios; no frena scripts)
+  const origin = req.headers.origin
+  try {
+    if (!origin || new URL(origin).host !== req.headers.host) throw new Error()
+  } catch {
+    res.status(403).json({ error: 'Forbidden' })
+    return
+  }
+
+  const ip = String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() || 'unknown'
+  if (rateLimited(ip)) {
+    res.setHeader('Retry-After', String(RATE_WINDOW_MS / 1000))
+    res.status(429).json({ error: 'Too many requests' })
     return
   }
 
@@ -70,12 +107,23 @@ export default async function handler(req: any, res: any) {
     return
   }
 
-  const { message, history = [] } = body
-
-  if (!message || typeof message !== 'string' || !message.trim()) {
+  const message = body?.message
+  if (typeof message !== 'string' || !message.trim()) {
     res.status(400).json({ error: 'Missing message' })
     return
   }
+  if (message.length > MAX_MESSAGE_CHARS) {
+    res.status(413).json({ error: 'Message too long' })
+    return
+  }
+
+  const history = (Array.isArray(body.history) ? body.history : [])
+    .filter((h: any) => typeof h?.content === 'string')
+    .slice(-MAX_HISTORY_ITEMS)
+    .map((h: any) => ({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: [{ text: h.content.slice(0, MAX_HISTORY_ITEM_CHARS) }],
+    }))
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
@@ -84,20 +132,15 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // Construir historial de conversación (máx últimos 10 turnos)
-    const contents = [
-      ...history.slice(-10).map(({ role, content }: { role: string; content: string }) => ({
-        role: role === 'user' ? 'user' : 'model',
-        parts: [{ text: content }],
-      })),
-      { role: 'user', parts: [{ text: message.trim() }] },
-    ]
+    const contents = [...history, { role: 'user', parts: [{ text: message.trim() }] }]
 
+    // Key en header (no en la URL) para que no quede en logs
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        signal: AbortSignal.timeout(20_000),
         body: JSON.stringify({
           system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
@@ -110,8 +153,9 @@ export default async function handler(req: any, res: any) {
     )
 
     if (!geminiRes.ok) {
-      const errText = await geminiRes.text()
-      res.status(502).json({ error: 'Gemini API error', detail: errText })
+      // El detalle queda en los logs de Vercel, no se expone al cliente
+      console.error('Gemini error', geminiRes.status, await geminiRes.text())
+      res.status(502).json({ error: 'Upstream error' })
       return
     }
 
@@ -122,6 +166,7 @@ export default async function handler(req: any, res: any) {
 
     res.json({ reply })
   } catch (err: any) {
-    res.status(500).json({ error: err?.message ?? 'Internal server error' })
+    console.error('chat handler error', err)
+    res.status(500).json({ error: 'Internal server error' })
   }
 }

@@ -421,15 +421,15 @@ export default function CashFlowDiagram({
 
         {/* Interruptor de Perspectiva */}
         <div
-          className="flex bg-neutral-100 dark:bg-neutral-800 p-0.5 rounded-lg border text-xs"
+          className="flex bg-surface2 p-0.5 rounded-lg border text-xs"
           style={{ borderColor: 'var(--border)' }}
         >
           <button
             onClick={() => setPerspective('investor')}
             className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               perspective === 'investor'
-                ? 'bg-white dark:bg-neutral-900 shadow-sm text-green-600 dark:text-green-400 font-bold'
-                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                ? 'bg-surface shadow-sm text-accent font-bold'
+                : 'text-muted hover:text-foreground'
             }`}
           >
             Inversionista 📈
@@ -438,8 +438,8 @@ export default function CashFlowDiagram({
             onClick={() => setPerspective('debtor')}
             className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               perspective === 'debtor'
-                ? 'bg-white dark:bg-neutral-900 shadow-sm text-blue-600 dark:text-blue-400 font-bold'
-                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                ? 'bg-surface shadow-sm text-blue font-bold'
+                : 'text-muted hover:text-foreground'
             }`}
           >
             Deudor 📉
@@ -521,7 +521,7 @@ export default function CashFlowDiagram({
 
       {/* Nota educativa corta */}
       <div
-        className="mt-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border text-[11px] leading-relaxed"
+        className="mt-3 p-3 rounded-lg bg-surface2 border text-[11px] leading-relaxed"
         style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
       >
         {perspective === 'investor' ? (

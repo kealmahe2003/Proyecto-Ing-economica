@@ -3,34 +3,40 @@ import { Link } from 'react-router-dom'
 const MODULES = [
   {
     to: '/wiki',
-    num: '01',
+    num: '00',
     label: 'Wiki de Conceptos',
     desc: 'Definiciones, fórmulas y ejemplos — expandibles y buscables.',
   },
   {
     to: '/tasas',
-    num: '02',
+    num: '01',
     label: 'Conversión de Tasas',
     desc: 'EA, nominal, anticipada, vencida.',
   },
   {
     to: '/simple',
-    num: '03',
+    num: '02',
     label: 'Interés Simple',
     desc: 'Crecimiento lineal. Calcula F, P, i o n.',
   },
   {
     to: '/compuesto',
-    num: '04',
+    num: '03',
     label: 'Interés Compuesto',
     desc: 'Capitalización. El poder del tiempo.',
   },
-  { to: '/anualidades', num: '05', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
+  { to: '/anualidades', num: '04', label: 'Anualidades', desc: 'Series uniformes, PV, FV, PMT.' },
   {
     to: '/amortizacion',
-    num: '06',
+    num: '05',
     label: 'Amortización',
     desc: 'Tablas francés y alemán completas.',
+  },
+  {
+    to: '/credito-educativo',
+    num: '06',
+    label: 'Crédito Educativo',
+    desc: 'Desembolsos por semestre, periodo de gracia y amortización.',
   },
   {
     to: '/inflacion',

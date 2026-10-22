@@ -1,5 +1,13 @@
-Falta agregar lo que es, la función que pidio el profesor, que uno plantee el problema en lenguaje natural y que el sistema interprete o te pregunte que necesitas y que tipo de calculo quieres hacer.
+# Funcionalidades pendientes
 
-Y en la parte de calcular el interes simple y compuesto, debe poder calcularse la tasa de interes (i), el interes (I), el capital (P), el monto (M), y el numero de periodos (n). También debe mostrarse la tabla de amortización cuando calculamos en interes simple y compuesto.
+## Interpretación de problemas en lenguaje natural
 
-En las calculadoras de interes simple y interes compuesto, debe colocarse como dato de entrada el numero de periodos y la unidad de medida de los periodos (quincenal, mensual, bimestral, trimestral, cuatrimestral, semestral, anual).
+Solicitada por el profesor: el usuario escribe el enunciado del problema en lenguaje natural y el sistema lo interpreta (o le pregunta qué necesita y qué tipo de cálculo quiere hacer), y lo lleva a la calculadora correspondiente con los datos cargados.
+
+Estado actual: el asistente (`api/chat.ts`) solo explica conceptos y se niega a calcular; el modo guiado de las calculadoras pregunta "¿Qué quieres averiguar?", pero con opciones fijas.
+
+## Completadas
+
+- Despejar i, I, P, M (F) y n en interés simple y compuesto.
+- Tabla período a período en interés simple y compuesto (exportable a Excel).
+- Entrada de número de períodos con unidad (días, semanas, quincenas, meses, bimestres, trimestres, cuatrimestres, semestres, años).

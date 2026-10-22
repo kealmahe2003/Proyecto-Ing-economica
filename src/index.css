@@ -11,23 +11,24 @@
     --border: #ddd9d0;
     --text: #1a1917;
     --muted: #6b6560;
-    --accent: #16a34a;
+    --accent: #15803d;
     --accent-bg: rgba(22, 163, 74, 0.08);
     --accent-border: rgba(22, 163, 74, 0.25);
-    --accent-hex: #16a34a;
-    --chart-1: #16a34a;
+    --accent-hex: #15803d;
+    --on-accent: #ffffff;
+    --chart-1: #15803d;
     --chart-2: #3b82f6;
     --chart-grid: rgba(0, 0, 0, 0.06);
-    --chart-tick: #9ca3af;
+    --chart-tick: #78716c;
     --chart-tooltip-bg: #ffffff;
     --chart-tooltip-border: #ddd9d0;
-    --destructive: #dc2626;
+    --destructive: #b91c1c;
     --destructive-bg: rgba(220, 38, 38, 0.07);
     --destructive-border: rgba(220, 38, 38, 0.2);
-    --gold: #b45309;
+    --gold: #9a4a08;
     --gold-bg: rgba(180, 83, 9, 0.07);
     --gold-border: rgba(180, 83, 9, 0.2);
-    --blue: #2563eb;
+    --blue: #1d4ed8;
     --blue-bg: rgba(37, 99, 235, 0.07);
     --blue-border: rgba(37, 99, 235, 0.2);
     color-scheme: light;
@@ -40,11 +41,12 @@
     --surface2: #232320;
     --border: #2c2c29;
     --text: #eeebe3;
-    --muted: #8a8780;
+    --muted: #9a968e;
     --accent: #4ade80;
     --accent-bg: rgba(74, 222, 128, 0.08);
     --accent-border: rgba(74, 222, 128, 0.25);
     --accent-hex: #4ade80;
+    --on-accent: #111110;
     --chart-1: #4ade80;
     --chart-2: #60a5fa;
     --chart-grid: rgba(255, 255, 255, 0.05);
@@ -69,9 +71,13 @@
 
   html {
     scroll-behavior: smooth;
-    transition:
-      background-color 0.2s,
-      color 0.2s;
+  }
+
+  /* Cambio de tema: useTheme anima un círculo que se expande desde el botón */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
   }
 
   body {
@@ -192,7 +198,7 @@
     background: var(--accent);
     border: none;
     border-radius: 8px;
-    color: #fff;
+    color: var(--on-accent);
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
     font-size: 0.95rem;
@@ -202,9 +208,6 @@
       opacity 0.15s,
       transform 0.15s;
     touch-action: manipulation;
-  }
-  [data-theme='dark'] .btn-primary {
-    color: #111110;
   }
   .btn-primary:hover {
     opacity: 0.88;
